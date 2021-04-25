@@ -1,0 +1,9 @@
+[Unit]
+Description=Start Sublime Platform
+
+[Service]
+Type=oneshot
+ExecStart=/etc/cron.daily/docker_compose_update
+
+[Install]
+WantedBy=multi-user.target
