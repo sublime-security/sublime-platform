@@ -20,7 +20,7 @@ The Sublime Platform **gives defenders control over their email environment** an
 
 Installation
 ----------
-> You must be in early access in order to deploy today. [Join early access](https://sublimesecurity.com/platform)
+> Sublime Platform is currently in early access. [Join](https://sublimesecurity.com/platform)
 
 Follow the [Docker deployment instructions](https://docs.sublimesecurity.com/docs/installation). A cloud-native AWS deployment is in the works.
 
