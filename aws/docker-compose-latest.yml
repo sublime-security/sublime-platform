@@ -2,7 +2,7 @@ version: '3'
 
 services:
   mantis:
-    image: sublimesec/mantis:latest
+    image: sublimesec/mantis:microsoftsqs
     container_name: mantis
     environment:
       POSTGRES_USER: sublime
@@ -13,7 +13,7 @@ services:
     networks:
       - net
   bora_lite:
-    image: sublimesec/bora-lite:latest
+    image: sublimesec/bora-lite:microsoftsqs
     container_name: bora-lite
     environment:
       POSTGRES_USER: sublime
