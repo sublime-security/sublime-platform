@@ -7,7 +7,7 @@ cd /home/ubuntu/Sublime-Security
 echo "Commencing docker-compose update `date`" | sudo tee -a docker-compose-update.log
 
 echo "Fetching latest docker-compose.yml file" | sudo tee -a docker-compose-update.log
-sudo curl -s https://raw.githubusercontent.com/sublime-security/sublime-platform/main/aws/docker-compose-latest.yml -o /home/ubuntu/Sublime-Security/docker-compose.yml
+sudo curl -s https://raw.githubusercontent.com/sublime-security/sublime-platform/jb.microsoft_sqs/aws/docker-compose-latest.yml -o /home/ubuntu/Sublime-Security/docker-compose.yml
 
 # Do a pull then an update
 echo "Pulling and updating services" | sudo tee -a docker-compose-update.log
