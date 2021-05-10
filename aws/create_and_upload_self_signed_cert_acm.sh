@@ -7,7 +7,7 @@ then
 fi
 
 # if this SSM value exists, abort script
-CERT_EXISTS_ALREADY=$(aws ssm get-parameter --region $AWS_REGION --name /sublime-security/self-signed-acm-certificate-for-sublime-security-on-prem-deployment | jq -r .Parameter.Value)
+CERT_EXISTS_ALREADY=$(aws ssm get-parameter --region $AWS_REGION --name /sublime-security/self-signed-acm-certificate-for-sublime-platform | jq -r .Parameter.Value)
 
 if [[ -z $CERT_EXISTS_ALREADY || $CERT_EXISTS_ALREADY == "placeholder" ]]
 then
@@ -32,12 +32,12 @@ then
     CERT_ARN="$(aws acm import-certificate --certificate fileb://platform.crt --private-key fileb://platform.key --certificate-chain fileb://platform-ca.crt --region $AWS_REGION --tags '[{"Key":"Function", "Value": "Self-signed certificate for Sublime Security on-prem deployment"}]' | jq -r .CertificateArn)"
     echo "CERT_ARN: $CERT_ARN"
 
-    OUTPUT=$(aws ssm put-parameter --overwrite --name "/sublime-security/self-signed-acm-certificate-for-sublime-security-on-prem-deployment"  --region $AWS_REGION --description "ARN for self-signed SSL certificate created for Sublime Security self-hosted deployment" --value $CERT_ARN --type "String")
+    OUTPUT=$(aws ssm put-parameter --overwrite --name "/sublime-security/self-signed-acm-certificate-for-sublime-platform"  --region $AWS_REGION --description "ARN for self-signed SSL certificate created for Sublime Security self-hosted deployment" --value $CERT_ARN --type "String")
     echo "SSM Parameter output: $OUTPUT"
 
     rm platform-ca.crt platform-ca.key platform-ca.srl platform.crt platform.csr platform.key;
 
-    CERT_EXISTS_ALREADY=$(aws ssm get-parameter --region $AWS_REGION --name /sublime-security/self-signed-acm-certificate-for-sublime-security-on-prem-deployment | jq -r .Parameter.Value)
+    CERT_EXISTS_ALREADY=$(aws ssm get-parameter --region $AWS_REGION --name /sublime-security/self-signed-acm-certificate-for-sublime-platform | jq -r .Parameter.Value)
 
     if [[ -z $CERT_EXISTS_ALREADY || $CERT_EXISTS_ALREADY == "placeholder" ]]
     then
