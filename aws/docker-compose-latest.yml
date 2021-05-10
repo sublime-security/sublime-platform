@@ -2,7 +2,7 @@ version: '3'
 
 services:
   mantis:
-    image: sublimesec/mantis:latest-staging
+    image: sublimesec/mantis:latest
     container_name: mantis
     environment:
       POSTGRES_USER: sublime
@@ -13,7 +13,7 @@ services:
     networks:
       - net
   bora_lite:
-    image: sublimesec/bora-lite:latest-staging
+    image: sublimesec/bora-lite:latest
     container_name: bora-lite
     environment:
       POSTGRES_USER: sublime
@@ -26,7 +26,7 @@ services:
       - rabbitmq
       - redis
   dashboard:
-    image: sublimesec/dashboard:latest-staging
+    image: sublimesec/dashboard:latest
     container_name: dashboard
     ports:
       - "0.0.0.0:3000:80"
