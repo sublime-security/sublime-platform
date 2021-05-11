@@ -59,7 +59,7 @@ services:
     depends_on:
       - mantis
   rabbitmq:
-    image: rabbitmq:3.8
+    image: rabbitmq:3.8.15
     container_name: rabbitmq
     tty: true
     ports:
