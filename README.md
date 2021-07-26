@@ -22,7 +22,13 @@ Installation
 ----------
 > Sublime Platform is currently in early access. [Join](https://sublimesecurity.com/platform)
 
-Follow the [Docker deployment instructions](https://docs.sublimesecurity.com/docs/installation). A cloud-native AWS deployment is in the works.
+Follow the [Docker deployment instructions](https://docs.sublimesecurity.com/docs/installation). A cloud-native AWS deployment is also available.
+
+The following message sources are supported today:
+- Microsoft 365
+- Google Workspace
+- IMAP
+- API
 
 How it works
 ----------
