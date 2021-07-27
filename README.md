@@ -10,8 +10,6 @@ An open, adaptable email security platform for writing and running custom detect
 
 Sublime Platform is completely free and self-hosted, which means your emails are completely controlled by you and never seen by a third party. For more information on the different versions available, including Enterprise and managed Cloud offerings, see the [Versions page](https://sublimesecurity.com/versions).
 
-*Sublime Platform is currently in early access*, which means it's not publicly available yet. You can [request to join early access here](https://sublimesecurity.com/platform), or star/watch this repo for updates and general availability.
-
 Why?
 ----------
 Modern email security is a one-size-fits-all black box. The same phishing attacks continue to land, and the same legitimate emails continue to get blocked.
@@ -20,7 +18,7 @@ The Sublime Platform **gives defenders control over their email environment** an
 
 Installation
 ----------
-> Sublime Platform is currently in early access. [Join](https://sublimesecurity.com/platform)
+*Sublime Platform is currently in early access, which means it's not publicly available yet. You can [request to join early access here](https://sublimesecurity.com/platform), or star/watch this repo for updates and general availability.*
 
 Follow the [Docker deployment instructions](https://docs.sublimesecurity.com/docs/installation). A cloud-native AWS deployment is also available.
 
@@ -30,9 +28,12 @@ The following message sources are supported today:
 - IMAP
 - API
 
-How it works
+Learn more
 ----------
-See the [docs](https://docs.sublimesecurity.com/) for an overview of how Sublime works, as well as Tutorials, Reference documentation, and How-to guides.
+- [Sublime Platform overview](https://docs.sublimesecurity.com)
+- [Message Query Language (MQL) reference](https://docs.sublimesecurity.com/docs/message-query-language) - Sublime's DSL purpose-built for email analysis
+- [Release log](https://new.sublimesecurity.com)
+
 
 Detection rules
 ----------
