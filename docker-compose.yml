@@ -2,7 +2,7 @@ version: '3'
 
 services:
   mantis:
-    image: sublimesec/mantis:0.10
+    image: sublimesec/mantis:0.11
     container_name: mantis
     environment:
       POSTGRES_HOST: postgres
@@ -18,7 +18,7 @@ services:
     depends_on:
       - postgres
   bora_lite:
-    image: sublimesec/bora-lite:0.10
+    image: sublimesec/bora-lite:0.11
     container_name: bora-lite
     environment:
       POSTGRES_HOST: postgres
