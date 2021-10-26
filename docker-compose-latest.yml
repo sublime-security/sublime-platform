@@ -10,6 +10,7 @@ services:
       POSTGRES_DB: mantis
       RABBITMQ_HOST: rabbitmq
       REDIS_HOST: redis
+      STRELKA_URL: strelka-frontend
     env_file: sublime.env
     ports:
       - "0.0.0.0:8000:8000"
@@ -26,6 +27,7 @@ services:
       POSTGRES_DB: mantis
       RABBITMQ_HOST: rabbitmq
       REDIS_HOST: redis
+      STRELKA_URL: strelka-frontend
     env_file: sublime.env
     networks:
       - net
@@ -80,6 +82,63 @@ services:
       - "6379:6379"
     networks:
       - net
+  strelka-frontend:
+    image: 948971135452.dkr.ecr.us-east-1.amazonaws.com/strelka-frontend:latest
+    command: strelka-frontend
+    ports:
+      - "57314:57314"
+    networks:
+      - net
+    volumes:
+      - ./configs/frontend/:/etc/strelka/:ro
+      - logs:/var/log/strelka/
+    restart: unless-stopped
+    container_name: strelka_frontend_1
+    depends_on:
+      - strelka-coordinator
+      - strelka-gatekeeper
+  strelka-backend:
+    image: 948971135452.dkr.ecr.us-east-1.amazonaws.com/strelka-backend:latest
+    command: strelka-backend
+    shm_size: 512mb
+    networks:
+      - net
+    volumes:
+      - ./configs/backend/:/etc/strelka/:ro
+      - ./configs/backend/rules.yara:/etc/yara/rules.yara:ro
+    restart: unless-stopped
+    container_name: strelka_backend_1
+    depends_on:
+      - strelka-coordinator
+  strelka-manager:
+    image: 948971135452.dkr.ecr.us-east-1.amazonaws.com/strelka-manager:latest
+    command: strelka-manager
+    restart: unless-stopped
+    container_name: strelka_manager_1
+    networks:
+      - net
+    volumes:
+      - ./configs/manager/:/etc/strelka/:ro
+    depends_on:
+      - strelka-coordinator
+  strelka-mmrpc:
+    image: 948971135452.dkr.ecr.us-east-1.amazonaws.com/strelka-mmrpc:latest
+    command: strelka-mmrpc --threads 2 --address [::]:33907
+    container_name: strelka_mmrpc_1
+    networks:
+      - net
+  strelka-coordinator:
+    image: redis:alpine
+    command: redis-server --save "" --appendonly no
+    container_name: strelka_coordinator_1
+    networks:
+      - net
+  strelka-gatekeeper:
+    image: redis:alpine
+    command: redis-server --save "" --appendonly no --maxmemory-policy allkeys-lru
+    container_name: strelka_gatekeeper_1
+    networks:
+      - net
 
 networks:
   net:
@@ -87,3 +146,4 @@ networks:
 
 volumes:
   postgres:
+  logs:
