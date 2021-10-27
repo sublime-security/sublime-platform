@@ -16,20 +16,6 @@ rule arj_file {
         uint16(0) == 0xEA60
 }
 
-rule browser_manifest
-{
-    meta:
-        type = "browser manifest"
-    strings:
-        $ = "manifest_version"
-        $ = "name"
-        $ = "version"
-    condition:
-        uint8be(0) == 0x7b and
-        filesize < 25KB and
-        all of them
-}
-
 rule cab_file {
     meta:
         type = "archive"
@@ -285,8 +271,8 @@ rule wordml_file {
         description = "Microsoft Office Word 2003 XML format"
         type = "document"
     strings:
-       $a = { 3C 3F 78 6D 6C 20 76 65 72 73 69 6F 6E 3D } // <?xml version=
-       $b = "http://schemas.microsoft.com/office/word/2003/wordml"
+      $a = { 3C 3F 78 6D 6C 20 76 65 72 73 69 6F 6E 3D } // <?xml version=
+      $b = "http://schemas.microsoft.com/office/word/2003/wordml"
     condition:
         $a at 0 and $b
 }
@@ -332,7 +318,7 @@ rule tnef_file {
 
 rule base64_pe {
     meta:
-		description = "Detects base64 encoded executable"
+    description = "Detects base64 encoded executable"
     strings:
         $s1 = "TVpTAQEAAAAEAAAA//8AALgAAAA" wide ascii
         $s2 = "TVoAAAAAAAAAAAAAAAAAAAAAAAA" wide ascii
@@ -340,7 +326,7 @@ rule base64_pe {
         $s4 = "TVpQAAIAAAAEAA8A//8AALgAAAA" wide ascii
         $s5 = "TVqQAAMAAAAEAAAA//8AALgAAAA" wide ascii
     condition:
-        not uint16(0) == 0x5a4d and 
+        not uint16(0) == 0x5a4d and
         any of them
 }
 

@@ -12,12 +12,17 @@ tasting:
   mime_db: null
   yara_rules: '/etc/strelka/taste/'
 scanners:
-  #'ScanAntiword':
-  #  - positive:
-  #      flavors:
-  #        - 'application/msword'
-  #        - 'olecf_file'
-  #    priority: 5
+  'ScanAntiword':
+    - positive:
+        flavors:
+          - 'application/msword'
+          - 'olecf_file'
+      priority: 5
+  'ScanBase64':
+    - positive:
+        flavors:
+          - 'base64' # Unknown?
+      priority: 5
   'ScanBase64PE':
     - positive:
         flavors:
@@ -35,22 +40,23 @@ scanners:
           - 'application/x-bzip2'
           - 'bzip2_file'
       priority: 5
-#  'ScanCapa':
-#    - positive:
-#        flavors:
-#          - 'application/x-dosexec'
-#          - 'mz_file'
-#      priority: 5
-#      options:
-#        tmp_directory: '/dev/shm/'
-#        location: '/etc/capa/'
+  'ScanCapa':
+    - positive:
+        flavors:
+          - 'application/x-dosexec'
+          - 'mz_file'
+      priority: 5
+      options:
+        tmp_directory: '/dev/shm/'
+        location: '/etc/capa/'
+#  'ScanCuckoo': -- requires external account
   'ScanDocx':
     - positive:
         flavors:
           - 'application/vnd.openxmlformats-officedocument.wordprocessingml.document'
       priority: 5
       options:
-        extract_text: False
+        extract_text: True
   'ScanElf':
     - positive:
         flavors:
@@ -67,17 +73,12 @@ scanners:
           - 'message/rfc822'
           - 'email_file'
       priority: 5
-  'ScanEncryptedDoc':
+  'ScanEncryptedDoc': # Can be given list of passwords to brute force (already configured in passswords.dat)
     - positive:
         flavors:
           - 'encrypted_word_document'
       priority: 5
-      options:
-        max_length: 5
-        scanner_timeout: 150
-        log_pws: True
-        # brute_force: True
-  'ScanEncryptedZip':
+  'ScanEncryptedZip': # Can be given list of passwords to brute force (already configured in passswords.dat)
     - positive:
         flavors:
           - 'encrypted_zip'
@@ -85,7 +86,6 @@ scanners:
       options:
         max_length: 5
         scanner_timeout: 150
-        log_pws: True
         # brute_force: True
   'ScanEntropy':
     - positive:
@@ -116,6 +116,7 @@ scanners:
           - 'Title'
           - 'TotalEditTime'
           - 'Words'
+          - 'FilePermissions'
         tmp_directory: '/dev/shm/'
     - positive:
         flavors:
@@ -134,6 +135,7 @@ scanners:
           - 'PDFVersion'
           - 'Producer'
           - 'Title'
+          - 'FilePermissions'
         tmp_directory: '/dev/shm/'
     - positive:
         flavors:
@@ -151,6 +153,7 @@ scanners:
           - 'RunWindow'
           - 'TargetFileSize'
           - 'WorkingDirectory'
+          - 'FilePermissions'
         tmp_directory: '/dev/shm/'
     - positive:
         flavors:
@@ -171,16 +174,20 @@ scanners:
         keys:
           - 'ImageHeight'
           - 'ImageWidth'
+          - 'FilePermissions' # TODO create dedicated scanner and run for all files
+          - 'PrimaryPlatform'
+          - 'DeviceManufacturer'
         tmp_directory: '/dev/shm/'
-#  'ScanFloss':
-#    - positive:
-#        flavors:
-#          - 'application/x-dosexec'
-#          - 'mz_file'
-#      priority: 5
-#      options:
-#        tmp_directory: '/dev/shm/'
-#        limit: 100
+  # 'ScanFalconSandbox': # External tool
+  'ScanFloss':
+    - positive:
+        flavors:
+          - 'application/x-dosexec'
+          - 'mz_file'
+      priority: 5
+      options:
+        tmp_directory: '/dev/shm/'
+        limit: 100
   'ScanFooter':
     - positive:
         flavors:
@@ -327,7 +334,7 @@ scanners:
           - 'bmp_file'
       priority: 5
       options:
-        extract_text: False
+        extract_text: True
         tmp_directory: '/dev/shm/'
   'ScanOle':
     - positive:
@@ -343,7 +350,7 @@ scanners:
           - 'pdf_file'
       priority: 5
       options:
-        extract_text: False
+        extract_text: True
         limit: 2000
   'ScanPe':
     - positive:
@@ -426,11 +433,11 @@ scanners:
         flavors:
           - 'text/x-ruby'
       priority: 5
-  # 'ScanStrings':
-  #   - positive:
-  #       flavors:
-  #         - 'mz_file'
-  #     priority: 5
+  'ScanStrings':
+    - positive:
+        flavors:
+          - 'mz_file'
+      priority: 5
   'ScanSwf':
     - positive:
         flavors:
