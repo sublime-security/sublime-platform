@@ -18,6 +18,8 @@ services:
       - net
     depends_on:
       - postgres
+      - strelka-backend
+      - strelka-frontend
   bora_lite:
     image: sublimesec/bora-lite:0.18
     container_name: bora-lite
@@ -35,6 +37,8 @@ services:
       - mantis
       - rabbitmq
       - redis
+      - strelka-backend
+      - strelka-frontend
   postgres:
     image: postgres:13.2
     container_name: postgres
