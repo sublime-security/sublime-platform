@@ -109,7 +109,6 @@ services:
       - net
     volumes:
       - ./configs/backend/:/etc/strelka/:ro
-      - ./configs/backend/rules.yara:/etc/yara/rules.yara:ro
     restart: unless-stopped
     container_name: strelka_backend_1
     depends_on:
