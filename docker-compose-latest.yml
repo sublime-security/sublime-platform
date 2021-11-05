@@ -124,12 +124,6 @@ services:
       - ./configs/manager/:/etc/strelka/:ro
     depends_on:
       - strelka-coordinator
-  strelka-mmrpc:
-    image: sublimesec/strelka-mmrpc:latest
-    command: strelka-mmrpc --threads 2 --address [::]:33907
-    container_name: strelka_mmrpc_1
-    networks:
-      - net
   strelka-coordinator:
     image: redis:alpine
     command: redis-server --save "" --appendonly no
