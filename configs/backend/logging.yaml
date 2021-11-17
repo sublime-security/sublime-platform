@@ -80,3 +80,5 @@ loggers:
     propagate: 0
   mupdf:
     propagate: 0
+  'PIL.TiffImagePlugin':
+    propagate: 0
