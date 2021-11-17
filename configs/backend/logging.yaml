@@ -76,3 +76,7 @@ loggers:
     propagate: 0
   zlib:
     propagate: 0
+  'PIL.PngImagePlugin':
+    propagate: 0
+  mupdf:
+    propagate: 0
