@@ -2,7 +2,7 @@ version: '3'
 
 services:
   mantis:
-    image: sublimesec/mantis:0.18
+    image: sublimesec/mantis:0.19
     container_name: mantis
     environment:
       POSTGRES_HOST: postgres
@@ -21,7 +21,7 @@ services:
       - strelka-backend
       - strelka-frontend
   bora_lite:
-    image: sublimesec/bora-lite:0.18
+    image: sublimesec/bora-lite:0.19
     container_name: bora-lite
     environment:
       POSTGRES_HOST: postgres
@@ -55,7 +55,7 @@ services:
       - net
     restart: unless-stopped
   dashboard:
-    image: sublimesec/dashboard:0.18
+    image: sublimesec/dashboard:0.19
     container_name: dashboard
     ports:
       - "0.0.0.0:3000:80"
