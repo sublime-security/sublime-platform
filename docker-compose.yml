@@ -55,7 +55,7 @@ services:
       - net
     restart: unless-stopped
   dashboard:
-    image: sublimesec/dashboard:0.19
+    image: sublimesec/dashboard:0.18
     container_name: dashboard
     ports:
       - "0.0.0.0:3000:80"
