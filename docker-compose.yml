@@ -2,7 +2,7 @@ version: '3'
 
 services:
   mantis:
-    image: sublimesec/mantis:0.20
+    image: sublimesec/mantis:0.21
     container_name: mantis
     environment:
       POSTGRES_HOST: postgres
@@ -21,7 +21,7 @@ services:
       - strelka-backend
       - strelka-frontend
   bora_lite:
-    image: sublimesec/bora-lite:0.20
+    image: sublimesec/bora-lite:0.21
     container_name: bora-lite
     environment:
       POSTGRES_HOST: postgres
@@ -55,7 +55,7 @@ services:
       - net
     restart: unless-stopped
   dashboard:
-    image: sublimesec/dashboard:0.20
+    image: sublimesec/dashboard:0.21
     container_name: dashboard
     ports:
       - "0.0.0.0:3000:80"
@@ -87,7 +87,7 @@ services:
     networks:
       - net
   strelka-frontend:
-    image: sublimesec/strelka-frontend:0.2
+    image: sublimesec/strelka-frontend:0.3.0
     command: strelka-frontend
     ports:
       - "57314:57314"
@@ -102,7 +102,7 @@ services:
       - strelka-coordinator
       - strelka-gatekeeper
   strelka-backend:
-    image: sublimesec/strelka-backend:0.2
+    image: sublimesec/strelka-backend:0.3.0
     command: strelka-backend
     shm_size: 512mb
     networks:
@@ -114,7 +114,7 @@ services:
     depends_on:
       - strelka-coordinator
   strelka-manager:
-    image: sublimesec/strelka-manager:0.2
+    image: sublimesec/strelka-manager:0.3.0
     command: strelka-manager
     restart: unless-stopped
     container_name: strelka_manager_1
