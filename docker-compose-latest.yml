@@ -100,7 +100,6 @@ services:
     container_name: strelka_frontend_1
     depends_on:
       - strelka-coordinator
-      - strelka-gatekeeper
   strelka-backend:
     image: sublimesec/strelka-backend:latest
     command: strelka-backend
@@ -128,12 +127,6 @@ services:
     image: redis:alpine
     command: redis-server --save "" --appendonly no
     container_name: strelka_coordinator_1
-    networks:
-      - net
-  strelka-gatekeeper:
-    image: redis:alpine
-    command: redis-server --save "" --appendonly no --maxmemory-policy allkeys-lru
-    container_name: strelka_gatekeeper_1
     networks:
       - net
 
