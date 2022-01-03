@@ -87,7 +87,7 @@ services:
     networks:
       - net
   strelka-frontend:
-    image: sublimesec/strelka-frontend:0.3.0
+    image: sublimesec/strelka-frontend:0.3
     command: strelka-frontend
     ports:
       - "57314:57314"
@@ -101,7 +101,7 @@ services:
     depends_on:
       - strelka-coordinator
   strelka-backend:
-    image: sublimesec/strelka-backend:0.3.0
+    image: sublimesec/strelka-backend:0.3
     command: strelka-backend
     shm_size: 512mb
     networks:
@@ -113,7 +113,7 @@ services:
     depends_on:
       - strelka-coordinator
   strelka-manager:
-    image: sublimesec/strelka-manager:0.3.0
+    image: sublimesec/strelka-manager:0.3
     command: strelka-manager
     restart: unless-stopped
     container_name: strelka_manager_1
