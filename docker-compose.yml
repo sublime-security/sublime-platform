@@ -11,6 +11,13 @@ services:
       RABBITMQ_HOST: rabbitmq
       REDIS_HOST: redis
       STRELKA_URL: strelka-frontend
+      SCREENSHOT_SERVICE_ENDPOINT: http://screenshot-service:8100/capture
+      SCREENSHOT_SERVICE_BUCKET: email-screenshots
+      S3_ENDPOINT: http://sublime_s3:8110
+      S3_URL_ENDPOINT: http://localhost:8110
+      AWS_ACCESS_KEY_ID: test
+      AWS_SECRET_ACCESS_KEY: testtest
+      AWS_REGION: us-east-1
     env_file: sublime.env
     ports:
       - "0.0.0.0:8000:8000"
@@ -30,6 +37,13 @@ services:
       RABBITMQ_HOST: rabbitmq
       REDIS_HOST: redis
       STRELKA_URL: strelka-frontend
+      SCREENSHOT_SERVICE_ENDPOINT: http://screenshot-service:8100/capture
+      SCREENSHOT_SERVICE_BUCKET: email-screenshots
+      S3_ENDPOINT: http://sublime_s3:8110
+      S3_URL_ENDPOINT: http://localhost:8110
+      AWS_ACCESS_KEY_ID: test
+      AWS_SECRET_ACCESS_KEY: testtest
+      AWS_REGION: us-east-1
     env_file: sublime.env
     networks:
       - net
@@ -129,6 +143,50 @@ services:
     container_name: strelka_coordinator_1
     networks:
       - net
+  screenshot-service:
+    image: sublimesec/render-email-html:0.1
+    ports:
+      - "8100:8100"
+    environment:
+      - S3_ENDPOINT=http://sublime_s3:8110
+      - SCREENSHOT_BUCKET=email-screenshots
+      - AWS_ACCESS_KEY_ID=test
+      - AWS_SECRET_ACCESS_KEY=testtest
+      - AWS_REGION=us-east-1
+      - DISABLE_DD=true
+    container_name: screenshot-service
+    networks:
+      - net
+    depends_on:
+      - create-buckets
+  sublime_s3:
+    container_name: sublime_s3
+    image: minio/minio
+    networks:
+      - net
+    ports:
+      - "8110:8110"
+    volumes:
+      - s3_data:/data
+    environment:
+      MINIO_ACCESS_KEY: test
+      MINIO_SECRET_KEY: testtest
+    command: server --address 0.0.0.0:8110 /data
+  create-buckets:
+    image: minio/mc
+    depends_on:
+      - sublime_s3
+    networks:
+      - net
+    entrypoint: >
+      /bin/sh -c "
+      sleep 15;
+      /usr/bin/mc config host add myminio http://sublime_s3:8110 test testtest;
+      /usr/bin/mc mb myminio/email-screenshots;
+      /usr/bin/mc ls myminio;
+      /usr/bin/mc policy set download myminio/email-screenshots;
+      exit 0;
+      "
 
 networks:
   net:
@@ -137,3 +195,4 @@ networks:
 volumes:
   postgres:
   logs:
+  s3_data:
