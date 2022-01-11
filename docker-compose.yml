@@ -25,6 +25,13 @@ services:
       - postgres
       - strelka-backend
       - strelka-frontend
+  auto-updater:
+    build:
+      context: auto-updater
+    environment:
+      - IMAGES=sublimesec/mantis:0.22,sublimesec/bora-lite:0.22,sublimesec/dashboard:0.22,sublimesec/strelka-frontend:0.3,sublimesec/strelka-backend:0.3,sublimesec/strelka-manager:0.3,sublimesec/render-email-html:0.1
+    volumes:
+      - /var/run/docker.sock:/var/run/docker.sock
   bora_lite:
     image: sublimesec/bora-lite:0.22
     container_name: bora-lite
