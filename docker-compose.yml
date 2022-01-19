@@ -15,8 +15,6 @@ services:
       SCREENSHOT_SERVICE_BUCKET: email-screenshots
       S3_ENDPOINT: http://sublime_s3:8110
       S3_URL_ENDPOINT: http://localhost:8110
-      AWS_ACCESS_KEY_ID: test
-      AWS_SECRET_ACCESS_KEY: testtest
       AWS_REGION: us-east-1
     env_file: sublime.env
     ports:
@@ -41,8 +39,6 @@ services:
       SCREENSHOT_SERVICE_BUCKET: email-screenshots
       S3_ENDPOINT: http://sublime_s3:8110
       S3_URL_ENDPOINT: http://localhost:8110
-      AWS_ACCESS_KEY_ID: test
-      AWS_SECRET_ACCESS_KEY: testtest
       AWS_REGION: us-east-1
     env_file: sublime.env
     networks:
@@ -150,11 +146,10 @@ services:
     environment:
       - S3_ENDPOINT=http://sublime_s3:8110
       - SCREENSHOT_BUCKET=email-screenshots
-      - AWS_ACCESS_KEY_ID=test
-      - AWS_SECRET_ACCESS_KEY=testtest
       - AWS_REGION=us-east-1
       - DISABLE_DD=true
     container_name: screenshot-service
+    env_file: sublime.env
     networks:
       - net
     depends_on:
@@ -168,20 +163,24 @@ services:
       - "8110:8110"
     volumes:
       - s3_data:/data
-    environment:
-      MINIO_ACCESS_KEY: test
-      MINIO_SECRET_KEY: testtest
-    command: server --address 0.0.0.0:8110 /data
+    env_file: sublime.env
+    entrypoint: >
+      /bin/sh -c "
+      export MINIO_ROOT_USER=$$AWS_ACCESS_KEY_ID;
+      export MINIO_ROOT_PASSWORD=$$AWS_SECRET_ACCESS_KEY;
+      minio server --address 0.0.0.0:8110 --console-address 0.0.0.0:8111  /data;
+      "
   create-buckets:
     image: minio/mc
     depends_on:
       - sublime_s3
     networks:
       - net
+    env_file: sublime.env
     entrypoint: >
       /bin/sh -c "
       sleep 15;
-      /usr/bin/mc config host add myminio http://sublime_s3:8110 test testtest;
+      /usr/bin/mc config host add myminio http://sublime_s3:8110 $$AWS_ACCESS_KEY_ID $$AWS_SECRET_ACCESS_KEY;
       /usr/bin/mc mb myminio/email-screenshots;
       /usr/bin/mc ls myminio;
       /usr/bin/mc policy set download myminio/email-screenshots;
