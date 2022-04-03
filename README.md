@@ -10,6 +10,8 @@ An open, adaptable email security platform for writing and running custom detect
 
 Sublime Platform is completely free and self-hosted, which means your emails are completely controlled by you and never seen by a third party. For more information on the different versions available, including Enterprise and managed Cloud offerings, see the [Versions page](https://sublimesecurity.com/versions).
 
+**This branch is intended to support local development, and just includes a subset of services.**
+
 Why?
 ----------
 Modern email security is a one-size-fits-all black box. The same phishing attacks continue to land, and the same legitimate emails continue to get blocked.
