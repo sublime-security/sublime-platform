@@ -1,0 +1,14 @@
+logging_cfg: '/etc/strelka/logging.yaml'
+limits:
+  max_files: 5000
+  time_to_live: 900
+  max_depth: 15
+  distribution: 600
+  scanner: 150
+coordinator:
+  addr: 'strelka_coordinator_1:6379'
+  db: 0
+tasting:
+  mime_db: null
+  yara_rules: '/strelka/config'
+scanners: '/strelka/config/scanners.yaml'

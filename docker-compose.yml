@@ -2,14 +2,19 @@ version: '3'
 
 services:
   mantis:
-    image: sublimesec/mantis:0.8
+    image: sublimesec/mantis:0.24
     container_name: mantis
     environment:
       POSTGRES_HOST: postgres
       POSTGRES_USER: sublime
       POSTGRES_DB: mantis
-      RABBITMQ_HOST: rabbitmq
       REDIS_HOST: redis
+      STRELKA_URL: strelka-frontend
+      SCREENSHOT_SERVICE_ENDPOINT: http://screenshot-service:8100/capture
+      SCREENSHOT_SERVICE_BUCKET: email-screenshots
+      S3_ENDPOINT: http://sublime_s3:8110
+      S3_HOST_ADDR_PORT: 8110
+      AWS_REGION: us-east-1
     env_file: sublime.env
     ports:
       - "0.0.0.0:8000:8000"
@@ -17,22 +22,30 @@ services:
       - net
     depends_on:
       - postgres
+      - strelka-backend
+      - strelka-frontend
   bora_lite:
-    image: sublimesec/bora-lite:0.8
+    image: sublimesec/bora-lite:0.24
     container_name: bora-lite
     environment:
       POSTGRES_HOST: postgres
       POSTGRES_USER: sublime
       POSTGRES_DB: mantis
-      RABBITMQ_HOST: rabbitmq
       REDIS_HOST: redis
+      STRELKA_URL: strelka-frontend
+      SCREENSHOT_SERVICE_ENDPOINT: http://screenshot-service:8100/capture
+      SCREENSHOT_SERVICE_BUCKET: email-screenshots
+      S3_ENDPOINT: http://sublime_s3:8110
+      S3_URL_ENDPOINT: http://localhost:8110
+      AWS_REGION: us-east-1
     env_file: sublime.env
     networks:
       - net
     depends_on:
       - mantis
-      - rabbitmq
       - redis
+      - strelka-backend
+      - strelka-frontend
   postgres:
     image: postgres:13.2
     container_name: postgres
@@ -49,7 +62,7 @@ services:
       - net
     restart: unless-stopped
   dashboard:
-    image: sublimesec/dashboard:0.8
+    image: sublimesec/dashboard:0.24
     container_name: dashboard
     ports:
       - "0.0.0.0:3000:80"
@@ -58,20 +71,6 @@ services:
     env_file: sublime.env
     depends_on:
       - mantis
-  rabbitmq:
-    image: rabbitmq:3.8.15
-    container_name: rabbitmq
-    tty: true
-    ports:
-      - "15671:15671"
-      - "5672:5672"
-    environment:
-      RABBITMQ_DEFAULT_USER: rabbit
-      RABBITMQ_SERVER_ADDITIONAL_ERL_ARGS: -rabbit log_levels [{connection,error}]
-    env_file: sublime.env
-    networks:
-      - net
-    restart: unless-stopped
   redis:
     image: redis:6.2
     container_name: redis
@@ -80,6 +79,96 @@ services:
       - "6379:6379"
     networks:
       - net
+  strelka-frontend:
+    image: sublimesec/strelka-frontend:0.3
+    command: strelka-frontend
+    ports:
+      - "57314:57314"
+    networks:
+      - net
+    volumes:
+      - ./configs/frontend/:/etc/strelka/:ro
+      - logs:/var/log/strelka/
+    restart: unless-stopped
+    container_name: strelka_frontend_1
+    depends_on:
+      - strelka-coordinator
+  strelka-backend:
+    image: sublimesec/strelka-backend:0.3
+    command: strelka-backend
+    shm_size: 512mb
+    networks:
+      - net
+    volumes:
+      - ./configs/backend/:/etc/strelka/:ro
+    restart: unless-stopped
+    container_name: strelka_backend_1
+    depends_on:
+      - strelka-coordinator
+  strelka-manager:
+    image: sublimesec/strelka-manager:0.3
+    command: strelka-manager
+    restart: unless-stopped
+    container_name: strelka_manager_1
+    networks:
+      - net
+    volumes:
+      - ./configs/manager/:/etc/strelka/:ro
+    depends_on:
+      - strelka-coordinator
+  strelka-coordinator:
+    image: redis:alpine
+    command: redis-server --save "" --appendonly no
+    container_name: strelka_coordinator_1
+    networks:
+      - net
+  screenshot-service:
+    image: sublimesec/render-email-html:0.1
+    ports:
+      - "8100:8100"
+    environment:
+      - S3_ENDPOINT=http://sublime_s3:8110
+      - SCREENSHOT_BUCKET=email-screenshots
+      - AWS_REGION=us-east-1
+      - DISABLE_DD=true
+    container_name: screenshot-service
+    env_file: sublime.env
+    networks:
+      - net
+    depends_on:
+      - create-buckets
+  sublime_s3:
+    container_name: sublime_s3
+    image: minio/minio
+    networks:
+      - net
+    ports:
+      - "8110:8110"
+    volumes:
+      - s3_data:/data
+    env_file: sublime.env
+    entrypoint: >
+      /bin/sh -c "
+      export MINIO_ROOT_USER=$$AWS_ACCESS_KEY_ID;
+      export MINIO_ROOT_PASSWORD=$$AWS_SECRET_ACCESS_KEY;
+      minio server --address 0.0.0.0:8110 --console-address 0.0.0.0:8111  /data;
+      "
+  create-buckets:
+    image: minio/mc
+    depends_on:
+      - sublime_s3
+    networks:
+      - net
+    env_file: sublime.env
+    entrypoint: >
+      /bin/sh -c "
+      sleep 15;
+      /usr/bin/mc config host add myminio http://sublime_s3:8110 $$AWS_ACCESS_KEY_ID $$AWS_SECRET_ACCESS_KEY;
+      /usr/bin/mc mb myminio/email-screenshots;
+      /usr/bin/mc ls myminio;
+      /usr/bin/mc policy set download myminio/email-screenshots;
+      exit 0;
+      "
 
 networks:
   net:
@@ -87,3 +176,5 @@ networks:
 
 volumes:
   postgres:
+  logs:
+  s3_data:
