@@ -8,7 +8,6 @@ services:
       POSTGRES_HOST: postgres
       POSTGRES_USER: sublime
       POSTGRES_DB: mantis
-      RABBITMQ_HOST: rabbitmq
       REDIS_HOST: redis
     env_file: sublime.dev.env
     ports:
@@ -24,14 +23,12 @@ services:
       POSTGRES_HOST: postgres
       POSTGRES_USER: sublime
       POSTGRES_DB: mantis
-      RABBITMQ_HOST: rabbitmq
       REDIS_HOST: redis
     env_file: sublime.dev.env
     networks:
       - net
     depends_on:
       - mantis
-      - rabbitmq
       - redis
   postgres:
     image: postgres:13.2
@@ -58,20 +55,6 @@ services:
     env_file: sublime.dev.env
     depends_on:
       - mantis
-  rabbitmq:
-    image: rabbitmq:3.8.15
-    container_name: rabbitmq
-    tty: true
-    ports:
-      - "15671:15671"
-      - "5672:5672"
-    environment:
-      RABBITMQ_DEFAULT_USER: rabbit
-      RABBITMQ_SERVER_ADDITIONAL_ERL_ARGS: -rabbit log_levels [{connection,error}]
-    env_file: sublime.dev.env
-    networks:
-      - net
-    restart: unless-stopped
   redis:
     image: redis:6.2
     container_name: redis
