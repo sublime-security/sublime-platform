@@ -1,4 +1,4 @@
- <a href="https://sublimesecurity.com"><img src="https://user-images.githubusercontent.com/11003450/115128085-5805da00-9fa9-11eb-8c7a-dc8b708053ee.png" width="75px" alt="Sublime Logo" /></a>
+<a href="https://sublimesecurity.com"><img src="https://user-images.githubusercontent.com/11003450/115128085-5805da00-9fa9-11eb-8c7a-dc8b708053ee.png" width="75px" alt="Sublime Logo" /></a>
 
 Sublime Platform
 ==========
@@ -8,7 +8,7 @@ Overview
 ---------
 An open, adaptable email security platform for writing and running custom detection and response rules to block phishing attacks, hunt for threats, and more.
 
-Sublime Platform is completely free and self-hosted, which means your emails are completely controlled by you and never seen by a third party. For more information on the different versions available, including Enterprise and managed Cloud offerings, see the [Versions page](https://sublimesecurity.com/versions).
+Sublime Platform is free and self-hosted, which means your emails are completely controlled by you and never seen by a third party.
 
 Why?
 ----------
@@ -20,8 +20,6 @@ Installation
 ----------
 *Sublime Platform is currently in early access, which means it's not publicly available yet. You can [request to join early access here](https://sublimesecurity.com/platform), or star/watch this repo for updates and general availability.*
 
-Follow the [Docker deployment instructions](https://docs.sublimesecurity.com/docs/installation). A cloud-native AWS deployment is also available.
-
 The following message sources are supported today:
 - Microsoft 365
 - Google Workspace
@@ -30,6 +28,7 @@ The following message sources are supported today:
 
 Learn more
 ----------
+- [Sublime home page](https://sublimesecurity.com)
 - [Sublime Platform overview](https://docs.sublimesecurity.com)
 - [Message Query Language (MQL) reference](https://docs.sublimesecurity.com/docs/message-query-language) - Sublime's DSL purpose-built for email analysis
 - [Release log](https://new.sublimesecurity.com)
