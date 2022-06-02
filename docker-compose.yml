@@ -12,7 +12,7 @@ services:
       STRELKA_URL: strelka-frontend
       SCREENSHOT_SERVICE_ENDPOINT: http://screenshot-service:8100/capture
       SCREENSHOT_SERVICE_BUCKET: email-screenshots
-      S3_ENDPOINT: http://sublime_s3:8110
+      S3_ENDPOINT: http://sublimes3:8110
       S3_HOST_ADDR_PORT: 8110
       AWS_REGION: us-east-1
     env_file: sublime.env
@@ -35,7 +35,7 @@ services:
       STRELKA_URL: strelka-frontend
       SCREENSHOT_SERVICE_ENDPOINT: http://screenshot-service:8100/capture
       SCREENSHOT_SERVICE_BUCKET: email-screenshots
-      S3_ENDPOINT: http://sublime_s3:8110
+      S3_ENDPOINT: http://sublimes3:8110
       S3_URL_ENDPOINT: http://localhost:8110
       AWS_REGION: us-east-1
     env_file: sublime.env
@@ -127,7 +127,7 @@ services:
     ports:
       - "8100:8100"
     environment:
-      - S3_ENDPOINT=http://sublime_s3:8110
+      - S3_ENDPOINT=http://sublimes3:8110
       - SCREENSHOT_BUCKET=email-screenshots
       - AWS_REGION=us-east-1
       - DISABLE_DD=true
@@ -137,8 +137,8 @@ services:
       - net
     depends_on:
       - create-buckets
-  sublime_s3:
-    container_name: sublime_s3
+  sublimes3:
+    container_name: sublimes3
     image: minio/minio
     networks:
       - net
@@ -156,14 +156,14 @@ services:
   create-buckets:
     image: minio/mc
     depends_on:
-      - sublime_s3
+      - sublimes3
     networks:
       - net
     env_file: sublime.env
     entrypoint: >
       /bin/sh -c "
       sleep 15;
-      /usr/bin/mc config host add myminio http://sublime_s3:8110 $$AWS_ACCESS_KEY_ID $$AWS_SECRET_ACCESS_KEY;
+      /usr/bin/mc config host add myminio http://sublimes3:8110 $$AWS_ACCESS_KEY_ID $$AWS_SECRET_ACCESS_KEY;
       /usr/bin/mc mb myminio/email-screenshots;
       /usr/bin/mc ls myminio;
       /usr/bin/mc policy set download myminio/email-screenshots;
