@@ -80,7 +80,7 @@ services:
     ports:
       - "8100:8100"
     environment:
-      - S3_ENDPOINT=http://sublime_s3:8110
+      - S3_ENDPOINT=http://sublimes3:8110
       - SCREENSHOT_BUCKET=email-screenshots
       - AWS_REGION=us-east-1
       - DISABLE_DD=true
@@ -90,8 +90,8 @@ services:
       - net
     depends_on:
       - create-buckets
-  sublime_s3:
-    container_name: sublime_s3
+  sublimes3:
+    container_name: sublimes3
     image: minio/minio
     networks:
       - net
@@ -109,7 +109,7 @@ services:
   create-buckets:
     image: alpine:3.16.0
     depends_on:
-      - sublime_s3
+      - sublimes3
     networks:
       - net
     env_file: sublime.env
@@ -125,7 +125,7 @@ services:
           && pip3 install --no-cache-dir \
               awscli \
           && rm -rf /var/cache/apk/*;
-      endpoint=$$(host sublime_s3 | grep -o ' [0-9\.]*$$*' | xargs);
+      endpoint=$$(host sublimes3 | grep -o ' [0-9\.]*$$*' | xargs);
       echo $endpoint;
       aws s3api create-bucket --no-verify-ssl --endpoint-url=http://$$endpoint:8110 --bucket events;
       aws s3api create-bucket --no-verify-ssl --endpoint-url=http://$$endpoint:8110 --bucket email-screenshots;
