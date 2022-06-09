@@ -107,29 +107,20 @@ services:
       minio server --address 0.0.0.0:8110 --console-address 0.0.0.0:8111  /data;
       "
   create-buckets:
-    image: alpine:3.16.0
+    image: minio/mc
     depends_on:
       - sublimes3
     networks:
       - net
     env_file: sublime.env
-    # TODO: most of the entrypoint is setup that could be done within a published docker image
     entrypoint: >
       /bin/sh -c "
-      apk update \
-      && apk add --no-cache \
-              bind-tools \
-              python3 \
-              py3-pip \
-          && pip3 install --upgrade pip \
-          && pip3 install --no-cache-dir \
-              awscli \
-          && rm -rf /var/cache/apk/*;
-      endpoint=$$(host sublimes3 | grep -o ' [0-9\.]*$$*' | xargs);
-      echo $endpoint;
-      aws s3api create-bucket --no-verify-ssl --endpoint-url=http://$$endpoint:8110 --bucket events;
-      aws s3api create-bucket --no-verify-ssl --endpoint-url=http://$$endpoint:8110 --bucket email-screenshots;
-      aws s3api create-bucket --no-verify-ssl --endpoint-url=http://$$endpoint:8110 --bucket message-storage;
+      sleep 15;
+      /usr/bin/mc config host add myminio http://sublimes3:8110 $$AWS_ACCESS_KEY_ID $$AWS_SECRET_ACCESS_KEY;
+      /usr/bin/mc mb myminio/email-screenshots;
+      /usr/bin/mc mb myminio/events;
+      /usr/bin/mc mb myminio/message-storage;
+      /usr/bin/mc ls myminio;
       exit 0;
       "
 
