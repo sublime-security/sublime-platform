@@ -38,7 +38,7 @@ fi
 which snap
 if [[ "${?}" == "0" ]]; then
 	snap list | grep -i docker
-	if [[ "${?}" != "0" ]]; then
+	if [[ "${?}" == "0" ]]; then
 		echo "snap versions of docker software detected! Cannot proceed."
 		echo "snap versions of docker are not recommended and can prevent issues when using compose in the future (e.g. cannot bring containers down)"
 		echo "please uninstall snap docker packages and install with apt"
