@@ -1,12 +1,5 @@
 #!/bin/bash
 
-if [[ "$1" != "always_launch" ]]; then
-    docker-compose ps | grep "mantis"
-    if [[ "${?}" != "0" ]]; then
-        echo "docker-compose appears to be brought down. Will not proceed to avoid relaunching."
-    	exit 0
-    fi
-fi
 
 cmd_prefix="sudo "
 
@@ -16,7 +9,13 @@ if [[ "$(uname -s)" == "Darwin" ]]; then
     cmd_prefix=""
 fi
 
-# TODO if the platform is down don't restart it
+if [[ "$1" != "always_launch" ]]; then
+    $cmd_prefix docker-compose ps | grep "mantis"
+    if [[ "${?}" != "0" ]]; then
+        echo "docker-compose appears to be brought down. Will not proceed to avoid relaunching."
+        exit 0
+    fi
+fi
 
 if [[ -z "$(git status --porcelain)" ]]; then
 	echo "git working dir clean. Proceeding with git updates."

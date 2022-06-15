@@ -48,7 +48,7 @@ if [[ "${?}" == "0" ]]; then
 fi
 
 # If this command is modified we might need a more sophisticated check below (worse case is more updates than intended)
-update_command="$(pwd)""/update-and-run.sh"
+update_command="cd ""$(pwd)"" && ./update-and-run.sh"
 
 crontab -l | grep "$update_command"
 if [[ "${?}" == "1" ]]; then
