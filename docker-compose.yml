@@ -1,51 +1,51 @@
 version: '3'
 
 services:
-  mantis:
-    image: sublimesec/mantis:0.29
-    container_name: mantis
-    environment:
-      POSTGRES_HOST: postgres
-      POSTGRES_USER: sublime
-      POSTGRES_DB: mantis
-      REDIS_HOST: redis
-      STRELKA_URL: strelka-frontend
-      SCREENSHOT_SERVICE_ENDPOINT: http://screenshot-service:8100/capture
-      SCREENSHOT_SERVICE_BUCKET: email-screenshots
-      S3_ENDPOINT: http://sublimes3:8110
-      S3_HOST_ADDR_PORT: 8110
-      AWS_REGION: us-east-1
-    env_file: sublime.env
-    ports:
-      - "0.0.0.0:8000:8000"
-    networks:
-      - net
-    depends_on:
-      - postgres
-      - strelka-backend
-      - strelka-frontend
-  bora_lite:
-    image: sublimesec/bora-lite:0.29
-    container_name: bora-lite
-    environment:
-      POSTGRES_HOST: postgres
-      POSTGRES_USER: sublime
-      POSTGRES_DB: mantis
-      REDIS_HOST: redis
-      STRELKA_URL: strelka-frontend
-      SCREENSHOT_SERVICE_ENDPOINT: http://screenshot-service:8100/capture
-      SCREENSHOT_SERVICE_BUCKET: email-screenshots
-      S3_ENDPOINT: http://sublimes3:8110
-      S3_URL_ENDPOINT: http://localhost:8110
-      AWS_REGION: us-east-1
-    env_file: sublime.env
-    networks:
-      - net
-    depends_on:
-      - mantis
-      - redis
-      - strelka-backend
-      - strelka-frontend
+#  mantis:
+#    image: sublimesec/mantis:0.29
+#    container_name: mantis
+#    environment:
+#      POSTGRES_HOST: postgres
+#      POSTGRES_USER: sublime
+#      POSTGRES_DB: mantis
+#      REDIS_HOST: redis
+#      STRELKA_URL: strelka-frontend
+#      SCREENSHOT_SERVICE_ENDPOINT: http://screenshot-service:8100/capture
+#      SCREENSHOT_SERVICE_BUCKET: email-screenshots
+#      S3_ENDPOINT: http://sublimes3:8110
+#      S3_HOST_ADDR_PORT: 8110
+#      AWS_REGION: us-east-1
+#    env_file: sublime.env
+#    ports:
+#      - "0.0.0.0:8000:8000"
+#    networks:
+#      - net
+#    depends_on:
+#      - postgres
+#      - strelka-backend
+#      - strelka-frontend
+#  bora_lite:
+#    image: sublimesec/bora-lite:0.29
+#    container_name: bora-lite
+#    environment:
+#      POSTGRES_HOST: postgres
+#      POSTGRES_USER: sublime
+#      POSTGRES_DB: mantis
+#      REDIS_HOST: redis
+#      STRELKA_URL: strelka-frontend
+#      SCREENSHOT_SERVICE_ENDPOINT: http://screenshot-service:8100/capture
+#      SCREENSHOT_SERVICE_BUCKET: email-screenshots
+#      S3_ENDPOINT: http://sublimes3:8110
+#      S3_URL_ENDPOINT: http://localhost:8110
+#      AWS_REGION: us-east-1
+#    env_file: sublime.env
+#    networks:
+#      - net
+#    depends_on:
+#      - mantis
+#      - redis
+#      - strelka-backend
+#      - strelka-frontend
   postgres:
     image: postgres:13.2
     container_name: postgres
@@ -61,16 +61,16 @@ services:
     networks:
       - net
     restart: unless-stopped
-  dashboard:
-    image: sublimesec/dashboard:0.29
-    container_name: dashboard
-    ports:
-      - "0.0.0.0:3000:80"
-    networks:
-      - net
-    env_file: sublime.env
-    depends_on:
-      - mantis
+#  dashboard:
+#    image: sublimesec/dashboard:0.29
+#    container_name: dashboard
+#    ports:
+#      - "0.0.0.0:3000:80"
+#    networks:
+#      - net
+#    env_file: sublime.env
+#    depends_on:
+#      - mantis
   redis:
     image: redis:6.2
     container_name: redis
