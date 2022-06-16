@@ -59,4 +59,4 @@ else
 fi
 
 echo "Updating and running!"
-$update_command always_launch
+./update-and-run.sh always_launch
