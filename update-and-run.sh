@@ -25,7 +25,7 @@ if [[ -z "$(git status --porcelain)" ]]; then
 	new_ref=$(git rev-parse HEAD)
 
 	if [[ "${old_ref}" != "${new_ref}" ]]; then
-        $cmd_prefix docker-compose down --remove-orphans
+            $cmd_prefix docker-compose down --remove-orphans
 	fi
 else
     echo "Uncommitted changes present, ignoring updates to sublime-platform git repo"

@@ -40,9 +40,9 @@ if [[ "${?}" == "0" ]]; then
 	snap list | grep -i docker
 	if [[ "${?}" == "0" ]]; then
 		echo "snap versions of docker software detected! Cannot proceed."
-		echo "snap versions of docker are not recommended and can prevent issues when using compose in the future (e.g. cannot bring containers down)"
+		echo "snap versions of docker are not recommended and can cause issues when using compose in the future (e.g. cannot bring containers down)"
 		echo "please uninstall snap docker packages and install with apt"
-		echo "If you have existing docker containers or volumes or are otherwise unsure, please contact Sublime Security for assistance"
+		echo "If you have existing docker containers or volumes or are otherwise unsure, please contact support@sublimesecurity.com for assistance"
 		exit 1
 	fi
 fi
