@@ -146,6 +146,7 @@ services:
   sublimes3:
     container_name: sublimes3
     image: minio/minio
+    restart: unless-stopped
     networks:
       - net
     ports:
