@@ -90,6 +90,13 @@ services:
       - net
     depends_on:
       - create-buckets
+  hydra:
+    image: sublimesec/hydra:dev
+    container_name: hydra
+    ports:
+      - "8200:8200"
+    networks:
+      - net
   sublimes3:
     container_name: sublimes3
     image: minio/minio
