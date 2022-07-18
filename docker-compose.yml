@@ -3,6 +3,7 @@ version: '3'
 services:
   postgres:
     image: postgres:13.2
+    restart: unless-stopped
     container_name: postgres
     environment:
       POSTGRES_USER: sublime
@@ -15,9 +16,9 @@ services:
       - "5432:5432"
     networks:
       - net
-    restart: unless-stopped
   dashboard:
-    image: sublimesec/dashboard:0.24
+    image: sublimesec/dashboard:0.29
+    restart: unless-stopped
     container_name: dashboard
     ports:
       - "0.0.0.0:3000:80"
@@ -26,6 +27,7 @@ services:
     env_file: sublime.env
   redis:
     image: redis:6.2
+    restart: unless-stopped
     container_name: redis
     command: redis-server --loglevel warning
     ports:
@@ -34,6 +36,7 @@ services:
       - net
   strelka-frontend:
     image: sublimesec/strelka-frontend:0.3
+    restart: unless-stopped
     command: strelka-frontend
     ports:
       - "57314:57314"
@@ -42,26 +45,25 @@ services:
     volumes:
       - ./configs/frontend/:/etc/strelka/:ro
       - logs:/var/log/strelka/
-    restart: unless-stopped
     container_name: strelka_frontend_1
     depends_on:
       - strelka-coordinator
   strelka-backend:
     image: sublimesec/strelka-backend:0.3
+    restart: unless-stopped
     command: strelka-backend
     shm_size: 512mb
     networks:
       - net
     volumes:
       - ./configs/backend/:/etc/strelka/:ro
-    restart: unless-stopped
     container_name: strelka_backend_1
     depends_on:
       - strelka-coordinator
   strelka-manager:
     image: sublimesec/strelka-manager:0.3
-    command: strelka-manager
     restart: unless-stopped
+    command: strelka-manager
     container_name: strelka_manager_1
     networks:
       - net
@@ -71,12 +73,14 @@ services:
       - strelka-coordinator
   strelka-coordinator:
     image: redis:alpine
+    restart: unless-stopped
     command: redis-server --save "" --appendonly no
     container_name: strelka_coordinator_1
     networks:
       - net
   screenshot-service:
     image: sublimesec/render-email-html:0.1
+    restart: unless-stopped
     ports:
       - "8100:8100"
     environment:
@@ -92,6 +96,7 @@ services:
       - create-buckets
   hydra:
     image: sublimesec/hydra:dev
+    restart: unless-stopped
     container_name: hydra
     ports:
       - "8200:8200"
@@ -100,6 +105,7 @@ services:
   sublimes3:
     container_name: sublimes3
     image: minio/minio
+    restart: unless-stopped
     networks:
       - net
     ports:
