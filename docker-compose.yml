@@ -104,7 +104,7 @@ services:
       - net
   sublimes3:
     container_name: sublimes3
-    image: minio/minio
+    image: minio/minio:latest
     restart: unless-stopped
     networks:
       - net
@@ -120,7 +120,7 @@ services:
       minio server --address 0.0.0.0:8110 --console-address 0.0.0.0:8111  /data;
       "
   create-buckets:
-    image: minio/mc
+    image: minio/mc:latest
     depends_on:
       - sublimes3
     networks:
