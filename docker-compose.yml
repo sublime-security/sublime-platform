@@ -14,7 +14,7 @@ services:
       SCREENSHOT_SERVICE_ENDPOINT: http://screenshot-service:8100/capture
       SCREENSHOT_SERVICE_BUCKET: email-screenshots
       S3_ENDPOINT: http://sublimes3:8110
-      S3_HOST_ADDR_PORT: 8110
+      USE_SELF_IMAGE_LINKS: true
       AWS_REGION: us-east-1
     env_file: sublime.env
     ports:
@@ -38,7 +38,6 @@ services:
       SCREENSHOT_SERVICE_ENDPOINT: http://screenshot-service:8100/capture
       SCREENSHOT_SERVICE_BUCKET: email-screenshots
       S3_ENDPOINT: http://sublimes3:8110
-      S3_URL_ENDPOINT: http://localhost:8110
       AWS_REGION: us-east-1
     env_file: sublime.env
     networks:
@@ -149,8 +148,6 @@ services:
     restart: unless-stopped
     networks:
       - net
-    ports:
-      - "8110:8110"
     volumes:
       - s3_data:/data
     env_file: sublime.env
