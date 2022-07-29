@@ -58,8 +58,6 @@ services:
     env_file: sublime.env
     volumes:
        - postgres:/data/postgres
-    ports:
-      - "5432:5432"
     networks:
       - net
   dashboard:
@@ -78,16 +76,12 @@ services:
     restart: unless-stopped
     container_name: redis
     command: redis-server --loglevel warning
-    ports:
-      - "6379:6379"
     networks:
       - net
   strelka-frontend:
     image: sublimesec/strelka-frontend:0.3
     restart: unless-stopped
     command: strelka-frontend
-    ports:
-      - "57314:57314"
     networks:
       - net
     volumes:
@@ -129,8 +123,6 @@ services:
   screenshot-service:
     image: sublimesec/render-email-html:0.1
     restart: unless-stopped
-    ports:
-      - "8100:8100"
     environment:
       - S3_ENDPOINT=http://sublimes3:8110
       - SCREENSHOT_BUCKET=email-screenshots
