@@ -169,7 +169,6 @@ services:
   hydra:
     image: sublimesec/hydra:0.0
     restart: unless-stopped
-    shm_size: 512mb
     networks:
       - net
     container_name: hydra
