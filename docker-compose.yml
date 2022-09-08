@@ -2,7 +2,7 @@ version: '3'
 
 services:
   mantis:
-    image: sublimesec/mantis:0.32
+    image: sublimesec/mantis:0.33
     restart: unless-stopped
     container_name: mantis
     environment:
@@ -16,6 +16,7 @@ services:
       S3_ENDPOINT: http://sublimes3:8110
       USE_SELF_IMAGE_LINKS: "true"
       AWS_REGION: us-east-1
+      HYDRA_URL: http://hydra:8200
     env_file: sublime.env
     ports:
       - "0.0.0.0:8000:8000"
@@ -26,7 +27,7 @@ services:
       - strelka-backend
       - strelka-frontend
   bora_lite:
-    image: sublimesec/bora-lite:0.32
+    image: sublimesec/bora-lite:0.33
     restart: unless-stopped
     container_name: bora-lite
     environment:
@@ -39,6 +40,7 @@ services:
       SCREENSHOT_SERVICE_BUCKET: email-screenshots
       S3_ENDPOINT: http://sublimes3:8110
       AWS_REGION: us-east-1
+      HYDRA_URL: http://hydra:8200
     env_file: sublime.env
     networks:
       - net
@@ -61,7 +63,7 @@ services:
     networks:
       - net
   dashboard:
-    image: sublimesec/dashboard:0.32
+    image: sublimesec/dashboard:0.33
     restart: unless-stopped
     container_name: dashboard
     ports:
@@ -164,6 +166,13 @@ services:
       /usr/bin/mc ls myminio;
       exit 0;
       "
+  hydra:
+    image: sublimesec/hydra:0.0
+    restart: unless-stopped
+    shm_size: 512mb
+    networks:
+      - net
+    container_name: hydra
 
 networks:
   net:
