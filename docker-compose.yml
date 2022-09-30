@@ -2,7 +2,7 @@ version: '3'
 
 services:
   mantis:
-    image: sublimesec/mantis:0.33
+    image: sublimesec/mantis:0.34
     restart: unless-stopped
     container_name: mantis
     environment:
@@ -27,7 +27,7 @@ services:
       - strelka-backend
       - strelka-frontend
   bora_lite:
-    image: sublimesec/bora-lite:0.33
+    image: sublimesec/bora-lite:0.34
     restart: unless-stopped
     container_name: bora-lite
     environment:
@@ -63,7 +63,7 @@ services:
     networks:
       - net
   dashboard:
-    image: sublimesec/dashboard:0.33
+    image: sublimesec/dashboard:0.34
     restart: unless-stopped
     container_name: dashboard
     ports:
@@ -167,7 +167,7 @@ services:
       exit 0;
       "
   hydra:
-    image: sublimesec/hydra:0.0
+    image: sublimesec/hydra:0.1
     restart: unless-stopped
     networks:
       - net
