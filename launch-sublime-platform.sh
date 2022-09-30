@@ -55,7 +55,7 @@ if [[ "${?}" == "1" ]]; then
 	echo "Adding daily update check"
 	(crontab -l 2>/dev/null; echo "0 12 * * * ""$update_command") | crontab -
 else
-	echo "daily update check is already setup"
+	echo "Daily update check is already setup"
 fi
 
 echo "Updating and running!"
