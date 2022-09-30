@@ -31,9 +31,39 @@
 #
 # Replace 0.0.0.0 with the IP address of your remote system.
 
+: -----------------------------------------
+:  Interactive - default: true
+: -----------------------------------------
+
+# By default, this script assumes that it is being called through the quickstart one-liner. In that case, we need to
+# confirm where the Sublime instance is deployed unless it's passed in explicitly.
+#
+: curl -sL https://raw.githubusercontent.com/sublime-security/sublime-platform/main/install-and-launch.sh | interactive=false bash
+#
+
+: -----------------------------------------
+:  Open Dashboard - default: true
+: -----------------------------------------
+
+# By default, this script assumes that it is being called through the quickstart one-liner. In that case, we want to
+# open the browser to the newly installed dashboard URL. Disabling this may be ideal in non-interactive environments
+# like CI.
+#
+: curl -sL https://raw.githubusercontent.com/sublime-security/sublime-platform/main/install-and-launch.sh | open_dashboard=false bash
+#
+
+if [ -z "$interactive" ]; then
+    interactive="true"
+fi
+
+if [ "$interactive" == "true" ] && [ -z "$sublime_host" ]; then
+    # Since this script is intended to be piped into bash, we need to explicitly read input from /dev/tty because stdin
+    # is streaming the script itself
+    read -rp "Please specify where your Sublime is deployed (default: localhost): " sublime_host </dev/tty
+fi
+
 echo "Cloning Sublime Platform repo"
-if ! git clone https://github.com/sublime-security/sublime-platform.git;
-then
+if ! git clone https://github.com/sublime-security/sublime-platform.git; then
   echo "Failed to clone Sublime Platform repo"
   exit 1
 fi
@@ -41,6 +71,12 @@ fi
 echo "Launching Sublime Platform"
 cd sublime-platform || { echo "Failed to cd into sublime-platform"; exit 1; }
 
-./launch-sublime-platform.sh
+sublime_host=$sublime_host ./launch-sublime-platform.sh
 
-open "$(grep 'DASHBOARD_PUBLIC_BASE_URL' sublime.env | cut -d'=' -f2)"
+if [ -z "$open_dashboard" ]; then
+    open_dashboard="true"
+fi
+
+if [ "$open_dashboard" == "true" ]; then
+    open "$(grep 'DASHBOARD_PUBLIC_BASE_URL' sublime.env | cut -d'=' -f2)"
+fi
