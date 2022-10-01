@@ -79,7 +79,7 @@ fi
 
 if [ "$clone_platform" == "true" ]; then
     echo "Cloning Sublime Platform repo"
-    if ! git clone https://github.com/sublime-security/sublime-platform.git; then
+    if ! git clone --depth=1 https://github.com/sublime-security/sublime-platform.git; then
       echo "Failed to clone Sublime Platform repo"
       exit 1
     fi
