@@ -42,6 +42,17 @@
 #
 
 : -----------------------------------------
+:  Clone Platform - default: true
+: -----------------------------------------
+
+# By default, this script will clone the latest Sublime Platform repo and enter into it before proceeding with the rest
+# of the installation. You may want to disable this if you're running this script from within the Sublime Platform repo
+# already.
+#
+: curl -sL https://raw.githubusercontent.com/sublime-security/sublime-platform/main/install-and-launch.sh | clone_platform=false bash
+#
+
+: -----------------------------------------
 :  Open Dashboard - default: true
 : -----------------------------------------
 
@@ -62,15 +73,22 @@ if [ "$interactive" == "true" ] && [ -z "$sublime_host" ]; then
     read -rp "Please specify where your Sublime is deployed (default: localhost): " sublime_host </dev/tty
 fi
 
-echo "Cloning Sublime Platform repo"
-if ! git clone https://github.com/sublime-security/sublime-platform.git; then
-  echo "Failed to clone Sublime Platform repo"
-  exit 1
+if [ -z "$clone_platform" ]; then
+    clone_platform=true
 fi
 
-echo "Launching Sublime Platform"
-cd sublime-platform || { echo "Failed to cd into sublime-platform"; exit 1; }
+if [ "$clone_platform" == "true" ]; then
+    echo "Cloning Sublime Platform repo"
+    if ! git clone --depth=1 https://github.com/sublime-security/sublime-platform.git; then
+      echo "Failed to clone Sublime Platform repo"
+      exit 1
+    fi
 
+    cd sublime-platform || { echo "Failed to cd into sublime-platform"; exit 1; }
+fi
+
+
+echo "Launching Sublime Platform"
 sublime_host=$sublime_host ./launch-sublime-platform.sh
 
 if [ -z "$open_dashboard" ]; then
