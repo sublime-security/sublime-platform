@@ -63,6 +63,10 @@
 : curl -sL https://raw.githubusercontent.com/sublime-security/sublime-platform/main/install-and-launch.sh | open_dashboard=false bash
 #
 
+if ! ./preflight_checks.sh; then
+    exit 1
+fi
+
 if [ -z "$interactive" ]; then
     interactive="true"
 fi
@@ -89,12 +93,21 @@ fi
 
 
 echo "Launching Sublime Platform"
-sublime_host=$sublime_host ./launch-sublime-platform.sh
+# We are skipping preflight checks because we've already performed them at the start of this script
+if ! sublime_host=$sublime_host skip_preflight=true ./launch-sublime-platform.sh; then
+    echo "Failed to launch Sublime Platform"
+    exit 1
+fi
+
+echo "Successfully installed Sublime Platform!"
+echo "It may take a couple of minutes for all services to start for the first time"
 
 if [ -z "$open_dashboard" ]; then
     open_dashboard="true"
 fi
 
-if [ "$open_dashboard" == "true" ]; then
-    open "$(grep 'DASHBOARD_PUBLIC_BASE_URL' sublime.env | cut -d'=' -f2)"
+dashboard_url=$(grep 'DASHBOARD_PUBLIC_BASE_URL' sublime.env | cut -d'=' -f2)
+if [ "$open_dashboard" == "true" ] && [ ! -z "$dashboard_url" ]; then
+    echo "Opening Sublime Dashboard"
+    open "$dashboard_url"
 fi

@@ -5,13 +5,13 @@ cmd_prefix="sudo "
 
 # Docker setups on OS X generally won't need sudo
 # TODO this check is pretty naive -- a properly setup docker/compose setup in Linux won't need sudo either
-if [[ "$(uname -s)" == "Darwin" ]]; then
-    cmd_prefix=""
-fi
+case "$(uname -s | tr '[:upper:]' '[:lower:]')" in
+    linux*)     cmd_prefix="sudo ";;
+    darwin*)    cmd_prefix="";;
+esac
 
 if [[ "$1" != "always_launch" ]]; then
-    $cmd_prefix docker-compose ps | grep "mantis"
-    if [[ "${?}" != "0" ]]; then
+    if ! $cmd_prefix docker-compose ps | grep "mantis" > /dev/null 2>&1; then
         echo "docker-compose appears to be brought down. Will not proceed to avoid relaunching."
         exit 0
     fi
