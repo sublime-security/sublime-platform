@@ -17,7 +17,7 @@ services:
     networks:
       - net
   dashboard:
-    image: sublimesec/dashboard:0.29
+    image: sublimesec/dashboard:dev
     restart: unless-stopped
     container_name: dashboard
     ports:
@@ -94,14 +94,6 @@ services:
       - net
     depends_on:
       - create-buckets
-  hydra:
-    image: sublimesec/hydra:dev
-    restart: unless-stopped
-    container_name: hydra
-    ports:
-      - "8200:8200"
-    networks:
-      - net
   sublimes3:
     container_name: sublimes3
     image: minio/minio:latest
@@ -136,6 +128,14 @@ services:
       /usr/bin/mc ls myminio;
       exit 0;
       "
+  hydra:
+    image: sublimesec/hydra:dev
+    restart: unless-stopped
+    ports:
+      - "8200:8200"
+    networks:
+      - net
+    container_name: hydra
 
 networks:
   net:
