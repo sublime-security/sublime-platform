@@ -6,7 +6,7 @@
 
 # This script allows you to install the latest version of the Sublime Platform by running:
 #
-: curl -sL https://raw.githubusercontent.com/sublime-security/sublime-platform/main/install-and-launch.sh | bash
+: curl -sL https://sublimesecurity.com/install.sh | bash
 #
 # Note: lines prefixed with ":" are no-ops but still retain syntax highlighting. Bash considers ":" as true and true can
 # take an infinite number of arguments and still return true. Inspired from the Firebase tool installer.
@@ -17,7 +17,7 @@
 
 # You can change the behavior of this script by passing environmental variables to the bash process. For example:
 #
-: curl -sL https://raw.githubusercontent.com/sublime-security/sublime-platform/main/install-and-launch.sh | arg1=foo arg2=bar bash
+: curl -sL https://sublimesecurity.com/install.sh | arg1=foo arg2=bar bash
 #
 
 : -----------------------------------------
@@ -27,7 +27,7 @@
 # By default, this script assumes that Sublime is deployed locally. If you installed Sublime on a remote VPS or VM,
 # you'll need to specify IP address of your remote system.
 #
-: curl -sL https://raw.githubusercontent.com/sublime-security/sublime-platform/main/install-and-launch.sh | sublime_host=0.0.0.0 bash
+: curl -sL https://sublimesecurity.com/install.sh | sublime_host=0.0.0.0 bash
 #
 # Replace 0.0.0.0 with the IP address of your remote system.
 
@@ -38,7 +38,7 @@
 # By default, this script assumes that it is being called through the quickstart one-liner. In that case, we need to
 # confirm where the Sublime instance is deployed unless it's passed in explicitly.
 #
-: curl -sL https://raw.githubusercontent.com/sublime-security/sublime-platform/main/install-and-launch.sh | interactive=false bash
+: curl -sL https://sublimesecurity.com/install.sh | interactive=false bash
 #
 
 : -----------------------------------------
@@ -49,7 +49,7 @@
 # of the installation. You may want to disable this if you're running this script from within the Sublime Platform repo
 # already.
 #
-: curl -sL https://raw.githubusercontent.com/sublime-security/sublime-platform/main/install-and-launch.sh | clone_platform=false bash
+: curl -sL https://sublimesecurity.com/install.sh | clone_platform=false bash
 #
 
 : -----------------------------------------
@@ -60,7 +60,7 @@
 # open the browser to the newly installed dashboard URL. Disabling this may be ideal in non-interactive environments
 # like CI.
 #
-: curl -sL https://raw.githubusercontent.com/sublime-security/sublime-platform/main/install-and-launch.sh | open_dashboard=false bash
+: curl -sL https://sublimesecurity.com/install.sh | open_dashboard=false bash
 #
 
 if ! curl -sL https://raw.githubusercontent.com/sublime-security/sublime-platform/main/preflight_checks.sh | bash; then
