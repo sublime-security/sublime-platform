@@ -20,7 +20,7 @@ jobs:
 
       - name: Install Platform
         run: |
-          interactive=false clone_platform=false open_dashboard=false ./install-and-launch.sh
+          interactive=false clone_platform=false ./install-and-launch.sh
 
       - name: Check Health
         run: |

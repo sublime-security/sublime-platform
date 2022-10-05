@@ -97,5 +97,5 @@ fi
 
 echo "Successfully installed Sublime Platform!"
 dashboard_url=$(grep 'DASHBOARD_PUBLIC_BASE_URL' sublime.env | cut -d'=' -f2)
-echo "Your Sublime Dashboard is running at $dashboard_url"
 echo "It may take a couple of minutes for all services to start for the first time"
+echo "Your Sublime Dashboard is running at $dashboard_url"
