@@ -52,8 +52,7 @@
 : curl -sL https://sublimesecurity.com/install.sh | clone_platform=false bash
 #
 
-# FIXME: Revert back to main branch!
-if ! curl -sL https://raw.githubusercontent.com/sublime-security/sublime-platform/hugh.install-script-updates/preflight_checks.sh  | bash; then
+if ! curl -sL https://raw.githubusercontent.com/sublime-security/sublime-platform/main/preflight_checks.sh  | bash; then
     exit 1
 fi
 
