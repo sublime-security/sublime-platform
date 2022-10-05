@@ -52,17 +52,6 @@
 : curl -sL https://raw.githubusercontent.com/sublime-security/sublime-platform/main/install-and-launch.sh | clone_platform=false bash
 #
 
-: -----------------------------------------
-:  Open Dashboard - default: true
-: -----------------------------------------
-
-# By default, this script assumes that it is being called through the quickstart one-liner. In that case, we want to
-# open the browser to the newly installed dashboard URL. Disabling this may be ideal in non-interactive environments
-# like CI.
-#
-: curl -sL https://raw.githubusercontent.com/sublime-security/sublime-platform/main/install-and-launch.sh | open_dashboard=false bash
-#
-
 if ! curl -sL https://raw.githubusercontent.com/sublime-security/sublime-platform/main/preflight_checks.sh | bash; then
     exit 1
 fi
@@ -100,14 +89,6 @@ if ! sublime_host=$sublime_host skip_preflight=true ./launch-sublime-platform.sh
 fi
 
 echo "Successfully installed Sublime Platform!"
-echo "It may take a couple of minutes for all services to start for the first time"
-
-if [ -z "$open_dashboard" ]; then
-    open_dashboard="true"
-fi
-
 dashboard_url=$(grep 'DASHBOARD_PUBLIC_BASE_URL' sublime.env | cut -d'=' -f2)
-if [ "$open_dashboard" == "true" ] && [ ! -z "$dashboard_url" ]; then
-    echo "Opening Sublime Dashboard"
-    open "$dashboard_url"
-fi
+echo "Your Sublime Dashboard is running at $dashboard_url"
+echo "It may take a couple of minutes for all services to start for the first time"
