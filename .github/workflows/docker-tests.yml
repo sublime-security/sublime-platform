@@ -24,5 +24,4 @@ jobs:
 
       - name: Check Health
         run: |
-          apt-get update && apt-get install -y yq
           ./postflight_checks.sh
