@@ -144,3 +144,5 @@ if which snap > /dev/null 2>&1 && snap list | grep -i docker > /dev/null 2>&1; t
     echo "If you have existing docker containers or volumes or are otherwise unsure, please contact support@sublimesecurity.com for assistance"
     exit 1
 fi
+
+echo "Successfully completed preflight checks!"
