@@ -32,14 +32,13 @@ case "$(uname -s | tr '[:upper:]' '[:lower:]')" in
 esac
 
 if [ -z "$machine" ]; then
-    echo "You are using a non-recommended operating system so subsequent failures may occur"
+    echo "Warning: You are using a non-recommended operating system so subsequent failures may occur"
 fi
 
 if [ "$machine" == "macos" ]; then
     macos_version="$(/usr/bin/sw_vers -productVersion)"
     if version_lt "$(major_minor "$macos_version")" "11.0"; then
-        echo "Mac OS version $macos_version does not meet the minimum version of 11.0. Please update your Mac OS and retry"
-        exit 1
+        echo "Warning: Mac OS version $macos_version does not meet the recommended minimum version of 11.0"
     fi
 fi
 
@@ -53,8 +52,7 @@ if [ "$machine" == "linux" ]; then
         # Should be "20.04.3"
         ubuntu_version=${ubuntu_version## *}
         if version_lt "$(major_minor "$ubuntu_version")" "20.04"; then
-            echo "Ubuntu version $ubuntu_version does not meet the minimum version of 20.04. Please update your Ubuntu OS and retry"
-            exit 1
+            echo "Warning: Ubuntu version $ubuntu_version does not meet the recommended minimum version of 20.04"
         fi
     fi
 fi
