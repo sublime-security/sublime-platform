@@ -52,7 +52,6 @@
 : curl -sL https://sublimesecurity.com/install.sh | clone_platform=false bash
 #
 
-printf "\nRunning preflight checks\n"
 if ! curl -sL https://raw.githubusercontent.com/sublime-security/sublime-platform/main/preflight_checks.sh | bash; then
     exit 1
 fi
@@ -87,6 +86,9 @@ echo "Launching Sublime Platform"
 # We are skipping preflight checks because we've already performed them at the start of this script
 if ! sublime_host=$sublime_host skip_preflight=true ./launch-sublime-platform.sh; then
     echo "Failed to launch Sublime Platform"
+    echo "If you'd like to reinstall Sublime then follow the steps outline in https://docs.sublimesecurity.com/docs/quickstart-docker#wipe-postgres-volume"
+    echo "Afterwards, run: rm -rf ./sublime-platform"
+    echo "You can then go through the Sublime Platform installation again"
     exit 1
 fi
 
