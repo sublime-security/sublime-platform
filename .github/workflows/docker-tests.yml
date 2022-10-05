@@ -11,13 +11,17 @@ concurrency:
 
 jobs:
   tests:
-    name: Run Install Script Validation
+    name: Validate Platform Installation
     runs-on: ubuntu-20.04
 
     steps:
       - name: Checkout
         uses: actions/checkout@v3
 
-      - name: Validate Installation
+      - name: Install Platform
         run: |
-          interactive=false clone_platform=false open_dashboard=false ./install-and-launch.sh
+          interactive=false clone_platform=false ./install-and-launch.sh
+
+      - name: Check Health
+        run: |
+          ./postflight_checks.sh

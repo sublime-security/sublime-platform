@@ -52,18 +52,7 @@
 : curl -sL https://sublimesecurity.com/install.sh | clone_platform=false bash
 #
 
-: -----------------------------------------
-:  Open Dashboard - default: true
-: -----------------------------------------
-
-# By default, this script assumes that it is being called through the quickstart one-liner. In that case, we want to
-# open the browser to the newly installed dashboard URL. Disabling this may be ideal in non-interactive environments
-# like CI.
-#
-: curl -sL https://sublimesecurity.com/install.sh | open_dashboard=false bash
-#
-
-if ! curl -sL https://raw.githubusercontent.com/sublime-security/sublime-platform/main/preflight_checks.sh | bash; then
+if ! curl -sL https://raw.githubusercontent.com/sublime-security/sublime-platform/main/preflight_checks.sh  | bash; then
     exit 1
 fi
 
@@ -74,7 +63,8 @@ fi
 if [ "$interactive" == "true" ] && [ -z "$sublime_host" ]; then
     # Since this script is intended to be piped into bash, we need to explicitly read input from /dev/tty because stdin
     # is streaming the script itself
-    read -rp "Please specify where your Sublime is deployed (default: localhost): " sublime_host </dev/tty
+    printf "\nPlease specify the hostname or IP address of where you're deploying Sublime\n"
+    read -rp "(IP address or hostname of your VPS or VM | default: http://localhost): " sublime_host </dev/tty
 fi
 
 if [ -z "$clone_platform" ]; then
@@ -84,8 +74,10 @@ fi
 if [ "$clone_platform" == "true" ]; then
     echo "Cloning Sublime Platform repo"
     if ! git clone --depth=1 https://github.com/sublime-security/sublime-platform.git; then
-      echo "Failed to clone Sublime Platform repo"
-      exit 1
+        echo "Failed to clone Sublime Platform repo"
+        echo "See https://docs.sublimesecurity.com/docs/quickstart-docker#troubleshooting for troubleshooting tips"
+        echo "You may need to run the following command before retrying installation: rm -rf ./sublime-platform"
+        exit 1
     fi
 
     cd sublime-platform || { echo "Failed to cd into sublime-platform"; exit 1; }
@@ -96,18 +88,14 @@ echo "Launching Sublime Platform"
 # We are skipping preflight checks because we've already performed them at the start of this script
 if ! sublime_host=$sublime_host skip_preflight=true ./launch-sublime-platform.sh; then
     echo "Failed to launch Sublime Platform"
+    echo "See https://docs.sublimesecurity.com/docs/quickstart-docker#troubleshooting for troubleshooting tips"
+    echo "If you'd like to reinstall Sublime then follow the steps outline in https://docs.sublimesecurity.com/docs/quickstart-docker#wipe-postgres-volume"
+    echo "Afterwards, run: rm -rf ./sublime-platform"
+    echo "You can then go through the Sublime Platform installation again"
     exit 1
 fi
 
 echo "Successfully installed Sublime Platform!"
-echo "It may take a couple of minutes for all services to start for the first time"
-
-if [ -z "$open_dashboard" ]; then
-    open_dashboard="true"
-fi
-
 dashboard_url=$(grep 'DASHBOARD_PUBLIC_BASE_URL' sublime.env | cut -d'=' -f2)
-if [ "$open_dashboard" == "true" ] && [ ! -z "$dashboard_url" ]; then
-    echo "Opening Sublime Dashboard"
-    open "$dashboard_url"
-fi
+echo "It may take a couple of minutes for all services to start for the first time"
+echo "Your Sublime Dashboard is running at $dashboard_url"
