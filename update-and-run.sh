@@ -32,7 +32,7 @@ else
 fi
 
 if [ -z "$sublime_host" ]; then
-  sublime_host=localhost
+  sublime_host="http://localhost"
 fi
 
 SUBLIME_ENV_FILE=sublime.env
@@ -71,22 +71,22 @@ if ! grep "AWS_SECRET_ACCESS_KEY" $SUBLIME_ENV_FILE > /dev/null 2>&1; then
 fi
 
 if ! grep "CORS_ALLOW_ORIGINS" $SUBLIME_ENV_FILE > /dev/null 2>&1; then
-    echo "CORS_ALLOW_ORIGINS=http://$sublime_host:3000" >> $SUBLIME_ENV_FILE
+    echo "CORS_ALLOW_ORIGINS=$sublime_host:3000" >> $SUBLIME_ENV_FILE
     echo "Configured CORS allow origins"
 fi
 
 if ! grep "BASE_URL" $SUBLIME_ENV_FILE > /dev/null 2>&1; then
-    echo "BASE_URL=http://$sublime_host:8000" >> $SUBLIME_ENV_FILE
+    echo "BASE_URL=$sublime_host:8000" >> $SUBLIME_ENV_FILE
     echo "Configured base URL"
 fi
 
 if ! grep "DASHBOARD_PUBLIC_BASE_URL" $SUBLIME_ENV_FILE > /dev/null 2>&1; then
-    echo "DASHBOARD_PUBLIC_BASE_URL=http://$sublime_host:3000" >> $SUBLIME_ENV_FILE
+    echo "DASHBOARD_PUBLIC_BASE_URL=$sublime_host:3000" >> $SUBLIME_ENV_FILE
     echo "Configured dashboard URL"
 fi
 
 if ! grep "API_PUBLIC_BASE_URL" $SUBLIME_ENV_FILE > /dev/null 2>&1; then
-    echo "API_PUBLIC_BASE_URL=http://$sublime_host:8000" >> $SUBLIME_ENV_FILE
+    echo "API_PUBLIC_BASE_URL=$sublime_host:8000" >> $SUBLIME_ENV_FILE
     echo "Configured API URL"
 fi
 

@@ -52,6 +52,7 @@
 : curl -sL https://raw.githubusercontent.com/sublime-security/sublime-platform/main/install-and-launch.sh | clone_platform=false bash
 #
 
+printf "\nRunning preflight checks\n"
 if ! curl -sL https://raw.githubusercontent.com/sublime-security/sublime-platform/main/preflight_checks.sh | bash; then
     exit 1
 fi
@@ -63,7 +64,8 @@ fi
 if [ "$interactive" == "true" ] && [ -z "$sublime_host" ]; then
     # Since this script is intended to be piped into bash, we need to explicitly read input from /dev/tty because stdin
     # is streaming the script itself
-    read -rp "Please specify where your Sublime is deployed (default: localhost): " sublime_host </dev/tty
+    printf "\nPlease specify the hostname or IP address of where you're deploying Sublime\n"
+    read -rp "(IP address or hostname of your VPS or VM | default: http://localhost): " sublime_host </dev/tty
 fi
 
 if [ -z "$clone_platform" ]; then
