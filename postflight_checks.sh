@@ -25,10 +25,9 @@ while [ $remaining_timeout_seconds -gt 0 ]; do
     fi
 
     if [ "$(curl -s "$health_endpoint" | jq '.success')" == "false" ]; then
-
         echo "Sublime Platform is unhealthy. See details below:"
         curl -s "$health_endpoint" | jq '.'
-        exit 1
+#        exit 1
     fi
 
     remaining_timeout_seconds=$(( remaining_timeout_seconds - retry_interval_seconds ))
