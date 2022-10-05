@@ -5,7 +5,7 @@ if ! ./preflight_checks.sh; then
 fi
 
 # If this command is modified we might need a more sophisticated check below (worse case is more updates than intended)
-update_command="cd ""$(pwd)"" && ./update-and-run.sh"
+update_command="cd ""$(pwd)"" && bash -lc ./update-and-run.sh"
 
 if ! crontab -l | grep "$update_command" > /dev/null 2>&1; then
 	echo "Adding daily update check"
