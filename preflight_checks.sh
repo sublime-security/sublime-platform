@@ -54,6 +54,8 @@ if [ "$machine" == "linux" ]; then
         if version_lt "$(major_minor "$ubuntu_version")" "20.04"; then
             echo "Warning: Ubuntu version $ubuntu_version does not meet the recommended minimum version of 20.04"
         fi
+    else
+        echo "Warning: Non-Ubuntu Linux distributions are unsupported and subsequent failures may occur"
     fi
 fi
 
