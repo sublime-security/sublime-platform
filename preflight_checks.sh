@@ -13,6 +13,11 @@ if ! which docker > /dev/null 2>&1; then
 	exit 1
 fi
 
+if ! docker info > /dev/null 2>&1; then
+	echo "docker is not running. Please start docker and retry"
+	exit 1
+fi
+
 if ! which docker-compose > /dev/null 2>&1; then
     echo "docker-compose not installed. Please install docker-compose and retry (https://docs.docker.com/compose/install/)"
 	exit 1
