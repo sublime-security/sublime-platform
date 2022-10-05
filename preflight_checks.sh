@@ -116,7 +116,7 @@ docker_compose_version="$(docker-compose --version 2>/dev/null)"
 
 # Remove longest substring matching "*version v" starting from the front of the string
 # Should be "2.10.2"
-docker_compose_version=${docker_compose_version##*version }
+docker_compose_version=${docker_compose_version##*version v}
 
 if version_lt "$(major_minor "$docker_compose_version")" "2.10"; then
     echo "docker-compose version $docker_compose_version does not meet the minimum version of 2.10. Please update docker-compose and retry"
