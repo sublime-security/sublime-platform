@@ -95,7 +95,7 @@ if ! sublime_host=$sublime_host skip_preflight=true ./launch-sublime-platform.sh
     exit 1
 fi
 
-echo "Successfully installed Sublime Platform!"
+printf "\n** Successfully installed Sublime Platform! **\n"
 dashboard_url=$(grep 'DASHBOARD_PUBLIC_BASE_URL' sublime.env | cut -d'=' -f2)
-echo "It may take a couple of minutes for all services to start for the first time"
-echo "Your Sublime Dashboard is running at $dashboard_url"
+printf "It may take a couple of minutes for all services to start for the first time\n"
+echo "Please go to your Sublime Dashboard at $dashboard_url"

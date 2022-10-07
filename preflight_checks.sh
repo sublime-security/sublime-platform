@@ -43,15 +43,12 @@ if [ "$machine" == "macos" ]; then
 fi
 
 if [ "$machine" == "linux" ]; then
-    linux_name="$(grep 'NAME' /etc/os-release | cut -d'=' -f2 | tr '[:upper:]' '[:lower:]')"
+    # "Distributor ID: Ubuntu" -> "ubuntu
+    linux_name="$(lsb_release -a 2>/dev/null | grep 'Distributor' | cut -d':' -f2 | xargs | tr '[:upper:]' '[:lower:]')"
     if [ "$linux_name" == "ubuntu" ]; then
-        # "20.04.3 LTS (Focal Fossa)"
-        ubuntu_version="$(grep 'VERSION' /etc/os-release | cut -d'=' -f2)"
-
-        # Remove longest substring matching " *" starting from the front of the string
-        # Should be "20.04.3"
-        ubuntu_version=${ubuntu_version## *}
-        if version_lt "$(major_minor "$ubuntu_version")" "20.04"; then
+        # "Release:    18.04" -> "18.04"
+        ubuntu_version="$(lsb_release -a 2>/dev/null | grep 'Release' | cut -d':' -f2 | xargs)"
+        if version_lt "$ubuntu_version" "20.04"; then
             echo "Warning: Ubuntu version $ubuntu_version does not meet the recommended minimum version of 20.04"
         fi
     else
@@ -81,12 +78,22 @@ if version_lt "$(major_minor "$git_version")" "2.7"; then
 fi
 
 if ! which docker > /dev/null 2>&1; then
-	echo "docker not installed. Please install docker and retry (https://docs.docker.com/get-docker/)"
-	exit 1
+    if [ "$machine" == "linux" ]; then
+        echo "docker not installed. Please install docker and retry (https://docs.docker.com/engine/install/ubuntu/#install-using-the-convenience-script)"
+        exit 1
+    fi
+
+    echo "docker not installed. Please install docker and retry (https://docs.docker.com/get-docker/)"
+    exit 1
+fi
+
+docker_cmd_prefix=""
+if [ "$machine" == "linux" ]; then
+    docker_cmd_prefix="sudo "
 fi
 
 # "Docker version 20.10.17, build 100c701"
-docker_version="$(docker --version 2>/dev/null)"
+docker_version="$($docker_cmd_prefix docker --version 2>/dev/null)"
 
 # Remove longest substring matching "*version " starting from the front of the string
 # Should be "20.10.17, build 100c701"
@@ -101,31 +108,36 @@ if version_lt "$(major_minor "$docker_version")" "20.10"; then
     exit 1
 fi
 
-if ! docker info > /dev/null 2>&1; then
+if ! $docker_cmd_prefix docker info > /dev/null 2>&1; then
 	echo "docker is not running. Please start docker and retry"
 	exit 1
 fi
 
-if ! which docker-compose > /dev/null 2>&1; then
-    echo "docker-compose not installed. Please install docker-compose and retry (https://docs.docker.com/compose/install/)"
-	exit 1
-fi
-
 # "Docker Compose version v2.10.2"
-docker_compose_version="$(docker-compose --version 2>/dev/null)"
+docker_compose_version="$(docker compose version 2>/dev/null)"
 
 # Remove longest substring matching "*version v" starting from the front of the string
 # Should be "2.10.2"
 docker_compose_version=${docker_compose_version##*version v}
 
+if [ -z "$docker_compose_version" ]; then
+    if [ "$machine" == "linux" ]; then
+        echo "docker compose not installed. Please install docker compose and retry (https://docs.docker.com/compose/install/linux/#install-using-the-repository)"
+        exit 1
+    fi
+
+    echo "docker compose not installed. Please install docker compose and retry (https://docs.docker.com/compose/install/)"
+    exit 1
+fi
+
 if version_lt "$(major_minor "$docker_compose_version")" "2.10"; then
-    echo "docker-compose version $docker_compose_version does not meet the minimum version of 2.10. Please update docker-compose and retry"
+    echo "docker compose version $docker_compose_version does not meet the minimum version of 2.10. Please update docker compose and retry"
     exit 1
 fi
 
 if ! which cron > /dev/null 2>&1; then
     echo "cron not installed. Please install cron and retry"
-	exit 1
+    exit 1
 fi
 
 if which systemctl > /dev/null 2>&1 && ! systemctl status cron > /dev/null 2>&1; then
