@@ -47,7 +47,7 @@ if [ "$machine" == "linux" ]; then
     linux_name="$(lsb_release -a | grep 'Distributor' | cut -d':' -f2 | xargs | tr '[:upper:]' '[:lower:]')"
     if [ "$linux_name" == "ubuntu" ]; then
         # "Release:    18.04" -> "18.04"
-        ubuntu_version="$(lab_release -a | grep 'Release' | cut -d':' -f2 | xargs)"
+        ubuntu_version="$(lsb_release -a | grep 'Release' | cut -d':' -f2 | xargs)"
         if version_lt "$ubuntu_version" "20.04"; then
             echo "Warning: Ubuntu version $ubuntu_version does not meet the recommended minimum version of 20.04"
         fi
@@ -78,12 +78,22 @@ if version_lt "$(major_minor "$git_version")" "2.7"; then
 fi
 
 if ! which docker > /dev/null 2>&1; then
+    if [ "$machine" == "linux" ]; then
+        echo "docker not installed. Please install docker and retry (https://docs.docker.com/engine/install/ubuntu/#install-using-the-convenience-script)"
+        exit 1
+    fi
+
 	echo "docker not installed. Please install docker and retry (https://docs.docker.com/get-docker/)"
 	exit 1
 fi
 
+cmd_prefix=""
+if [ "$machine" == "linux" ]; then
+    cmd_prefix="sudo "
+fi
+
 # "Docker version 20.10.17, build 100c701"
-docker_version="$(docker --version 2>/dev/null)"
+docker_version="$($cmd_prefix docker --version 2>/dev/null)"
 
 # Remove longest substring matching "*version " starting from the front of the string
 # Should be "20.10.17, build 100c701"
@@ -98,12 +108,17 @@ if version_lt "$(major_minor "$docker_version")" "20.10"; then
     exit 1
 fi
 
-if ! docker info > /dev/null 2>&1; then
+if ! $cmd_prefix docker info > /dev/null 2>&1; then
 	echo "docker is not running. Please start docker and retry"
 	exit 1
 fi
 
 if ! which docker-compose > /dev/null 2>&1; then
+    if [ "$machine" == "linux" ]; then
+        echo "docker-compose not installed. Please install docker-compose and retry (https://docs.docker.com/compose/install/linux/#install-using-the-repository)"
+        exit 1
+    fi
+
     echo "docker-compose not installed. Please install docker-compose and retry (https://docs.docker.com/compose/install/)"
 	exit 1
 fi
