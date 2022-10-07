@@ -83,8 +83,8 @@ if ! which docker > /dev/null 2>&1; then
         exit 1
     fi
 
-	echo "docker not installed. Please install docker and retry (https://docs.docker.com/get-docker/)"
-	exit 1
+    echo "docker not installed. Please install docker and retry (https://docs.docker.com/get-docker/)"
+    exit 1
 fi
 
 cmd_prefix=""
@@ -120,7 +120,7 @@ if ! which docker-compose > /dev/null 2>&1; then
     fi
 
     echo "docker-compose not installed. Please install docker-compose and retry (https://docs.docker.com/compose/install/)"
-	exit 1
+    exit 1
 fi
 
 # "Docker Compose version v2.10.2"
@@ -137,7 +137,7 @@ fi
 
 if ! which cron > /dev/null 2>&1; then
     echo "cron not installed. Please install cron and retry"
-	exit 1
+    exit 1
 fi
 
 if which systemctl > /dev/null 2>&1 && ! systemctl status cron > /dev/null 2>&1; then
