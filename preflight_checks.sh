@@ -131,7 +131,7 @@ if [ -z "$docker_compose_version" ]; then
 fi
 
 if version_lt "$(major_minor "$docker_compose_version")" "2.10"; then
-    echo "docker-compose version $docker_compose_version does not meet the minimum version of 2.10. Please update docker-compose and retry"
+    echo "docker compose version $docker_compose_version does not meet the minimum version of 2.10. Please update docker compose and retry"
     exit 1
 fi
 
