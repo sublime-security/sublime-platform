@@ -52,7 +52,7 @@
 : curl -sL https://sublimesecurity.com/install.sh | clone_platform=false bash
 #
 
-if ! curl -sL https://raw.githubusercontent.com/sublime-security/sublime-platform/hugh.install-fixes/preflight_checks.sh  | bash; then
+if ! curl -sL https://raw.githubusercontent.com/sublime-security/sublime-platform/main/preflight_checks.sh  | bash; then
     exit 1
 fi
 
