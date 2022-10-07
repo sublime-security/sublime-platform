@@ -44,10 +44,10 @@ fi
 
 if [ "$machine" == "linux" ]; then
     # "Distributor ID: Ubuntu" -> "ubuntu
-    linux_name="$(lsb_release -a | grep 'Distributor' | cut -d':' -f2 | xargs | tr '[:upper:]' '[:lower:]')"
+    linux_name="$(lsb_release -a 2>/dev/null | grep 'Distributor' | cut -d':' -f2 | xargs | tr '[:upper:]' '[:lower:]')"
     if [ "$linux_name" == "ubuntu" ]; then
         # "Release:    18.04" -> "18.04"
-        ubuntu_version="$(lsb_release -a | grep 'Release' | cut -d':' -f2 | xargs)"
+        ubuntu_version="$(lsb_release -a 2>/dev/null | grep 'Release' | cut -d':' -f2 | xargs)"
         if version_lt "$ubuntu_version" "20.04"; then
             echo "Warning: Ubuntu version $ubuntu_version does not meet the recommended minimum version of 20.04"
         fi
