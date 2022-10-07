@@ -11,8 +11,8 @@ case "$(uname -s | tr '[:upper:]' '[:lower:]')" in
 esac
 
 if [[ "$1" != "always_launch" ]]; then
-    if ! $cmd_prefix docker-compose ps | grep "mantis" > /dev/null 2>&1; then
-        echo "docker-compose appears to be brought down. Will not proceed to avoid relaunching."
+    if ! $cmd_prefix docker compose ps | grep "mantis" > /dev/null 2>&1; then
+        echo "docker compose appears to be brought down. Will not proceed to avoid relaunching."
         exit 0
     fi
 fi
@@ -25,7 +25,7 @@ if [[ -z "$(git status --porcelain)" ]]; then
 	new_ref=$(git rev-parse HEAD)
 
 	if [[ "${old_ref}" != "${new_ref}" ]]; then
-            $cmd_prefix docker-compose down --remove-orphans
+            $cmd_prefix docker compose down --remove-orphans
 	fi
 else
     echo "Uncommitted changes present, ignoring updates to sublime-platform git repo"
@@ -90,5 +90,5 @@ if ! grep "API_PUBLIC_BASE_URL" $SUBLIME_ENV_FILE > /dev/null 2>&1; then
     echo "Configured API URL"
 fi
 
-$cmd_prefix docker-compose pull && $cmd_prefix docker-compose up -d
+$cmd_prefix docker compose pull && $cmd_prefix docker compose up -d
 

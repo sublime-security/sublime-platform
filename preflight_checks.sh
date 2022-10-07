@@ -87,13 +87,13 @@ if ! which docker > /dev/null 2>&1; then
     exit 1
 fi
 
-cmd_prefix=""
+docker_cmd_prefix=""
 if [ "$machine" == "linux" ]; then
-    cmd_prefix="sudo "
+    docker_cmd_prefix="sudo "
 fi
 
 # "Docker version 20.10.17, build 100c701"
-docker_version="$($cmd_prefix docker --version 2>/dev/null)"
+docker_version="$($docker_cmd_prefix docker --version 2>/dev/null)"
 
 # Remove longest substring matching "*version " starting from the front of the string
 # Should be "20.10.17, build 100c701"
@@ -108,7 +108,7 @@ if version_lt "$(major_minor "$docker_version")" "20.10"; then
     exit 1
 fi
 
-if ! $cmd_prefix docker info > /dev/null 2>&1; then
+if ! $docker_cmd_prefix docker info > /dev/null 2>&1; then
 	echo "docker is not running. Please start docker and retry"
 	exit 1
 fi
@@ -124,11 +124,21 @@ if ! which docker-compose > /dev/null 2>&1; then
 fi
 
 # "Docker Compose version v2.10.2"
-docker_compose_version="$(docker-compose --version 2>/dev/null)"
+docker_compose_version="$(docker compose version 2>/dev/null)"
 
 # Remove longest substring matching "*version v" starting from the front of the string
 # Should be "2.10.2"
 docker_compose_version=${docker_compose_version##*version v}
+
+if [ -z "$docker_compose_version" ]; then
+    if [ "$machine" == "linux" ]; then
+        echo "docker compose not installed. Please install docker compose and retry (https://docs.docker.com/compose/install/linux/#install-using-the-repository)"
+        exit 1
+    fi
+
+    echo "docker compose not installed. Please install docker compose and retry (https://docs.docker.com/compose/install/)"
+    exit 1
+fi
 
 if version_lt "$(major_minor "$docker_compose_version")" "2.10"; then
     echo "docker-compose version $docker_compose_version does not meet the minimum version of 2.10. Please update docker-compose and retry"
