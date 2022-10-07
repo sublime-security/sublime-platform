@@ -113,16 +113,6 @@ if ! $docker_cmd_prefix docker info > /dev/null 2>&1; then
 	exit 1
 fi
 
-if ! which docker-compose > /dev/null 2>&1; then
-    if [ "$machine" == "linux" ]; then
-        echo "docker-compose not installed. Please install docker-compose and retry (https://docs.docker.com/compose/install/linux/#install-using-the-repository)"
-        exit 1
-    fi
-
-    echo "docker-compose not installed. Please install docker-compose and retry (https://docs.docker.com/compose/install/)"
-    exit 1
-fi
-
 # "Docker Compose version v2.10.2"
 docker_compose_version="$(docker compose version 2>/dev/null)"
 
