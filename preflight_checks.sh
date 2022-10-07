@@ -43,19 +43,14 @@ if [ "$machine" == "macos" ]; then
 fi
 
 if [ "$machine" == "linux" ]; then
-    linux_name="$(grep 'NAME' /etc/os-release | cut -d'=' -f2 | tr '[:upper:]' '[:lower:]')"
+    # "Distributor ID: Ubuntu" -> "ubuntu
+    linux_name="$(grep 'Distributor' lsb_release -a | cut -d':' -f2 | xargs | tr '[:upper:]' '[:lower:]')"
     if [ "$linux_name" == "ubuntu" ]; then
-        # "20.04.3 LTS (Focal Fossa)"
-        ubuntu_version="$(grep 'VERSION' /etc/os-release | cut -d'=' -f2)"
-
-        # Remove longest substring matching " *" starting from the front of the string
-        # Should be "20.04.3"
-        ubuntu_version=${ubuntu_version## *}
-        if version_lt "$(major_minor "$ubuntu_version")" "20.04"; then
+        # "Release:    18.04" -> "18.04"
+        ubuntu_version="$(grep 'Release' lsb_release -a | cut -d':' -f2 | xargs)"
+        if version_lt "$ubuntu_version" "20.04"; then
             echo "Warning: Ubuntu version $ubuntu_version does not meet the recommended minimum version of 20.04"
         fi
-    else
-        echo "Warning: Non-Ubuntu Linux distributions are unsupported and subsequent failures may occur"
     fi
 fi
 
