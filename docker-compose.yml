@@ -17,6 +17,7 @@ services:
       USE_SELF_IMAGE_LINKS: "true"
       AWS_REGION: us-east-1
       HYDRA_URL: http://hydra:8200
+      DEPLOYMENT_INFRA_TYPE: "DOCKER_COMPOSE"
     env_file: sublime.env
     ports:
       - "0.0.0.0:8000:8000"
@@ -41,6 +42,7 @@ services:
       S3_ENDPOINT: http://sublimes3:8110
       AWS_REGION: us-east-1
       HYDRA_URL: http://hydra:8200
+      DEPLOYMENT_INFRA_TYPE: "DOCKER_COMPOSE"
     env_file: sublime.env
     networks:
       - net
