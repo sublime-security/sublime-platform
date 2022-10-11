@@ -63,8 +63,16 @@ fi
 if [ "$interactive" == "true" ] && [ -z "$sublime_host" ]; then
     # Since this script is intended to be piped into bash, we need to explicitly read input from /dev/tty because stdin
     # is streaming the script itself
-    printf "\nPlease specify the hostname or IP address of where you're deploying Sublime\n"
+    printf "\nPlease specify the hostname or IP address of where you're deploying Sublime. If no scheme is specified then we'll default to http://\n"
     read -rp "(IP address or hostname of your VPS or VM | default: http://localhost): " sublime_host </dev/tty
+fi
+
+if [ -z "$sublime_host" ]; then
+    sublime_host="http://localhost"
+fi
+
+if [[ "$sublime_host" != http* ]]; then
+    sublime_host="http://$sublime_host"
 fi
 
 if [ -z "$clone_platform" ]; then
@@ -95,7 +103,7 @@ if ! sublime_host=$sublime_host skip_preflight=true ./launch-sublime-platform.sh
     exit 1
 fi
 
-printf "\n** Successfully installed Sublime Platform! **\n"
+printf "\n** Successfully installed Sublime Platform! **\n\n"
 dashboard_url=$(grep 'DASHBOARD_PUBLIC_BASE_URL' sublime.env | cut -d'=' -f2)
 printf "It may take a couple of minutes for all services to start for the first time\n"
 echo "Please go to your Sublime Dashboard at $dashboard_url"

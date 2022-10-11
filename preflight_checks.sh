@@ -80,6 +80,7 @@ fi
 if ! which docker > /dev/null 2>&1; then
     if [ "$machine" == "linux" ]; then
         echo "docker not installed. Please install docker and retry (https://docs.docker.com/engine/install/ubuntu/#install-using-the-convenience-script)"
+        echo "Note: snap versions of docker are not supported. Please use the provided link above to install Docker"
         exit 1
     fi
 
@@ -130,8 +131,8 @@ if [ -z "$docker_compose_version" ]; then
     exit 1
 fi
 
-if version_lt "$(major_minor "$docker_compose_version")" "2.10"; then
-    echo "docker compose version $docker_compose_version does not meet the minimum version of 2.10. Please update docker compose and retry"
+if version_lt "$(major_minor "$docker_compose_version")" "2.4"; then
+    echo "docker compose version $docker_compose_version does not meet the minimum version of 2.4. Please update docker compose and retry"
     exit 1
 fi
 
