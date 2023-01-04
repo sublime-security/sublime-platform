@@ -169,7 +169,7 @@ services:
       exit 0;
       "
   hydra:
-    image: sublimesec/hydra:0.1
+    image: sublimesec/hydra-cpu:0.1
     restart: unless-stopped
     networks:
       - net
