@@ -129,7 +129,7 @@ services:
       exit 0;
       "
   hydra:
-    image: sublimesec/hydra:dev
+    image: sublimesec/hydra-cpu:dev
     restart: unless-stopped
     ports:
       - "8200:8200"
