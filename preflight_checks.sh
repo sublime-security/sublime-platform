@@ -1,11 +1,13 @@
 #!/usr/bin/env bash
 
+. ./utils.sh
+
 # shellcheck disable=SC2154
 if [ "$skip_preflight" == "true" ]; then
     exit 0
 fi
 
-echo "Running preflight checks"
+print_info "Running preflight checks..."
 
 major_minor() {
   echo "${1%%.*}.$(
@@ -32,13 +34,13 @@ case "$(uname -s | tr '[:upper:]' '[:lower:]')" in
 esac
 
 if [ -z "$machine" ]; then
-    echo "Warning: You are using a non-recommended operating system so subsequent failures may occur"
+    print_warning "Warning: You are using a non-recommended operating system so subsequent failures may occur"
 fi
 
 if [ "$machine" == "macos" ]; then
     macos_version="$(/usr/bin/sw_vers -productVersion)"
     if version_lt "$(major_minor "$macos_version")" "11.0"; then
-        echo "Warning: Mac OS version $macos_version does not meet the recommended minimum version of 11.0"
+        print_warning "Warning: Mac OS version $macos_version does not meet the recommended minimum version of 11.0"
     fi
 fi
 
@@ -49,15 +51,15 @@ if [ "$machine" == "linux" ]; then
         # "Release:    18.04" -> "18.04"
         ubuntu_version="$(lsb_release -a 2>/dev/null | grep 'Release' | cut -d':' -f2 | xargs)"
         if version_lt "$ubuntu_version" "20.04"; then
-            echo "Warning: Ubuntu version $ubuntu_version does not meet the recommended minimum version of 20.04"
+            print_warning "Warning: Ubuntu version $ubuntu_version does not meet the recommended minimum version of 20.04"
         fi
     else
-        echo "Warning: Non-Ubuntu Linux distributions are unsupported and subsequent failures may occur"
+        print_warning "Warning: Non-Ubuntu Linux distributions are unsupported and subsequent failures may occur"
     fi
 fi
 
 if ! which git > /dev/null 2>&1; then
-    echo "git not installed. Please install git and retry (https://git-scm.com/downloads)"
+    print_error "git not installed. Please install git and retry (https://git-scm.com/downloads)"
     exit 1
 fi
 
@@ -73,18 +75,18 @@ git_version=${git_version##*version }
 git_version=${git_version%% (*}
 
 if version_lt "$(major_minor "$git_version")" "2.7"; then
-    echo "git version $git_version does not meet the minimum version of 2.7. Please update git and retry"
+    print_error "git version $git_version does not meet the minimum version of 2.7. Please update git and retry"
     exit 1
 fi
 
 if ! which docker > /dev/null 2>&1; then
     if [ "$machine" == "linux" ]; then
-        echo "docker not installed. Please install docker and retry (https://docs.docker.com/engine/install/ubuntu/#install-using-the-convenience-script)"
+        print_error "docker not installed. Please install docker and retry (https://docs.docker.com/engine/install/ubuntu/#install-using-the-convenience-script)"
         echo "Note: snap versions of docker are not supported. Please use the provided link above to install Docker"
         exit 1
     fi
 
-    echo "docker not installed. Please install docker and retry (https://docs.docker.com/get-docker/)"
+    print_error "docker not installed. Please install docker and retry (https://docs.docker.com/get-docker/)"
     exit 1
 fi
 
@@ -105,12 +107,12 @@ docker_version=${docker_version##*version }
 docker_version=${docker_version%%, *}
 
 if version_lt "$(major_minor "$docker_version")" "20.10"; then
-    echo "docker version $docker_version does not meet the minimum version of 20.10. Please update docker and retry"
+    print_error "docker version $docker_version does not meet the minimum version of 20.10. Please update docker and retry"
     exit 1
 fi
 
 if ! $docker_cmd_prefix docker info > /dev/null 2>&1; then
-	echo "docker is not running. Please start docker and retry"
+	print_error "docker is not running. Please start docker and retry"
 	exit 1
 fi
 

@@ -1,7 +1,9 @@
 #!/usr/bin/env bash
 
+. ./utils.sh
+
 if ! which jq > /dev/null 2>&1; then
-    echo "Post-flight checks require jq to be installed. Please install jq and retry (https://stedolan.github.io/jq/download/)"
+    print_error "Post-flight checks require jq to be installed. Please install jq and retry (https://stedolan.github.io/jq/download/)"
     exit 1
 fi
 
@@ -22,10 +24,10 @@ remaining_unhealthy_retries=$unhealthy_retries
 
 health_endpoint="$(grep 'API_PUBLIC_BASE_URL' sublime.env | cut -d'=' -f2)/v1/health"
 while [ $remaining_timeout_seconds -gt 0 ]; do
-    echo "Attempting to check Sublime Platform health"
+    print_info "Attempting to check Sublime Platform health"
 
     if [ "$(curl -s "$health_endpoint" | jq '.success')" == "true" ]; then
-        echo "Sublime Platform is healthy!"
+        print_success "Sublime Platform is healthy!"
         exit 0
     fi
 
@@ -34,7 +36,7 @@ while [ $remaining_timeout_seconds -gt 0 ]; do
     fi
 
     if [ $remaining_unhealthy_retries -lt 0 ]; then
-        echo "Sublime Platform is unhealthy. See details below:"
+        print_error "Sublime Platform is unhealthy. See details below:"
         curl -s "$health_endpoint" | jq '.'
         exit 1
     fi
@@ -43,5 +45,5 @@ while [ $remaining_timeout_seconds -gt 0 ]; do
     sleep $retry_interval_seconds
 done
 
-echo "Unable to check Sublime Platform health due to timeout"
+print_error "Unable to check Sublime Platform health due to timeout"
 exit 1
