@@ -91,7 +91,7 @@ if [ "$clone_platform" == "true" ]; then
         exit 1
     fi
 
-    cd sublime-platform || { printf "${color_error}Failed to cd into sublime-platform${color_default}\n"; exit 1; }
+    cd sublime-platform || { print_error "Failed to cd into sublime-platform"; exit 1; }
 fi
 
 
