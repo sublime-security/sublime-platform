@@ -28,6 +28,17 @@ version_lt() {
   [[ "${1%.*}" -lt "${2%.*}" ]] || [[ "${1%.*}" -eq "${2%.*}" && "${1#*.}" -lt "${2#*.}" ]]
 }
 
+open_ports() {
+  lsof -i -P -n | grep LISTEN | sed 's/^.*:\([0-9][0-9]*\) (LISTEN)/\1/g' | uniq
+}
+
+check_port() {
+  if open_ports | grep -q "$1"; then
+    print_error "Port $1 is already in use"
+    exit 1
+  fi
+}
+
 case "$(uname -s | tr '[:upper:]' '[:lower:]')" in
     linux*)     machine=linux;;
     darwin*)    machine=macos;;
@@ -57,6 +68,9 @@ if [ "$machine" == "linux" ]; then
         print_warning "Warning: Non-Ubuntu Linux distributions are unsupported and subsequent failures may occur"
     fi
 fi
+
+check_port 3000
+check_port 8000
 
 if ! which git > /dev/null 2>&1; then
     print_error "git not installed. Please install git and retry (https://git-scm.com/downloads)"
