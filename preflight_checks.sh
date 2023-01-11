@@ -5,9 +5,9 @@ if [ "$skip_preflight" == "true" ]; then
     exit 0
 fi
 
-print_info "Running preflight checks..."
-
 source /dev/stdin <<< "$(curl -sL https://raw.github.com/sublime-security/sublime-platform/${remote_branch}/utils.sh)"; echo done
+
+print_info "Running preflight checks..."
 
 major_minor() {
   echo "${1%%.*}.$(
