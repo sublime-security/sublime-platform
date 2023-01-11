@@ -1,13 +1,13 @@
 #!/usr/bin/env bash
 
-. ./utils.sh
-
 # shellcheck disable=SC2154
 if [ "$skip_preflight" == "true" ]; then
     exit 0
 fi
 
 print_info "Running preflight checks..."
+
+source /dev/stdin <<< "$(curl -sL https://raw.github.com/sublime-security/sublime-platform/${remote_branch}/utils.sh)"; echo done
 
 major_minor() {
   echo "${1%%.*}.$(
