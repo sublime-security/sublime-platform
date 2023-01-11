@@ -30,7 +30,6 @@ version_lt() {
 
 open_ports() {
   lsof -i -P -n | grep LISTEN | sed 's/^.*:\([0-9][0-9]*\) (LISTEN)/\1/g' | uniq
-  # lsof -i -P -n | grep LISTEN | awk '{ print $9}' | sed 's/.*:\([0-9][0-9]*\)/\1/g' | uniq
 }
 
 check_port() {
