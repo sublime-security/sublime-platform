@@ -3,6 +3,8 @@
 
 cmd_prefix="sudo "
 
+. ./utils.sh
+
 # Docker setups on OS X generally won't need sudo
 # TODO this check is pretty naive -- a properly setup docker/compose setup in Linux won't need sudo either
 case "$(uname -s | tr '[:upper:]' '[:lower:]')" in
@@ -12,7 +14,7 @@ esac
 
 if [[ "$1" != "always_launch" ]]; then
     if ! $cmd_prefix docker compose ps | grep "mantis" > /dev/null 2>&1; then
-        echo "docker compose appears to be brought down. Will not proceed to avoid relaunching."
+        print_error "docker compose appears to be brought down. Will not proceed to avoid relaunching."
         exit 0
     fi
 fi
@@ -28,7 +30,7 @@ if [[ -z "$(git status --porcelain)" ]]; then
             $cmd_prefix docker compose down --remove-orphans
 	fi
 else
-    echo "Uncommitted changes present, ignoring updates to sublime-platform git repo"
+    print_warning "Uncommitted changes present, ignoring updates to sublime-platform git repo"
 fi
 
 if [ -z "$sublime_host" ]; then

@@ -42,6 +42,16 @@
 #
 
 : -----------------------------------------
+:  Branch - default: main
+: -----------------------------------------
+
+# By default, this script assumes that it should pull dependencies from branch `main`. If you wish to get dependencies
+# from another branch, you can specify it here.
+#
+: curl -sL https://sublimesecurity.com/install.sh | remote_branch=custom-branch bash
+#
+
+: -----------------------------------------
 :  Clone Platform - default: true
 : -----------------------------------------
 
@@ -52,18 +62,25 @@
 : curl -sL https://sublimesecurity.com/install.sh | clone_platform=false bash
 #
 
-if ! curl -sL https://raw.githubusercontent.com/sublime-security/sublime-platform/main/preflight_checks.sh  | bash; then
-    exit 1
-fi
-
 if [ -z "$interactive" ]; then
     interactive="true"
 fi
 
+if [ -z "$remote_branch" ]; then
+    remote_branch="main"
+fi
+
+if ! curl -sL https://raw.githubusercontent.com/sublime-security/sublime-platform/${remote_branch}/preflight_checks.sh  | bash; then
+    exit 1
+fi
+
+source /dev/stdin <<< "$(curl -sL https://raw.github.com/sublime-security/sublime-platform/${remote_branch}/utils.sh)"
+
 if [ "$interactive" == "true" ] && [ -z "$sublime_host" ]; then
+    print_info "Configuring host..."
     # Since this script is intended to be piped into bash, we need to explicitly read input from /dev/tty because stdin
     # is streaming the script itself
-    printf "\nPlease specify the hostname or IP address of where you're deploying Sublime. If no scheme is specified then we'll default to http://\n"
+    printf "Please specify the hostname or IP address of where you're deploying Sublime. If no scheme is specified then we'll default to http://\n"
     read -rp "(IP address or hostname of your VPS or VM | default: http://localhost): " sublime_host </dev/tty
 fi
 
@@ -80,22 +97,22 @@ if [ -z "$clone_platform" ]; then
 fi
 
 if [ "$clone_platform" == "true" ]; then
-    echo "Cloning Sublime Platform repo"
+    print_info "Cloning Sublime Platform repo..."
     if ! git clone --depth=1 https://github.com/sublime-security/sublime-platform.git; then
-        echo "Failed to clone Sublime Platform repo"
+        print_error "Failed to clone Sublime Platform repo"
         echo "See https://docs.sublimesecurity.com/docs/quickstart-docker#troubleshooting for troubleshooting tips"
         echo "You may need to run the following command before retrying installation: rm -rf ./sublime-platform"
         exit 1
     fi
 
-    cd sublime-platform || { echo "Failed to cd into sublime-platform"; exit 1; }
+    cd sublime-platform || { print_error "Failed to cd into sublime-platform"; exit 1; }
 fi
 
 
-echo "Launching Sublime Platform"
+print_info "Launching Sublime Platform..."
 # We are skipping preflight checks because we've already performed them at the start of this script
 if ! sublime_host=$sublime_host skip_preflight=true ./launch-sublime-platform.sh; then
-    echo "Failed to launch Sublime Platform"
+    print_error "Failed to launch Sublime Platform"
     echo "See https://docs.sublimesecurity.com/docs/quickstart-docker#troubleshooting for troubleshooting tips"
     echo "If you'd like to reinstall Sublime then follow the steps outline in https://docs.sublimesecurity.com/docs/quickstart-docker#wipe-postgres-volume"
     echo "Afterwards, run: rm -rf ./sublime-platform"
@@ -103,7 +120,8 @@ if ! sublime_host=$sublime_host skip_preflight=true ./launch-sublime-platform.sh
     exit 1
 fi
 
-printf "\n** Successfully installed Sublime Platform! **\n\n"
+print_success "Successfully installed Sublime Platform!"
+
 dashboard_url=$(grep 'DASHBOARD_PUBLIC_BASE_URL' sublime.env | cut -d'=' -f2)
 printf "It may take a couple of minutes for all services to start for the first time\n"
 echo "Please go to your Sublime Dashboard at $dashboard_url"
