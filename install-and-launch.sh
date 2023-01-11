@@ -42,10 +42,18 @@
 #
 
 : -----------------------------------------
-:  Clone Platform - default: true
+:  Branch - default: main
 : -----------------------------------------
 
-. ./utils.sh
+# By default, this script assumes that it should pull dependencies from branch `main`. If you wish to get dependencies
+# from another branch, you can specify it here.
+#
+: curl -sL https://sublimesecurity.com/install.sh | remote_branch=custom-branch bash
+#
+
+: -----------------------------------------
+:  Clone Platform - default: true
+: -----------------------------------------
 
 # By default, this script will clone the latest Sublime Platform repo and enter into it before proceeding with the rest
 # of the installation. You may want to disable this if you're running this script from within the Sublime Platform repo
@@ -54,13 +62,19 @@
 : curl -sL https://sublimesecurity.com/install.sh | clone_platform=false bash
 #
 
-if ! curl -sL https://raw.githubusercontent.com/sublime-security/sublime-platform/main/preflight_checks.sh  | bash; then
-    exit 1
-fi
-
 if [ -z "$interactive" ]; then
     interactive="true"
 fi
+
+if [ -z "$remote_branch" ]; then
+    remote_branch="main"
+fi
+
+if ! curl -sL https://raw.githubusercontent.com/sublime-security/sublime-platform/${remote_branch}/preflight_checks.sh  | bash; then
+    exit 1
+fi
+
+source /dev/stdin <<< "$(curl -sL https://raw.github.com/sublime-security/sublime-platform/${remote_branch}/utils.sh)"; echo done
 
 if [ "$interactive" == "true" ] && [ -z "$sublime_host" ]; then
     print_info "Configuring host..."
