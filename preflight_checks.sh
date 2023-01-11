@@ -70,8 +70,6 @@ if [ "$machine" == "linux" ]; then
 fi
 
 check_port 3000
-check_port 5432
-check_port 6379
 check_port 8000
 
 if ! which git > /dev/null 2>&1; then
