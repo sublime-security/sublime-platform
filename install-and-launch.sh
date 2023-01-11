@@ -74,7 +74,7 @@ if ! curl -sL https://raw.githubusercontent.com/sublime-security/sublime-platfor
     exit 1
 fi
 
-source /dev/stdin <<< "$(curl -sL https://raw.github.com/sublime-security/sublime-platform/${remote_branch}/utils.sh)"; echo done
+source /dev/stdin <<< "$(curl -sL https://raw.github.com/sublime-security/sublime-platform/${remote_branch}/utils.sh)"
 
 if [ "$interactive" == "true" ] && [ -z "$sublime_host" ]; then
     print_info "Configuring host..."
