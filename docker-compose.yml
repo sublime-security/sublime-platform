@@ -18,6 +18,7 @@ services:
       AWS_REGION: us-east-1
       HYDRA_URL: http://hydra:8200
       DEPLOYMENT_INFRA_TYPE: "DOCKER_COMPOSE"
+      LOG_LEVEL: "WARN"
     env_file: sublime.env
     ports:
       - "0.0.0.0:8000:8000"
@@ -43,6 +44,7 @@ services:
       AWS_REGION: us-east-1
       HYDRA_URL: http://hydra:8200
       DEPLOYMENT_INFRA_TYPE: "DOCKER_COMPOSE"
+      LOG_LEVEL: "WARN"
     env_file: sublime.env
     networks:
       - net
