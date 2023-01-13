@@ -70,6 +70,8 @@ if [ -z "$remote_branch" ]; then
     remote_branch="main"
 fi
 
+export remote_branch
+
 if ! curl -sL https://raw.githubusercontent.com/sublime-security/sublime-platform/${remote_branch}/preflight_checks.sh  | bash; then
     exit 1
 fi
