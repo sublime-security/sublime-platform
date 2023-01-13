@@ -152,13 +152,13 @@ if version_lt "$(major_minor "$docker_compose_version")" "2.4"; then
     exit 1
 fi
 
-if ! which cron > /dev/null 2>&1; then
+if [ "$auto_updates" == "true" ] && ! which cron > /dev/null 2>&1; then
     echo "cron not installed. Please install cron and retry"
     exit 1
 fi
 
-if which systemctl > /dev/null 2>&1 && ! systemctl status cron > /dev/null 2>&1; then
-    # this check may not be reliable if some other init system is used, or maybe cron was temp disabled.
+if [ "$auto_updates" == "true" ] && which systemctl > /dev/null 2>&1 && ! systemctl status cron > /dev/null 2>&1; then
+    # This check may not be reliable if some other init system is used, or maybe cron was temp disabled
     echo "cron may not be running! Will proceed, but auto updates will not function without cron"
 fi
 
