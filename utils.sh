@@ -24,6 +24,8 @@ print_color() {
         COLOR="$color_warning"
     elif [ "$2" == "error" ] ; then
         COLOR="$color_error"
+    elif [ "$2" == "bold" ] ; then
+        COLOR="$color_bold"
     else #default color
         COLOR="$color_default"
     fi
@@ -50,4 +52,8 @@ print_info() {
 
 print_warning() {
    print_color "\n$1\n" "warning"
+}
+
+print_bold() {
+   print_color "\n$1\n" "bold"
 }
