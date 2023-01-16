@@ -34,8 +34,8 @@ open_ports() {
 
 check_port() {
   if open_ports | grep -q "$1"; then
-    print_error "Port $1 is already in use\n\n"
-    printf "If you're unable to free this port, reach out for help with how to use a different port: support@sublimesecurity.com"
+    print_error "Port $1 is already in use\n"
+    echo "If you're unable to free this port, reach out for assistance: support@sublimesecurity.com"
     exit 1
   fi
 }
