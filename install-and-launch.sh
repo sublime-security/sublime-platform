@@ -136,8 +136,8 @@ if ! sublime_host=$sublime_host skip_preflight=true interactive=$interactive aut
     exit 1
 fi
 
-print_success "Successfully installed Sublime Platform!\n\n"
+print_success "Successfully installed Sublime Platform!"
 
 dashboard_url=$(grep 'DASHBOARD_PUBLIC_BASE_URL' sublime.env | cut -d'=' -f2)
-printf "It may take a couple of minutes for all services to start for the first time.\n\n"
-print_bold "Please go to your Sublime Dashboard at: $dashboard_url"
+printf "\nIt may take a couple of minutes for all services to start for the first time.\n"
+print_bold "Your Sublime Dashboard: $dashboard_url"
