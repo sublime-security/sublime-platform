@@ -85,6 +85,8 @@ if [ "$interactive" != "true" ] && [ -z "$auto_updates" ]; then
     auto_updates=true
 fi
 
+export remote_branch
+
 if ! curl -sL https://raw.githubusercontent.com/sublime-security/sublime-platform/${remote_branch}/preflight_checks.sh  | bash; then
     exit 1
 fi
