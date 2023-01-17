@@ -1,5 +1,9 @@
 #!/bin/bash
 
+if [ -z "$auto_updates" ]; then
+    auto_updates=true
+fi
+
 if ! ./preflight_checks.sh; then
     exit 1
 fi
