@@ -140,4 +140,5 @@ print_success "Successfully installed Sublime Platform!"
 
 dashboard_url=$(grep 'DASHBOARD_PUBLIC_BASE_URL' sublime.env | cut -d'=' -f2)
 printf "\nIt may take a couple of minutes for all services to start for the first time.\n"
+printf "If you run into issues, see the troubleshooting guide: https://docs.sublimesecurity.com/docs/quickstart-docker#troubleshooting\n"
 print_bold "Your Sublime Dashboard: $dashboard_url"
