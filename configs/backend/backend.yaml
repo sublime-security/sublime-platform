@@ -11,4 +11,8 @@ coordinator:
 tasting:
   mime_db: null
   yara_rules: '/strelka/config'
+  # Replace the line above with the line below to use custom yara defined in ./configs/backend/yara (in this repo)
+  #  yara_rules: '/etc/strelka/yara'
 scanners: '/strelka/config/scanners.yaml'
+# Replace the line above with the line below to use custom yara scanners defined in ./configs/backend/scanners.yaml (in this repo)
+#scanners: '/etc/strelka/scanners.yaml'
