@@ -101,26 +101,6 @@ if [ "$interactive" == "true" ] && [ -z "$sublime_host" ]; then
     read -rp "(IP address or hostname of your VPS or VM | default: http://localhost): " sublime_host </dev/tty
 fi
 
-if [ "$interactive" == "true" ] && [ -z "$auto_updates" ]; then
-    print_info "Configuring automatic updates..."
-
-    while true; do
-        # Since this script is intended to be piped into bash, we need to explicitly read input from /dev/tty because stdin
-        # is streaming the script itself
-        read -rp "Would you like to enable auto-updates? If yes, your terminal may request permissions to make updates to your computer: [Y/n]: " yn </dev/tty
-        case $yn in
-            [Yy]* ) auto_updates="true"; break;;
-            [Nn]* ) auto_updates="false"; break;;
-            * ) echo "Please answer y or n.";;
-        esac
-    done
-
-    # Re-run preflight checks with auto_update flag configured
-    if ! curl -sL https://raw.githubusercontent.com/sublime-security/sublime-platform/${remote_branch}/preflight_checks.sh | auto_updates=$auto_updates bash; then
-        exit 1
-    fi
-fi
-
 if [ -z "$sublime_host" ]; then
     sublime_host="http://localhost"
 fi
@@ -145,10 +125,8 @@ if [ "$clone_platform" == "true" ]; then
     cd sublime-platform || { print_error "Failed to cd into sublime-platform"; exit 1; }
 fi
 
-
-print_info "Launching Sublime Platform..."
 # We are skipping preflight checks because we've already performed them at the start of this script
-if ! sublime_host=$sublime_host skip_preflight=true auto_updates=$auto_updates ./launch-sublime-platform.sh; then
+if ! sublime_host=$sublime_host skip_preflight=true interactive=$interactive auto_updates=$auto_updates ./launch-sublime-platform.sh; then
     print_error "Failed to launch Sublime Platform"
     echo "See https://docs.sublimesecurity.com/docs/quickstart-docker#troubleshooting for troubleshooting tips"
     echo "If you'd like to reinstall Sublime then follow the steps outline in https://docs.sublimesecurity.com/docs/quickstart-docker#wipe-postgres-volume"

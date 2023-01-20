@@ -1,6 +1,12 @@
 #!/bin/bash
 
-if [ -z "$auto_updates" ]; then
+. ./utils.sh
+
+if [ -z "$interactive" ]; then
+    interactive="true"
+fi
+
+if [ "$interactive" != "true" ] && [ -z "$auto_updates" ]; then
     auto_updates=true
 fi
 
@@ -8,11 +14,40 @@ if ! ./preflight_checks.sh; then
     exit 1
 fi
 
-# If this command is modified we might need a more sophisticated check below (worse case is more updates than intended)
-update_command="cd ""$(pwd)"" && bash -lc ./update-and-run.sh"
+print_info "Configuring automatic updates..."
+if [ "$interactive" == "true" ] && [ -z "$auto_updates" ]; then
+    while true; do
+        # Since this script is intended to be piped into bash, we need to explicitly read input from /dev/tty because stdin
+        # is streaming the script itself
+        read -rp "Would you like to enable auto-updates? If yes, your terminal may request permissions to make updates to your computer: [Y/n]: " yn </dev/tty
+        case $yn in
+            [Yy]* | "" ) auto_updates="true"; break;;
+            [Nn]* ) auto_updates="false"; break;;
+            * ) echo "Please answer y or n.";;
+        esac
+    done
+fi
 
-# shellcheck disable=SC2154
+if [ -z "$auto_updates" ]; then
+    auto_updates=true
+fi
+
 if [ "$auto_updates" == "true" ]; then
+    # We run cron specific preflight checks again in case the user interactively enabled automatic updates
+    if ! which cron > /dev/null 2>&1; then
+        print_error "cron not installed"
+        echo "Please install cron and retry"
+        exit 1
+    fi
+
+    if which systemctl > /dev/null 2>&1 && ! systemctl status cron > /dev/null 2>&1; then
+        # This check may not be reliable if some other init system is used, or maybe cron was temp disabled
+        print_warning "cron may not be running! Will proceed, but auto updates will not function without cron"
+    fi
+
+    # If this command is modified we might need a more sophisticated check below (worse case is more updates than intended)
+    update_command="cd ""$(pwd)"" && bash -lc ./update-and-run.sh"
+
     if ! crontab -l | grep "$update_command" > /dev/null 2>&1; then
         echo "Adding daily update check"
         (crontab -l 2>/dev/null; echo "0 12 * * * ""$update_command") | crontab -
@@ -21,5 +56,5 @@ if [ "$auto_updates" == "true" ]; then
     fi
 fi
 
-echo "Updating and running!"
+print_info "Launching Sublime Platform..."
 ./update-and-run.sh always_launch
