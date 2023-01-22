@@ -19,7 +19,7 @@ if [ "$interactive" == "true" ] && [ -z "$auto_updates" ]; then
     while true; do
         # Since this script is intended to be piped into bash, we need to explicitly read input from /dev/tty because stdin
         # is streaming the script itself
-        read -rp "Would you like to enable auto-updates? If yes, your terminal may request permissions to make updates to your computer: [Y/n]: " yn </dev/tty
+        read -rp "Would you like to enable auto-updates?\n\nYour terminal may request permissions to make updates to your computer: [Y/n]: " yn </dev/tty
         case $yn in
             [Yy]* | "" ) auto_updates="true"; break;;
             [Nn]* ) auto_updates="false"; break;;
@@ -35,7 +35,7 @@ fi
 if [ "$auto_updates" == "true" ]; then
     # We run cron specific preflight checks again in case the user interactively enabled automatic updates
     if ! which cron > /dev/null 2>&1; then
-        print_error "cron not installed"
+        print_error "Cron not installed"
         echo "Please install cron and retry"
         exit 1
     fi
