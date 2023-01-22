@@ -118,8 +118,8 @@ if [ "$clone_platform" == "true" ]; then
     print_info "Cloning Sublime Platform repo..."
     if ! git clone --depth=1 https://github.com/sublime-security/sublime-platform.git; then
         print_error "Failed to clone Sublime Platform repo\n\n"
-        echo "See https://docs.sublimesecurity.com/docs/quickstart-docker#troubleshooting for troubleshooting tips\n\n"
-        echo "You may need to run the following command before retrying installation: rm -rf ./sublime-platform"
+        printf "See https://docs.sublimesecurity.com/docs/quickstart-docker#troubleshooting for troubleshooting tips\n\n"
+        printf "You may need to run the following command before retrying installation: rm -rf ./sublime-platform"
         exit 1
     fi
 
@@ -141,4 +141,4 @@ print_success "Successfully installed Sublime Platform!\n\n"
 
 dashboard_url=$(grep 'DASHBOARD_PUBLIC_BASE_URL' sublime.env | cut -d'=' -f2)
 printf "It may take a couple of minutes for all services to start for the first time.\n\n"
-echo "Please go to your Sublime Dashboard at $dashboard_url"
+print_bold "Please go to your Sublime Dashboard at: $dashboard_url"

@@ -45,13 +45,14 @@ case "$(uname -s | tr '[:upper:]' '[:lower:]')" in
 esac
 
 if [ -z "$machine" ]; then
-    print_warning "Warning: You are using a non-recommended operating system so subsequent failures may occur"
+    print_warning "Warning: You are using a non-recommended operating system so subsequent failures may occur\n\n"
+    printf "Recommended operating systems: https://docs.sublimesecurity.com/docs/quickstart-docker#requirements"
 fi
 
 if [ "$machine" == "macos" ]; then
     macos_version="$(/usr/bin/sw_vers -productVersion)"
     if version_lt "$(major_minor "$macos_version")" "11.0"; then
-        print_warning "Warning: Mac OS version $macos_version does not meet the recommended minimum version of 11.0"
+        print_warning "Warning: Mac OS version $macos_version does not meet the recommended minimum version of 11.0\n\n"
     fi
 fi
 
@@ -62,10 +63,10 @@ if [ "$machine" == "linux" ]; then
         # "Release:    18.04" -> "18.04"
         ubuntu_version="$(lsb_release -a 2>/dev/null | grep 'Release' | cut -d':' -f2 | xargs)"
         if version_lt "$ubuntu_version" "20.04"; then
-            print_warning "Warning: Ubuntu version $ubuntu_version does not meet the recommended minimum version of 20.04"
+            print_warning "Warning: Ubuntu version $ubuntu_version does not meet the recommended minimum version of 20.04\n\n"
         fi
     else
-        print_warning "Warning: Non-Ubuntu Linux distributions are unsupported and subsequent failures may occur"
+        print_warning "Warning: Non-Ubuntu Linux distributions are currently not recommended and subsequent failures may occur\n\n"
     fi
 fi
 
@@ -95,12 +96,12 @@ fi
 
 if ! which docker > /dev/null 2>&1; then
     if [ "$machine" == "linux" ]; then
-        print_error "docker not installed. Please install docker and retry (https://docs.docker.com/engine/install/ubuntu/#install-using-the-convenience-script)"
-        echo "Note: snap versions of docker are not supported. Please use the provided link above to install Docker"
+        print_error "Docker not installed. Please install docker and retry: https://docs.docker.com/engine/install/ubuntu/#install-using-the-convenience-script"
+        print_warning "Note: snap versions of docker are not supported. Please use the provided link above to install Docker"
         exit 1
     fi
 
-    print_error "docker not installed. Please install docker and retry (https://docs.docker.com/get-docker/)"
+    print_error "Docker not installed. Please install docker and retry: https://docs.docker.com/get-docker/"
     exit 1
 fi
 
@@ -139,27 +140,30 @@ docker_compose_version=${docker_compose_version##*version v}
 
 if [ -z "$docker_compose_version" ]; then
     if [ "$machine" == "linux" ]; then
-        echo "docker compose not installed. Please install docker compose and retry (https://docs.docker.com/compose/install/linux/#install-using-the-repository)"
+        print_error "Docker Compose is not installed\n\n"
+        printf "Please install Docker Compose and retry: https://docs.docker.com/compose/install/linux/#install-using-the-repository"
         exit 1
     fi
 
-    echo "docker compose not installed. Please install docker compose and retry (https://docs.docker.com/compose/install/)"
+    print_error "Docker Compose is not installed\n\n"
+    printf "Please install Docker Compose and retry: https://docs.docker.com/compose/install/"
     exit 1
 fi
 
 if version_lt "$(major_minor "$docker_compose_version")" "2.4"; then
-    echo "docker compose version $docker_compose_version does not meet the minimum version of 2.4. Please update docker compose and retry"
+    print_error "Docker Compose version $docker_compose_version does not meet the minimum version of 2.4\n\n"
+    printf "Please update Docker Compose and retry"
     exit 1
 fi
 
 if [ "$auto_updates" == "true" ] && ! which cron > /dev/null 2>&1; then
-    echo "cron not installed. Please install cron and retry"
-    exit 1
+    print_error "Cron is not installed\n\n"
+    printf "Please install cron and retry"
 fi
 
 if [ "$auto_updates" == "true" ] && which systemctl > /dev/null 2>&1 && ! systemctl status cron > /dev/null 2>&1; then
     # This check may not be reliable if some other init system is used, or maybe cron was temp disabled
-    echo "cron may not be running! Will proceed, but auto updates will not function without cron"
+    print_warning "Cron may not be running! Will proceed, but auto updates will not function without cron"
 fi
 
 # snap, an ubuntu package manager, versions of docker won't play nicely with compose
@@ -167,11 +171,11 @@ fi
 # our software is related to snap issues, but we don't want anyone to uninstall snap
 # docker without realizing they could loose data (from our platform or other applications).
 if which snap > /dev/null 2>&1 && snap list | grep -i docker > /dev/null 2>&1; then
-    echo "snap versions of docker software detected! Cannot proceed."
-    echo "snap versions of docker are not recommended and can cause issues when using compose in the future (e.g. cannot bring containers down)"
-    echo "please uninstall snap docker packages and install with apt"
-    echo "If you have existing docker containers or volumes or are otherwise unsure, please contact support@sublimesecurity.com for assistance"
+    print_error "Snap versions of Docker detected! Cannot proceed\n"
+    print_error "Snap versions of Docker are not recommended because they can cause issues when using Docker Compose in the future (e.g. cannot bring containers down)\n\n"
+    printf "Please uninstall Snap Docker packages and install with apt instead.\n\n"
+    printf "If you have existing docker containers or volumes or are otherwise unsure, please contact support@sublimesecurity.com for assistance"
     exit 1
 fi
 
-echo "Successfully completed preflight checks!"
+print_success "Successfully completed preflight checks!"
