@@ -27,7 +27,7 @@ while [ $remaining_timeout_seconds -gt 0 ]; do
     print_info "Attempting to check Sublime Platform health"
 
     if [ "$(curl -s "$health_endpoint" | jq '.success')" == "true" ]; then
-        print_success "Sublime Platform is healthy!"
+        print_success "** Sublime Platform is healthy! **"
         exit 0
     fi
 

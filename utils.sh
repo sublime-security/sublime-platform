@@ -8,10 +8,10 @@
 # Sublime installation scripts.
 
 color_default="0m"
-color_info="96m"
-color_success="92m"
-color_warning="93m"
-color_error="91m"
+color_info="94m" # blue
+color_success="92m" # green
+color_warning="93m" # yellow
+color_error="91m" # red
 
 # prints colored text
 print_color() {
@@ -38,9 +38,7 @@ print_error() {
 }
 
 print_success() {
-   printf "\n** "
-   print_color "$1" "success"
-   printf " **\n"
+   print_color "\n$1\n" "success"
 }
 
 print_info() {

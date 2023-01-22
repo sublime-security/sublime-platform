@@ -75,6 +75,25 @@
 
 if [ -z "$interactive" ]; then
     interactive="true"
+
+    # ascii art
+    # credit: https://patorjk.com/
+    # font: Cyberlarge
+    cat << EOF
+
+======================================================================
+|  _______ _     _ ______         _____ _______ _______              |
+|   |______ |     | |_____] |        |   |  |  | |______             |
+|   ______| |_____| |_____] |_____ __|__ |  |  | |______             |
+|                                                                    |
+|    _____         _______ _______ _______  _____   ______ _______   |
+|   |_____] |      |_____|    |    |______ |     | |_____/ |  |  |   |
+|   |       |_____ |     |    |    |       |_____| |    \_ |  |  |   |
+|                                                                    |
+======================================================================
+
+EOF
+
 fi
 
 if [ -z "$remote_branch" ]; then
@@ -94,11 +113,12 @@ fi
 source /dev/stdin <<< "$(curl -sL https://raw.github.com/sublime-security/sublime-platform/${remote_branch}/utils.sh)"
 
 if [ "$interactive" == "true" ] && [ -z "$sublime_host" ]; then
-    print_info "Configuring host..."
+    print_info "Configuring host...\n"
     # Since this script is intended to be piped into bash, we need to explicitly read input from /dev/tty because stdin
     # is streaming the script itself
-    printf "Please specify the hostname or IP address of where you're deploying Sublime. If no scheme is specified then we'll default to http://\n"
-    read -rp "(IP address or hostname of your VPS or VM | default: http://localhost): " sublime_host </dev/tty
+    printf "Please specify the hostname or IP address of where you're deploying Sublime. You can change this later.\n\n"
+    # printf "You can change this at any time: https://docs.sublimesecurity.com/docs/quickstart-docker#updating-your-sublime-host\n\n"
+    read -rp "Press enter to accept 'http://localhost' as the default: " sublime_host </dev/tty
 fi
 
 if [ -z "$sublime_host" ]; then
@@ -116,9 +136,9 @@ fi
 if [ "$clone_platform" == "true" ]; then
     print_info "Cloning Sublime Platform repo..."
     if ! git clone --depth=1 https://github.com/sublime-security/sublime-platform.git; then
-        print_error "Failed to clone Sublime Platform repo"
-        echo "See https://docs.sublimesecurity.com/docs/quickstart-docker#troubleshooting for troubleshooting tips"
-        echo "You may need to run the following command before retrying installation: rm -rf ./sublime-platform"
+        print_error "Failed to clone Sublime Platform repo\n"
+        printf "Troubleshooting tips: https://docs.sublimesecurity.com/docs/quickstart-docker#troubleshooting\n\n"
+        printf "You may need to run the following command before retrying installation: rm -rf ./sublime-platform\n"
         exit 1
     fi
 
@@ -127,16 +147,17 @@ fi
 
 # We are skipping preflight checks because we've already performed them at the start of this script
 if ! sublime_host=$sublime_host skip_preflight=true interactive=$interactive auto_updates=$auto_updates ./launch-sublime-platform.sh; then
-    print_error "Failed to launch Sublime Platform"
-    echo "See https://docs.sublimesecurity.com/docs/quickstart-docker#troubleshooting for troubleshooting tips"
-    echo "If you'd like to reinstall Sublime then follow the steps outline in https://docs.sublimesecurity.com/docs/quickstart-docker#wipe-postgres-volume"
-    echo "Afterwards, run: rm -rf ./sublime-platform"
-    echo "You can then go through the Sublime Platform installation again"
+    print_error "Failed to launch Sublime Platform\n"
+    printf "Troubleshooting tips: https://docs.sublimesecurity.com/docs/quickstart-docker#troubleshooting\n\n"
+    printf "If you'd like to re-install Sublime then follow these steps: https://docs.sublimesecurity.com/docs/quickstart-docker#wipe-your-data\n\n"
+    printf "Afterwards, run: rm -rf ./sublime-platform\n\n"
+    printf "You can then go through the Sublime Platform installation again"
     exit 1
 fi
 
-print_success "Successfully installed Sublime Platform!"
+print_success "** Successfully installed Sublime Platform! **"
 
 dashboard_url=$(grep 'DASHBOARD_PUBLIC_BASE_URL' sublime.env | cut -d'=' -f2)
-printf "It may take a couple of minutes for all services to start for the first time\n"
-echo "Please go to your Sublime Dashboard at $dashboard_url"
+printf "\nIt may take a couple of minutes for all services to start for the first time.\n\n"
+printf "For info on how to start or stop the Platform, or help with troubleshooting, see the docs: https://docs.sublimesecurity.com/docs/quickstart-docker#troubleshooting\n"
+print_success "Your Sublime Dashboard: $dashboard_url"
