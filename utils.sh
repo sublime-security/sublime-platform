@@ -8,10 +8,11 @@
 # Sublime installation scripts.
 
 color_default="0m"
-color_info="96m"
-color_success="92m"
-color_warning="93m"
-color_error="91m"
+color_info="94m" # blue
+color_success="92m" # green
+color_warning="93m" # yellow
+color_error="91m" # red
+color_bold="97m" # white
 
 # prints colored text
 print_color() {
