@@ -75,7 +75,8 @@ check_port 3000
 check_port 8000
 
 if ! which git > /dev/null 2>&1; then
-    print_error "git not installed. Please install git and retry (https://git-scm.com/downloads)"
+    print_error "Git is not installed"
+    echo "Please install git and retry: https://git-scm.com/downloads"
     exit 1
 fi
 
