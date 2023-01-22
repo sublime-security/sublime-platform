@@ -19,9 +19,9 @@ if [ "$interactive" == "true" ] && [ -z "$auto_updates" ]; then
     while true; do
         # Since this script is intended to be piped into bash, we need to explicitly read input from /dev/tty because stdin
         # is streaming the script itself
-        read -rp 'Would you like to enable auto-updates?\n\nYour terminal may request permissions to make updates to your computer: [Y/n]: ' yn </dev/tty
+        read -rp 'Would you like to enable auto-updates? [Y/n]: ' yn </dev/tty
         case $yn in
-            [Yy]* | "" ) auto_updates="true"; break;;
+            [Yy]* | "" ) auto_updates="true"; read -p 'Your terminal may request permission to add a cron job in the next step. Press enter to continue...'; break;;
             [Nn]* ) auto_updates="false"; break;;
             * ) echo "Please answer y or n.";;
         esac
