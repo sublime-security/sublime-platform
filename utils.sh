@@ -12,7 +12,6 @@ color_info="94m" # blue
 color_success="92m" # green
 color_warning="93m" # yellow
 color_error="91m" # red
-color_bold="97m" # white
 
 # prints colored text
 print_color() {
@@ -24,8 +23,6 @@ print_color() {
         COLOR="$color_warning"
     elif [ "$2" == "error" ] ; then
         COLOR="$color_error"
-    elif [ "$2" == "bold" ] ; then
-        COLOR="$color_bold"
     else #default color
         COLOR="$color_default"
     fi
@@ -41,9 +38,7 @@ print_error() {
 }
 
 print_success() {
-   printf "\n** "
-   print_color "$1" "success"
-   printf " **\n"
+   print_color "\n$1\n" "success"
 }
 
 print_info() {
@@ -52,8 +47,4 @@ print_info() {
 
 print_warning() {
    print_color "\n$1\n" "warning"
-}
-
-print_bold() {
-   print_color "\n$1\n" "bold"
 }

@@ -180,4 +180,4 @@ if which snap > /dev/null 2>&1 && snap list | grep -i docker > /dev/null 2>&1; t
     exit 1
 fi
 
-print_success "Successfully completed preflight checks!"
+print_success "** Successfully completed preflight checks! **"
