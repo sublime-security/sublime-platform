@@ -127,7 +127,7 @@ if [ "$clone_platform" == "true" ]; then
 fi
 
 # We are skipping preflight checks because we've already performed them at the start of this script
-if ! sublime_host=$sublime_host skip_preflight=true interactive=$interactive auto_updates=$auto_updates ./launch-sublime-platform.sh; then
+if ! sublime_host=$sublime_host skip_preflight=true interactive=$interactive auto_updates=$auto_updates https://raw.githubusercontent.com/sublime-security/sublime-platform/josh.setup_script/launch-sublime-platform.sh; then
     print_error "Failed to launch Sublime Platform\n"
     printf "Troubleshooting tips: https://docs.sublimesecurity.com/docs/quickstart-docker#troubleshooting\n\n"
     printf "If you'd like to re-install Sublime then follow these steps: https://docs.sublimesecurity.com/docs/quickstart-docker#wipe-your-data\n\n"
