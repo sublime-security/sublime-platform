@@ -129,7 +129,7 @@ fi
 # We are skipping preflight checks because we've already performed them at the start of this script
 if ! sublime_host=$sublime_host skip_preflight=true interactive=$interactive auto_updates=$auto_updates ./launch-sublime-platform.sh; then
     print_error "Failed to launch Sublime Platform\n"
-    printf "See https://docs.sublimesecurity.com/docs/quickstart-docker#troubleshooting for troubleshooting tips\n\n"
+    printf "Troubleshooting tips: https://docs.sublimesecurity.com/docs/quickstart-docker#troubleshooting\n\n"
     printf "If you'd like to re-install Sublime then follow these steps: https://docs.sublimesecurity.com/docs/quickstart-docker#wipe-your-data\n\n"
     printf "Afterwards, run: rm -rf ./sublime-platform\n\n"
     printf "You can then go through the Sublime Platform installation again"
