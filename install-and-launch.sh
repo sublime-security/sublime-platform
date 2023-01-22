@@ -76,6 +76,9 @@
 if [ -z "$interactive" ]; then
     interactive="true"
 
+    # ascii art
+    # credit: https://patorjk.com/
+    # font: Cyberlarge
     cat << EOF
 
 ======================================================================
