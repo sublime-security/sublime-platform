@@ -114,6 +114,19 @@ source /dev/stdin <<< "$(curl -sL https://raw.github.com/sublime-security/sublim
 
 if [ "$interactive" == "true" ] && [ -z "$sublime_host" ]; then
     print_info "Configuring host...\n"
+
+    # showing 'http://localhost' as the default can be confusing if you're on a remote host
+    # make an attempt at showing an intelligent default host
+
+    # 1 - if $SSH_CLIENT is set, parse the IP and use that as the default
+    # this should generally always be set if you're SSH'd in, unless you've forced no TTY (i.e. ssh -T)
+    if [ -n "$SSH_CLIENT" ]; then
+        sshvars=($SSH_CLIENT)
+        default_host="http://${sshvars[0]}"
+    else
+        default_host="http://localhost"
+    fi
+
     # Since this script is intended to be piped into bash, we need to explicitly read input from /dev/tty because stdin
     # is streaming the script itself
     printf "Please specify the hostname or IP address of where you're deploying Sublime. You can change this later.\n\n"
