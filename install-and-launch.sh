@@ -128,7 +128,8 @@ if [ "$interactive" == "true" ] && [ -z "$sublime_host" ]; then
 
     # Since this script is intended to be piped into bash, we need to explicitly read input from /dev/tty because stdin
     # is streaming the script itself
-    printf "Please specify the hostname or IP address for how you'll access your Sublime Dashboard. You can change this later.\n\n"
+    printf "Please specify the hostname or IP address of where you're deploying Sublime. We'll use this to configure your CORS settings.\n\n"
+    printf "This should match the hostname you'll use to access your deployment after setup. You can change this later.\n\n"
     # printf "You can change this at any time: https://docs.sublimesecurity.com/docs/quickstart-docker#updating-your-sublime-host\n\n"
     read -rp "Press enter to accept '$default_host' as the default: " sublime_host </dev/tty
 fi
@@ -136,8 +137,6 @@ fi
 if [ -z "$sublime_host" ]; then
     sublime_host=$default_host
 fi
-
-echo $sublime_host
 
 if [[ "$sublime_host" != http* ]]; then
     sublime_host="http://$sublime_host"
