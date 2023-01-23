@@ -119,7 +119,7 @@ if [ "$interactive" == "true" ] && [ -z "$sublime_host" ]; then
     # showing 'http://localhost' as the default can be confusing if you're on a remote host
     # make an attempt at showing an intelligent default host
 
-    # 1 - if $SSH_CLIENT is set, parse the IP and use that as the default
+    # if $SSH_CLIENT is set, parse the IP and use that as the default
     # this should generally always be set if you're SSH'd in, unless you've forced no TTY (i.e. ssh -T)
     if [ -n "$SSH_CLIENT" ]; then
         sshvars=($SSH_CLIENT)
