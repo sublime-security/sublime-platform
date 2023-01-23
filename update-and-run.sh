@@ -92,5 +92,5 @@ if ! grep "API_PUBLIC_BASE_URL" $SUBLIME_ENV_FILE > /dev/null 2>&1; then
     echo "Configured API URL"
 fi
 
-$cmd_prefix docker compose pull && $cmd_prefix docker compose up -d
+$cmd_prefix docker compose up --quiet-pull -d
 
