@@ -112,6 +112,7 @@ fi
 
 source /dev/stdin <<< "$(curl -sL https://raw.github.com/sublime-security/sublime-platform/${remote_branch}/utils.sh)"
 
+default_host="http://localhost"
 if [ "$interactive" == "true" ] && [ -z "$sublime_host" ]; then
     print_info "Configuring host...\n"
 
@@ -123,20 +124,20 @@ if [ "$interactive" == "true" ] && [ -z "$sublime_host" ]; then
     if [ -n "$SSH_CLIENT" ]; then
         sshvars=($SSH_CLIENT)
         default_host="http://${sshvars[0]}"
-    else
-        default_host="http://localhost"
     fi
 
     # Since this script is intended to be piped into bash, we need to explicitly read input from /dev/tty because stdin
     # is streaming the script itself
-    printf "Please specify the hostname or IP address of where you're deploying Sublime. You can change this later.\n\n"
+    printf "Please specify the hostname or IP address for how you'll access your Sublime Dashboard. You can change this later.\n\n"
     # printf "You can change this at any time: https://docs.sublimesecurity.com/docs/quickstart-docker#updating-your-sublime-host\n\n"
-    read -rp "Press enter to accept 'http://localhost' as the default: " sublime_host </dev/tty
+    read -rp "Press enter to accept '$default_host' as the default: " sublime_host </dev/tty
 fi
 
 if [ -z "$sublime_host" ]; then
-    sublime_host="http://localhost"
+    sublime_host=$default_host
 fi
+
+echo $sublime_host
 
 if [[ "$sublime_host" != http* ]]; then
     sublime_host="http://$sublime_host"
