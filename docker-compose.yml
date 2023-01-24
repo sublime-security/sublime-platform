@@ -4,7 +4,7 @@ services:
   mantis:
     image: sublimesec/mantis:0.39
     restart: unless-stopped
-    container_name: mantis
+    container_name: sublime_mantis
     environment:
       POSTGRES_HOST: postgres
       POSTGRES_USER: sublime
@@ -31,7 +31,7 @@ services:
   bora_lite:
     image: sublimesec/bora-lite:0.39
     restart: unless-stopped
-    container_name: bora-lite
+    container_name: sublime_bora-lite
     environment:
       POSTGRES_HOST: postgres
       POSTGRES_USER: sublime
@@ -56,7 +56,7 @@ services:
   postgres:
     image: postgres:13.2
     restart: unless-stopped
-    container_name: postgres
+    container_name: sublime_postgres
     environment:
       POSTGRES_USER: sublime
       POSTGRES_DB: mantis
@@ -69,7 +69,7 @@ services:
   dashboard:
     image: sublimesec/dashboard:0.39
     restart: unless-stopped
-    container_name: dashboard
+    container_name: sublime_dashboard
     ports:
       - "0.0.0.0:3000:80"
     networks:
@@ -80,7 +80,7 @@ services:
   redis:
     image: redis:6.2
     restart: unless-stopped
-    container_name: redis
+    container_name: sublime_redis
     command: redis-server --loglevel warning
     networks:
       - net
@@ -93,7 +93,7 @@ services:
     volumes:
       - ./configs/frontend/:/etc/strelka/:ro
       - logs:/var/log/strelka/
-    container_name: strelka_frontend_1
+    container_name: sublime_strelka_frontend_1
     depends_on:
       - strelka-coordinator
   strelka-backend:
@@ -105,14 +105,14 @@ services:
       - net
     volumes:
       - ./configs/backend/:/etc/strelka/:ro
-    container_name: strelka_backend_1
+    container_name: sublime_strelka_backend_1
     depends_on:
       - strelka-coordinator
   strelka-manager:
     image: sublimesec/strelka-manager:0.3
     restart: unless-stopped
     command: strelka-manager
-    container_name: strelka_manager_1
+    container_name: sublime_strelka_manager_1
     networks:
       - net
     volumes:
@@ -123,7 +123,7 @@ services:
     image: redis:alpine
     restart: unless-stopped
     command: redis-server --save "" --appendonly no
-    container_name: strelka_coordinator_1
+    container_name: sublime_strelka_coordinator_1
     networks:
       - net
   screenshot-service:
@@ -134,7 +134,7 @@ services:
       - SCREENSHOT_BUCKET=email-screenshots
       - AWS_REGION=us-east-1
       - DISABLE_DD=true
-    container_name: screenshot-service
+    container_name: sublime_screenshot-service
     env_file: sublime.env
     networks:
       - net
@@ -175,7 +175,7 @@ services:
     restart: unless-stopped
     networks:
       - net
-    container_name: hydra
+    container_name: sublime_hydra
 
 networks:
   net:
