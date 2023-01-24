@@ -2,7 +2,7 @@ version: '3'
 
 services:
   sublime_mantis:
-    image: sublimesec/mantis:0.39
+    image: sublimesec/mantis:dev
     restart: unless-stopped
     container_name: sublime_mantis
     environment:
@@ -13,7 +13,7 @@ services:
       STRELKA_URL: sublime_strelka_frontend
       SCREENSHOT_SERVICE_ENDPOINT: http://sublime_screenshot_service:8100/capture
       SCREENSHOT_SERVICE_BUCKET: email-screenshots
-      S3_ENDPOINT: http://sublime_s3:8110
+      S3_ENDPOINT: http://sublimes3:8110
       USE_SELF_IMAGE_LINKS: "true"
       AWS_REGION: us-east-1
       HYDRA_URL: http://sublime_hydra:8200
@@ -29,7 +29,7 @@ services:
       - sublime_strelka_backend
       - sublime_strelka_frontend
   sublime_bora_lite:
-    image: sublimesec/bora-lite:0.39
+    image: sublimesec/bora-lite:dev
     restart: unless-stopped
     container_name: sublime_bora_lite
     environment:
@@ -40,7 +40,7 @@ services:
       STRELKA_URL: sublime_strelka_frontend
       SCREENSHOT_SERVICE_ENDPOINT: http://sublime_screenshot_service:8100/capture
       SCREENSHOT_SERVICE_BUCKET: email-screenshots
-      S3_ENDPOINT: http://sublime_s3:8110
+      S3_ENDPOINT: http://sublimes3:8110
       AWS_REGION: us-east-1
       HYDRA_URL: http://sublime_hydra:8200
       DEPLOYMENT_INFRA_TYPE: "DOCKER_COMPOSE"
@@ -130,7 +130,7 @@ services:
     image: sublimesec/render-email-html:0.1
     restart: unless-stopped
     environment:
-      - S3_ENDPOINT=http://sublime_s3:8110
+      - S3_ENDPOINT=http://sublimes3:8110
       - SCREENSHOT_BUCKET=email-screenshots
       - AWS_REGION=us-east-1
       - DISABLE_DD=true
@@ -140,14 +140,15 @@ services:
       - net
     depends_on:
       - sublime_create_buckets
-  sublime_s3:
-    container_name: sublime_s3
+  # Keep this name as sublimes3 because underscores don't play nice with certain endpoint validation
+  sublimes3:
+    container_name: sublimes3
     image: minio/minio
     restart: unless-stopped
     networks:
       - net
     volumes:
-      - sublime_s3_data:/data
+      - s3_data:/data
     env_file: sublime.env
     entrypoint: >
       /bin/sh -c "
@@ -158,14 +159,14 @@ services:
   sublime_create_buckets:
     image: minio/mc
     depends_on:
-      - sublime_s3
+      - sublimes3
     networks:
       - net
     env_file: sublime.env
     entrypoint: >
       /bin/sh -c "
       sleep 15;
-      /usr/bin/mc config host add myminio http://sublime_s3:8110 $$AWS_ACCESS_KEY_ID $$AWS_SECRET_ACCESS_KEY;
+      /usr/bin/mc config host add myminio http://sublimes3:8110 $$AWS_ACCESS_KEY_ID $$AWS_SECRET_ACCESS_KEY;
       /usr/bin/mc mb myminio/email-screenshots;
       /usr/bin/mc ls myminio;
       exit 0;
@@ -184,4 +185,4 @@ networks:
 volumes:
   sublime_postgres:
   sublime_logs:
-  sublime_s3_data:
+  s3_data:
