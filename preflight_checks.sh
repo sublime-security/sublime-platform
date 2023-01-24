@@ -5,6 +5,10 @@ if [ "$skip_preflight" == "true" ]; then
     exit 0
 fi
 
+if [ -z "$remote_branch" ]; then
+    remote_branch="main"
+fi
+
 source /dev/stdin <<< "$(curl -sL https://raw.github.com/sublime-security/sublime-platform/${remote_branch}/utils.sh)"
 
 print_info "Running preflight checks..."
