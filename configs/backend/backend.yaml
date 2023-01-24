@@ -6,7 +6,7 @@ limits:
   distribution: 600
   scanner: 150
 coordinator:
-  addr: 'strelka_coordinator_1:6379'
+  addr: 'sublime_strelka_coordinator_1:6379'
   db: 0
 tasting:
   mime_db: null
