@@ -178,19 +178,10 @@ fi
 # our software is related to snap issues, but we don't want anyone to uninstall snap
 # docker without realizing they could loose data (from our platform or other applications).
 if which snap > /dev/null 2>&1 && snap list | grep -i docker > /dev/null 2>&1; then
-    print_error "Snap versions of Docker detected! Cannot proceed."
-    print_error "Snap versions of Docker are not recommended because they can cause issues when using Docker Compose in the future (e.g. cannot bring containers down)"
+    print_error "Snap versions of Docker are not supported. Please follow these instructions to remove the package and re-install:"
+    print_error "https://docs.sublimesecurity.com/docs/quickstart-docker#snap-is-not-supported"
+    printf "\nIf you have existing docker containers or volumes or have any questions, please contact support@sublimesecurity.com for assistance\n"
 
-    if [ "$machine" == "linux" ]; then
-        print_warning "Please uninstall Snap Docker packages and follow the official Docker installation instructions:"
-        print_warning "https://docs.docker.com/engine/install/ubuntu/#install-using-the-convenience-script"
-        printf "\nIf you have existing docker containers or volumes or are otherwise unsure, please contact support@sublimesecurity.com for assistance\n"
-        exit 1
-    fi
-
-    print_warning "Please uninstall Snap Docker packages and follow the Docker instructions:"
-    print_warning "https://docs.docker.com/get-docker/"
-    printf "\nIf you have existing docker containers or volumes or are otherwise unsure, please contact support@sublimesecurity.com for assistance\n"
     exit 1
 
 fi
