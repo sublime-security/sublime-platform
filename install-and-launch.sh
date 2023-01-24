@@ -151,7 +151,8 @@ if [ "$clone_platform" == "true" ]; then
     if ! git clone --depth=1 https://github.com/sublime-security/sublime-platform.git; then
         print_error "Failed to clone Sublime Platform repo\n"
         printf "Troubleshooting tips: https://docs.sublimesecurity.com/docs/quickstart-docker#troubleshooting\n\n"
-        printf "You may need to run the following command before retrying installation: rm -rf ./sublime-platform\n"
+        printf "You may need to run the following command before retrying installation:\n\n"
+        printf "rm -rf ./sublime-platform\n"
         exit 1
     fi
 
@@ -164,7 +165,7 @@ if ! sublime_host=$sublime_host skip_preflight=true interactive=$interactive aut
     printf "Troubleshooting tips: https://docs.sublimesecurity.com/docs/quickstart-docker#troubleshooting\n\n"
     printf "If you'd like to re-install Sublime then follow these steps: https://docs.sublimesecurity.com/docs/quickstart-docker#wipe-your-data\n\n"
     printf "Afterwards, run: rm -rf ./sublime-platform\n\n"
-    printf "You can then go through the Sublime Platform installation again"
+    printf "You can then go through the Sublime Platform installation again\n"
     exit 1
 fi
 
@@ -172,5 +173,6 @@ print_success "** Successfully installed Sublime Platform! **"
 
 dashboard_url=$(grep 'DASHBOARD_PUBLIC_BASE_URL' sublime.env | cut -d'=' -f2)
 printf "\nIt may take a couple of minutes for all services to start for the first time.\n\n"
-printf "For info on how to start or stop the Platform, or help with troubleshooting, see the docs: https://docs.sublimesecurity.com/docs/quickstart-docker#troubleshooting\n"
+printf "For info on how to start or stop the Platform, or help with troubleshooting, see the docs:\n\n"
+printf "https://docs.sublimesecurity.com/docs/quickstart-docker#troubleshooting\n\n"
 print_success "Your Sublime Dashboard: $dashboard_url"

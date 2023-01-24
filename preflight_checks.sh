@@ -46,14 +46,15 @@ case "$(uname -s | tr '[:upper:]' '[:lower:]')" in
 esac
 
 if [ -z "$machine" ]; then
-    print_warning "Warning: You are using a non-recommended operating system so subsequent failures may occur\n\n"
-    printf "Recommended operating systems: https://docs.sublimesecurity.com/docs/quickstart-docker#requirements"
+    print_warning "Warning: You are using a non-recommended operating system so subsequent failures may occur."
+    print_warning "Recommended operating systems:"
+    print_warning "https://docs.sublimesecurity.com/docs/quickstart-docker#requirements"
 fi
 
 if [ "$machine" == "macos" ]; then
     macos_version="$(/usr/bin/sw_vers -productVersion)"
     if version_lt "$(major_minor "$macos_version")" "11.0"; then
-        print_warning "Warning: Mac OS version $macos_version does not meet the recommended minimum version of 11.0\n\n"
+        print_warning "Warning: Mac OS version $macos_version does not meet the recommended minimum version of 11.0"
     fi
 fi
 
@@ -64,10 +65,10 @@ if [ "$machine" == "linux" ]; then
         # "Release:    18.04" -> "18.04"
         ubuntu_version="$(lsb_release -a 2>/dev/null | grep 'Release' | cut -d':' -f2 | xargs)"
         if version_lt "$ubuntu_version" "20.04"; then
-            print_warning "Warning: Ubuntu version $ubuntu_version does not meet the recommended minimum version of 20.04\n\n"
+            print_warning "Warning: Ubuntu version $ubuntu_version does not meet the recommended minimum version of 20.04"
         fi
     else
-        print_warning "Warning: Non-Ubuntu Linux distributions are currently not recommended and subsequent failures may occur\n\n"
+        print_warning "Warning: Non-Ubuntu Linux distributions are currently not recommended and subsequent failures may occur."
     fi
 fi
 
@@ -75,8 +76,8 @@ check_port 3000
 check_port 8000
 
 if ! which git > /dev/null 2>&1; then
-    print_error "Git is not installed"
-    echo "Please install git and retry: https://git-scm.com/downloads"
+    print_error "Git is not installed. Please install git and retry:"
+    print_error "https://git-scm.com/downloads"
     exit 1
 fi
 
@@ -92,18 +93,21 @@ git_version=${git_version##*version }
 git_version=${git_version%% (*}
 
 if version_lt "$(major_minor "$git_version")" "2.7"; then
-    print_error "git version $git_version does not meet the minimum version of 2.7. Please update git and retry"
+    print_error "Git version $git_version does not meet the minimum version of 2.7"
+    print_error "Please update git and retry."
     exit 1
 fi
 
 if ! which docker > /dev/null 2>&1; then
     if [ "$machine" == "linux" ]; then
-        print_error "Docker not installed. Please install docker and retry: https://docs.docker.com/engine/install/ubuntu/#install-using-the-convenience-script"
-        print_warning "Note: snap versions of docker are not supported. Please use the provided link above to install Docker"
+        print_error "Docker is not installed. Please install Docker and retry."
+        print_warning "Snap installations of Docker are *not supported*. Please use this link to install Docker:"
+        print_error "https://docs.docker.com/engine/install/ubuntu/#install-using-the-convenience-script"
         exit 1
     fi
 
-    print_error "Docker not installed. Please install docker and retry: https://docs.docker.com/get-docker/"
+    print_error "Docker not installed. Please install Docker and retry:"
+    print_error "https://docs.docker.com/get-docker"
     exit 1
 fi
 
@@ -124,12 +128,13 @@ docker_version=${docker_version##*version }
 docker_version=${docker_version%%, *}
 
 if version_lt "$(major_minor "$docker_version")" "20.10"; then
-    print_error "docker version $docker_version does not meet the minimum version of 20.10. Please update docker and retry"
+    print_error "Docker version $docker_version does not meet the minimum version of 20.10"
+    print_error "Please update Docker and retry."
     exit 1
 fi
 
 if ! $docker_cmd_prefix docker info > /dev/null 2>&1; then
-	print_error "docker is not running. Please start docker and retry"
+	print_error "Docker is not running. Please start Docker and retry."
 	exit 1
 fi
 
@@ -142,25 +147,25 @@ docker_compose_version=${docker_compose_version##*version v}
 
 if [ -z "$docker_compose_version" ]; then
     if [ "$machine" == "linux" ]; then
-        print_error "Docker Compose is not installed\n\n"
-        printf "Please install Docker Compose and retry: https://docs.docker.com/compose/install/linux/#install-using-the-repository"
+        print_error "Docker Compose is not installed. Please install Docker Compose and retry:"
+        print_error "https://docs.docker.com/compose/install/linux/#install-using-the-repository"
         exit 1
     fi
 
-    print_error "Docker Compose is not installed\n\n"
-    printf "Please install Docker Compose and retry: https://docs.docker.com/compose/install/"
+    print_error "Docker Compose is not installed. Please install Docker Compose and retry:"
+    print_error "https://docs.docker.com/compose/install/"
     exit 1
 fi
 
 if version_lt "$(major_minor "$docker_compose_version")" "2.4"; then
-    print_error "Docker Compose version $docker_compose_version does not meet the minimum version of 2.4\n\n"
-    printf "Please update Docker Compose and retry"
+    print_error "Docker Compose version $docker_compose_version does not meet the minimum version of 2.4"
+    print_error "Please update Docker Compose and retry."
     exit 1
 fi
 
 if [ "$auto_updates" == "true" ] && ! which cron > /dev/null 2>&1; then
-    print_error "Cron is not installed\n\n"
-    printf "Please install cron and retry"
+    print_error "Cron is not installed. Please install cron and retry."
+    exit 1
 fi
 
 if [ "$auto_updates" == "true" ] && which systemctl > /dev/null 2>&1 && ! systemctl status cron > /dev/null 2>&1; then
@@ -173,11 +178,21 @@ fi
 # our software is related to snap issues, but we don't want anyone to uninstall snap
 # docker without realizing they could loose data (from our platform or other applications).
 if which snap > /dev/null 2>&1 && snap list | grep -i docker > /dev/null 2>&1; then
-    print_error "Snap versions of Docker detected! Cannot proceed\n"
-    print_error "Snap versions of Docker are not recommended because they can cause issues when using Docker Compose in the future (e.g. cannot bring containers down)\n\n"
-    printf "Please uninstall Snap Docker packages and install with apt instead.\n\n"
-    printf "If you have existing docker containers or volumes or are otherwise unsure, please contact support@sublimesecurity.com for assistance"
+    print_error "Snap versions of Docker detected! Cannot proceed."
+    print_error "Snap versions of Docker are not recommended because they can cause issues when using Docker Compose in the future (e.g. cannot bring containers down)"
+
+    if [ "$machine" == "linux" ]; then
+        print_warning "Please uninstall Snap Docker packages and follow the official Docker installation instructions:"
+        print_warning "https://docs.docker.com/engine/install/ubuntu/#install-using-the-convenience-script"
+        printf "\nIf you have existing docker containers or volumes or are otherwise unsure, please contact support@sublimesecurity.com for assistance\n"
+        exit 1
+    fi
+
+    print_warning "Please uninstall Snap Docker packages and follow the Docker instructions:"
+    print_warning "https://docs.docker.com/get-docker/"
+    printf "\nIf you have existing docker containers or volumes or are otherwise unsure, please contact support@sublimesecurity.com for assistance\n"
     exit 1
+
 fi
 
 print_success "** Successfully completed preflight checks! **"
