@@ -1,22 +1,22 @@
 version: '3'
 
 services:
-  mantis:
-    image: sublimesec/mantis:0.39
+  sublime_mantis:
+    image: sublimesec/mantis:dev
     restart: unless-stopped
-    container_name: mantis
+    container_name: sublime_mantis
     environment:
-      POSTGRES_HOST: postgres
+      POSTGRES_HOST: sublime_postgres
       POSTGRES_USER: sublime
       POSTGRES_DB: mantis
-      REDIS_HOST: redis
-      STRELKA_URL: strelka-frontend
-      SCREENSHOT_SERVICE_ENDPOINT: http://screenshot-service:8100/capture
+      REDIS_HOST: sublime_redis
+      STRELKA_URL: sublime_strelka_frontend
+      SCREENSHOT_SERVICE_ENDPOINT: http://sublime_screenshot_service:8100/capture
       SCREENSHOT_SERVICE_BUCKET: email-screenshots
       S3_ENDPOINT: http://sublimes3:8110
       USE_SELF_IMAGE_LINKS: "true"
       AWS_REGION: us-east-1
-      HYDRA_URL: http://hydra:8200
+      HYDRA_URL: http://sublime_hydra:8200
       DEPLOYMENT_INFRA_TYPE: "DOCKER_COMPOSE"
       LOG_LEVEL: "WARN"
     env_file: sublime.env
@@ -25,66 +25,66 @@ services:
     networks:
       - net
     depends_on:
-      - postgres
-      - strelka-backend
-      - strelka-frontend
-  bora_lite:
-    image: sublimesec/bora-lite:0.39
+      - sublime_postgres
+      - sublime_strelka_backend
+      - sublime_strelka_frontend
+  sublime_bora_lite:
+    image: sublimesec/bora-lite:dev
     restart: unless-stopped
-    container_name: bora-lite
+    container_name: sublime_bora_lite
     environment:
-      POSTGRES_HOST: postgres
+      POSTGRES_HOST: sublime_postgres
       POSTGRES_USER: sublime
       POSTGRES_DB: mantis
-      REDIS_HOST: redis
-      STRELKA_URL: strelka-frontend
-      SCREENSHOT_SERVICE_ENDPOINT: http://screenshot-service:8100/capture
+      REDIS_HOST: sublime_redis
+      STRELKA_URL: sublime_strelka_frontend
+      SCREENSHOT_SERVICE_ENDPOINT: http://sublime_screenshot_service:8100/capture
       SCREENSHOT_SERVICE_BUCKET: email-screenshots
       S3_ENDPOINT: http://sublimes3:8110
       AWS_REGION: us-east-1
-      HYDRA_URL: http://hydra:8200
+      HYDRA_URL: http://sublime_hydra:8200
       DEPLOYMENT_INFRA_TYPE: "DOCKER_COMPOSE"
       LOG_LEVEL: "WARN"
     env_file: sublime.env
     networks:
       - net
     depends_on:
-      - mantis
-      - redis
-      - strelka-backend
-      - strelka-frontend
-  postgres:
+      - sublime_mantis
+      - sublime_redis
+      - sublime_strelka_backend
+      - sublime_strelka_frontend
+  sublime_postgres:
     image: postgres:13.2
     restart: unless-stopped
-    container_name: postgres
+    container_name: sublime_postgres
     environment:
       POSTGRES_USER: sublime
       POSTGRES_DB: mantis
       PGDATA: /data/postgres
     env_file: sublime.env
     volumes:
-       - postgres:/data/postgres
+       - sublime_postgres:/data/postgres
     networks:
       - net
-  dashboard:
+  sublime_dashboard:
     image: sublimesec/dashboard:0.39
     restart: unless-stopped
-    container_name: dashboard
+    container_name: sublime_dashboard
     ports:
       - "0.0.0.0:3000:80"
     networks:
       - net
     env_file: sublime.env
     depends_on:
-      - mantis
-  redis:
+      - sublime_mantis
+  sublime_redis:
     image: redis:6.2
     restart: unless-stopped
-    container_name: redis
+    container_name: sublime_redis
     command: redis-server --loglevel warning
     networks:
       - net
-  strelka-frontend:
+  sublime_strelka_frontend:
     image: sublimesec/strelka-frontend:0.3
     restart: unless-stopped
     command: strelka-frontend
@@ -92,11 +92,11 @@ services:
       - net
     volumes:
       - ./configs/frontend/:/etc/strelka/:ro
-      - logs:/var/log/strelka/
-    container_name: strelka_frontend_1
+      - sublime_logs:/var/log/strelka/
+    container_name: sublime_strelka_frontend_1
     depends_on:
-      - strelka-coordinator
-  strelka-backend:
+      - sublime_strelka_coordinator
+  sublime_strelka_backend:
     image: sublimesec/strelka-backend:0.3
     restart: unless-stopped
     command: strelka-backend
@@ -105,28 +105,28 @@ services:
       - net
     volumes:
       - ./configs/backend/:/etc/strelka/:ro
-    container_name: strelka_backend_1
+    container_name: sublime_strelka_backend_1
     depends_on:
-      - strelka-coordinator
-  strelka-manager:
+      - sublime_strelka_coordinator
+  sublime_strelka_manager:
     image: sublimesec/strelka-manager:0.3
     restart: unless-stopped
     command: strelka-manager
-    container_name: strelka_manager_1
+    container_name: sublime_strelka_manager_1
     networks:
       - net
     volumes:
       - ./configs/manager/:/etc/strelka/:ro
     depends_on:
-      - strelka-coordinator
-  strelka-coordinator:
+      - sublime_strelka_coordinator
+  sublime_strelka_coordinator:
     image: redis:alpine
     restart: unless-stopped
     command: redis-server --save "" --appendonly no
-    container_name: strelka_coordinator_1
+    container_name: sublime_strelka_coordinator_1
     networks:
       - net
-  screenshot-service:
+  sublime_screenshot_service:
     image: sublimesec/render-email-html:0.1
     restart: unless-stopped
     environment:
@@ -134,12 +134,13 @@ services:
       - SCREENSHOT_BUCKET=email-screenshots
       - AWS_REGION=us-east-1
       - DISABLE_DD=true
-    container_name: screenshot-service
+    container_name: sublime_screenshot_service
     env_file: sublime.env
     networks:
       - net
     depends_on:
-      - create-buckets
+      - sublime_create_buckets
+  # Keep this name as sublimes3 because underscores don't play nice with certain endpoint validation
   sublimes3:
     container_name: sublimes3
     image: minio/minio
@@ -155,7 +156,7 @@ services:
       export MINIO_ROOT_PASSWORD=$$AWS_SECRET_ACCESS_KEY;
       minio server --address 0.0.0.0:8110 --console-address 0.0.0.0:8111  /data;
       "
-  create-buckets:
+  sublime_create_buckets:
     image: minio/mc
     depends_on:
       - sublimes3
@@ -170,18 +171,18 @@ services:
       /usr/bin/mc ls myminio;
       exit 0;
       "
-  hydra:
+  sublime_hydra:
     image: sublimesec/hydra-cpu:0.1
     restart: unless-stopped
     networks:
       - net
-    container_name: hydra
+    container_name: sublime_hydra
 
 networks:
   net:
     driver: bridge
 
 volumes:
-  postgres:
-  logs:
+  sublime_postgres:
+  sublime_logs:
   s3_data:
