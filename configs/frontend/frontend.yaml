@@ -1,6 +1,6 @@
 server: ":57314"
 coordinator:
-  addr: 'strelka_coordinator_1:6379'
+  addr: 'sublime_strelka_coordinator_1:6379'
   db: 0
   pool: 100
   read: 10s

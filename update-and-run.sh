@@ -3,6 +3,8 @@
 
 cmd_prefix="sudo "
 
+. ./utils.sh
+
 # Docker setups on OS X generally won't need sudo
 # TODO this check is pretty naive -- a properly setup docker/compose setup in Linux won't need sudo either
 case "$(uname -s | tr '[:upper:]' '[:lower:]')" in
@@ -11,8 +13,8 @@ case "$(uname -s | tr '[:upper:]' '[:lower:]')" in
 esac
 
 if [[ "$1" != "always_launch" ]]; then
-    if ! $cmd_prefix docker-compose ps | grep "mantis" > /dev/null 2>&1; then
-        echo "docker-compose appears to be brought down. Will not proceed to avoid relaunching."
+    if ! $cmd_prefix docker compose ps | grep "mantis" > /dev/null 2>&1; then
+        print_error "docker compose appears to be brought down. Will not proceed to avoid relaunching."
         exit 0
     fi
 fi
@@ -25,14 +27,14 @@ if [[ -z "$(git status --porcelain)" ]]; then
 	new_ref=$(git rev-parse HEAD)
 
 	if [[ "${old_ref}" != "${new_ref}" ]]; then
-            $cmd_prefix docker-compose down --remove-orphans
+            $cmd_prefix docker compose down --remove-orphans
 	fi
 else
-    echo "Uncommitted changes present, ignoring updates to sublime-platform git repo"
+    print_warning "Uncommitted changes present, ignoring updates to sublime-platform git repo"
 fi
 
 if [ -z "$sublime_host" ]; then
-  sublime_host=localhost
+  sublime_host="http://localhost"
 fi
 
 SUBLIME_ENV_FILE=sublime.env
@@ -71,24 +73,24 @@ if ! grep "AWS_SECRET_ACCESS_KEY" $SUBLIME_ENV_FILE > /dev/null 2>&1; then
 fi
 
 if ! grep "CORS_ALLOW_ORIGINS" $SUBLIME_ENV_FILE > /dev/null 2>&1; then
-    echo "CORS_ALLOW_ORIGINS=http://$sublime_host:3000" >> $SUBLIME_ENV_FILE
+    echo "CORS_ALLOW_ORIGINS=$sublime_host:3000" >> $SUBLIME_ENV_FILE
     echo "Configured CORS allow origins"
 fi
 
 if ! grep "BASE_URL" $SUBLIME_ENV_FILE > /dev/null 2>&1; then
-    echo "BASE_URL=http://$sublime_host:8000" >> $SUBLIME_ENV_FILE
+    echo "BASE_URL=$sublime_host:8000" >> $SUBLIME_ENV_FILE
     echo "Configured base URL"
 fi
 
 if ! grep "DASHBOARD_PUBLIC_BASE_URL" $SUBLIME_ENV_FILE > /dev/null 2>&1; then
-    echo "DASHBOARD_PUBLIC_BASE_URL=http://$sublime_host:3000" >> $SUBLIME_ENV_FILE
+    echo "DASHBOARD_PUBLIC_BASE_URL=$sublime_host:3000" >> $SUBLIME_ENV_FILE
     echo "Configured dashboard URL"
 fi
 
 if ! grep "API_PUBLIC_BASE_URL" $SUBLIME_ENV_FILE > /dev/null 2>&1; then
-    echo "API_PUBLIC_BASE_URL=http://$sublime_host:8000" >> $SUBLIME_ENV_FILE
+    echo "API_PUBLIC_BASE_URL=$sublime_host:8000" >> $SUBLIME_ENV_FILE
     echo "Configured API URL"
 fi
 
-$cmd_prefix docker-compose pull && $cmd_prefix docker-compose up -d
+$cmd_prefix docker compose up --quiet-pull -d
 
