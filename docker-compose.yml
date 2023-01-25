@@ -11,7 +11,7 @@ services:
       PGDATA: /data/postgres
     env_file: sublime.env
     volumes:
-       - sublime_postgres:/data/postgres
+       - postgres:/data/postgres
     ports:
       - "5432:5432"
     networks:
@@ -44,7 +44,7 @@ services:
       - net
     volumes:
       - ./configs/frontend/:/etc/strelka/:ro
-      - sublime_logs:/var/log/strelka/
+      - logs:/var/log/strelka/
     container_name: sublime_strelka_frontend_1
     depends_on:
       - sublime_strelka_coordinator
@@ -143,6 +143,6 @@ networks:
     driver: bridge
 
 volumes:
-  sublime_postgres:
-  sublime_logs:
+  postgres:
+  logs:
   s3_data:
