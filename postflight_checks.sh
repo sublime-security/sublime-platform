@@ -1,4 +1,5 @@
-#!/usr/bin/env bash
+#!/bin/sh
+set -ue
 
 . ./utils.sh
 
@@ -35,14 +36,14 @@ while [ $remaining_timeout_seconds -gt 0 ]; do
         remaining_unhealthy_retries=$(( remaining_unhealthy_retries - 1 ))
     fi
 
-    if [ $remaining_unhealthy_retries -lt 0 ]; then
+    if [ "$remaining_unhealthy_retries" -lt 0 ]; then
         print_error "Sublime Platform is unhealthy. See details below:"
         curl -s "$health_endpoint" | jq '.'
         exit 1
     fi
 
     remaining_timeout_seconds=$(( remaining_timeout_seconds - retry_interval_seconds ))
-    sleep $retry_interval_seconds
+    sleep "$retry_interval_seconds"
 done
 
 print_error "Unable to check Sublime Platform health due to timeout"
