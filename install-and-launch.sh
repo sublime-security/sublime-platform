@@ -1,4 +1,4 @@
-#!/usr/bin/env bash
+#!/bin/sh
 
 : ==========================================
 :   Introduction
@@ -96,6 +96,55 @@ EOF
 
 fi
 
+: ==========================================
+:   Installation utilities
+: ==========================================
+
+# This file contains utility functions to be used within the
+# Sublime installation scripts.
+
+color_default="0m"
+color_info="94m" # blue
+color_success="92m" # green
+color_warning="93m" # yellow
+color_error="91m" # red
+
+# prints colored text
+print_color() {
+    if [ "$2" = "info" ] ; then
+        COLOR="$color_info"
+    elif [ "$2" = "success" ] ; then
+        COLOR="$color_success"
+    elif [ "$2" = "warning" ] ; then
+        COLOR="$color_warning"
+    elif [ "$2" = "error" ] ; then
+        COLOR="$color_error"
+    else #default color
+        COLOR="$color_default"
+    fi
+
+    STARTCOLOR="\e[$COLOR"
+    ENDCOLOR="\e[$color_default"
+
+    printf "${STARTCOLOR}%b${ENDCOLOR}" "$1"
+}
+
+print_error() {
+   print_color "\n$1\n" "error"
+}
+
+print_success() {
+   print_color "\n$1\n" "success"
+}
+
+print_info() {
+   print_color "\n$1\n" "info"
+}
+
+print_warning() {
+   print_color "\n$1\n" "warning"
+}
+
 if [ -z "$remote_branch" ]; then
     remote_branch="main"
 fi
@@ -110,10 +159,8 @@ if ! curl -sL https://raw.githubusercontent.com/sublime-security/sublime-platfor
     exit 1
 fi
 
-source /dev/stdin <<< "$(curl -sL https://raw.github.com/sublime-security/sublime-platform/"${remote_branch}"/utils.sh)"
-
 default_host="http://localhost"
-if [ "$interactive" == "true" ] && [ -z "$sublime_host" ]; then
+if [ "$interactive" = "true" ] && [ -z "$sublime_host" ]; then
     print_info "Configuring host...\n"
 
     # showing 'http://localhost' as the default can be confusing if you're on a remote host
@@ -122,8 +169,8 @@ if [ "$interactive" == "true" ] && [ -z "$sublime_host" ]; then
     # if $SSH_CONNECTION is set, parse the IP and use that as the default
     # this should generally always be set if you're SSH'd in, unless you've forced no TTY (i.e. ssh -T)
     if [ -n "$SSH_CONNECTION" ]; then
-        sshvars=("$SSH_CONNECTION")
-        default_host="http://${sshvars[2]}"
+        hostname=$(printf '%s' "$SSH_CONNECTION" | awk '{print $3}')
+        default_host="http://${hostname}"
     fi
 
     # Since this script is intended to be piped into bash, we need to explicitly read input from /dev/tty because stdin
@@ -131,22 +178,24 @@ if [ "$interactive" == "true" ] && [ -z "$sublime_host" ]; then
     printf "Please specify the hostname or IP address of where you're deploying Sublime. We'll use this to configure your CORS settings.\n\n"
     printf "This should match the hostname you'll use to access your deployment after setup. You can change this later.\n\n"
     # printf "You can change this at any time: https://docs.sublimesecurity.com/docs/quickstart-docker#updating-your-sublime-host\n\n"
-    read -rp "Press enter to accept '$default_host' as the default: " sublime_host </dev/tty
+    # read -rp "Press enter to accept '$default_host' as the default: " sublime_host </dev/tty
+    printf "Press enter to accept '%s' as the default: " "$default_host"
+    read -r sublime_host </dev/tty
 fi
 
 if [ -z "$sublime_host" ]; then
     sublime_host=$default_host
 fi
 
-if [[ "$sublime_host" != http* ]]; then
-    sublime_host="http://$sublime_host"
-fi
+case "$sublime_host" in
+  http*) sublime_host="http://$sublime_host";
+esac
 
 if [ -z "$clone_platform" ]; then
     clone_platform=true
 fi
 
-if [ "$clone_platform" == "true" ]; then
+if [ "$clone_platform" = "true" ]; then
     print_info "Cloning Sublime Platform repo..."
     if ! git clone --depth=1 https://github.com/sublime-security/sublime-platform.git; then
         print_error "Failed to clone Sublime Platform repo\n"
