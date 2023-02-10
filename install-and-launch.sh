@@ -117,13 +117,13 @@ color_error="91m" # red
 
 # prints colored text
 print_color() {
-    if [ "$2" == "info" ] ; then
+    if [ "$2" = "info" ] ; then
         COLOR="$color_info"
-    elif [ "$2" == "success" ] ; then
+    elif [ "$2" = "success" ] ; then
         COLOR="$color_success"
-    elif [ "$2" == "warning" ] ; then
+    elif [ "$2" = "warning" ] ; then
         COLOR="$color_warning"
-    elif [ "$2" == "error" ] ; then
+    elif [ "$2" = "error" ] ; then
         COLOR="$color_error"
     else #default color
         COLOR="$color_default"
@@ -159,15 +159,15 @@ major_minor() {
 }
 
 version_gt() {
-  [[ "${1%.*}" -gt "${2%.*}" ]] || [[ "${1%.*}" -eq "${2%.*}" && "${1#*.}" -gt "${2#*.}" ]]
+  [ "${1%.*}" -gt "${2%.*}" ] || [ "${1%.*}" -eq "${2%.*}" ] && [ "${1#*.}" -gt "${2#*.}" ]
 }
 
 version_ge() {
-  [[ "${1%.*}" -gt "${2%.*}" ]] || [[ "${1%.*}" -eq "${2%.*}" && "${1#*.}" -ge "${2#*.}" ]]
+  [ "${1%.*}" -gt "${2%.*}" ] || [ "${1%.*}" -eq "${2%.*}" ] && [ "${1#*.}" -ge "${2#*.}" ]
 }
 
 version_lt() {
-  [[ "${1%.*}" -lt "${2%.*}" ]] || [[ "${1%.*}" -eq "${2%.*}" && "${1#*.}" -lt "${2#*.}" ]]
+  [ "${1%.*}" -lt "${2%.*}" ] || [ "${1%.*}" -eq "${2%.*}" ] && [ "${1#*.}" -lt "${2#*.}" ]
 }
 
 open_ports() {
@@ -214,7 +214,7 @@ preflight_checks() {
     if [ "$machine" = "linux" ]; then
         # "Distributor ID: Ubuntu" -> "ubuntu
         linux_name="$(lsb_release -a 2>/dev/null | grep 'Distributor' | cut -d':' -f2 | xargs | tr '[:upper:]' '[:lower:]')"
-        if [ "$linux_name" == "ubuntu" ]; then
+        if [ "$linux_name" = "ubuntu" ]; then
             # "Release:    18.04" -> "18.04"
             ubuntu_version="$(lsb_release -a 2>/dev/null | grep 'Release' | cut -d':' -f2 | xargs)"
             if version_lt "$ubuntu_version" "20.04"; then
@@ -225,8 +225,11 @@ preflight_checks() {
         fi
     fi
 
-    check_port 3000
-    check_port 8000
+    if command_exists lsof; then
+        # TODO: what if there is no lsof?
+        check_port 3000
+        check_port 8000
+    fi
 
     if ! command_exists git; then
         print_error "Git is not installed. Please install git and retry:"
@@ -251,8 +254,8 @@ preflight_checks() {
         exit 1
     fi
 
-    if ! exists docker; then
-        if [ "$machine" == "linux" ]; then
+    if ! command_exists docker; then
+        if [ "$machine" = "linux" ]; then
             print_error "Docker is not installed. Please install Docker and retry."
             print_warning "Snap installations of Docker are *not supported*. Please use this link to install Docker:"
             print_error "https://docs.docker.com/engine/install/ubuntu/#install-using-the-convenience-script"
@@ -265,7 +268,7 @@ preflight_checks() {
     fi
 
     docker_cmd_prefix=""
-    if [ "$machine" == "linux" ]; then
+    if [ "$machine" = "linux" ]; then
         docker_cmd_prefix="sudo "
     fi
 
@@ -299,7 +302,7 @@ preflight_checks() {
     docker_compose_version=${docker_compose_version##*version v}
 
     if [ -z "$docker_compose_version" ]; then
-        if [ "$machine" == "linux" ]; then
+        if [ "$machine" = "linux" ]; then
             print_error "Docker Compose is not installed. Please install Docker Compose and retry:"
             print_error "https://docs.docker.com/compose/install/linux/#install-using-the-repository"
             exit 1
@@ -316,12 +319,12 @@ preflight_checks() {
         exit 1
     fi
 
-    if [ "$auto_updates" == "true" ] && ! exists cron; then
+    if [ "$auto_updates" = "true" ] && ! command_exists cron; then
         print_error "Cron is not installed. Please install cron and retry."
         exit 1
     fi
 
-    if [ "$auto_updates" == "true" ] && exists systemctl && ! systemctl status cron > /dev/null 2>&1; then
+    if [ "$auto_updates" = "true" ] && command_exists systemctl && ! systemctl status cron > /dev/null 2>&1; then
         # This check may not be reliable if some other init system is used, or maybe cron was temp disabled
         print_warning "Cron may not be running! Will proceed, but auto updates will not function without cron"
     fi
@@ -330,7 +333,7 @@ preflight_checks() {
     # reject these early and recommend users contact us if needed. Nothing specific about
     # our software is related to snap issues, but we don't want anyone to uninstall snap
     # docker without realizing they could loose data (from our platform or other applications).
-    if exists snap && snap list | grep -i docker > /dev/null 2>&1; then
+    if command_exists snap && snap list | grep -i docker > /dev/null 2>&1; then
         print_error "Snap versions of Docker are not supported. Please follow these instructions to remove the package and re-install:"
         print_error "https://docs.sublimesecurity.com/docs/quickstart-docker#snap-is-not-supported"
         printf "\nIf you have existing docker containers or volumes or have any questions, please contact support@sublimesecurity.com for assistance\n"
@@ -350,21 +353,21 @@ update_and_run() {
         darwin*)    cmd_prefix="";;
     esac
 
-    if [[ "$1" != "always_launch" ]]; then
+    if [ "$1" != "always_launch" ]; then
         if ! $cmd_prefix docker compose ps | grep "mantis" > /dev/null 2>&1; then
             print_error "docker compose appears to be brought down. Will not proceed to avoid relaunching."
             exit 0
         fi
     fi
 
-    if [[ -z "$(git status --porcelain)" ]]; then
+    if [ -z "$(git status --porcelain)" ]; then
         echo "git working dir clean. Proceeding with git updates."
 
         old_ref=$(git rev-parse HEAD)
         git pull
         new_ref=$(git rev-parse HEAD)
 
-        if [[ "${old_ref}" != "${new_ref}" ]]; then
+        if [ "${old_ref}" != "${new_ref}" ]; then
                 $cmd_prefix docker compose down --remove-orphans
         fi
     else
@@ -435,7 +438,7 @@ update_and_run() {
 
 launch() {
     print_info "Configuring automatic updates..."
-    if [ "$interactive" == "true" ] && [ -z "$auto_updates" ]; then
+    if [ "$interactive" = "true" ] && [ -z "$auto_updates" ]; then
         while true; do
             # Since this script is intended to be piped into bash, we need to explicitly read input from /dev/tty because stdin
             # is streaming the script itself
@@ -452,7 +455,7 @@ launch() {
         auto_updates=true
     fi
 
-    if [ "$auto_updates" == "true" ]; then
+    if [ "$auto_updates" = "true" ]; then
         # We run cron specific preflight checks again in case the user interactively enabled automatic updates
         if ! which cron > /dev/null 2>&1; then
             print_error "Cron not installed"
@@ -528,8 +531,7 @@ doit() {
         cd sublime-platform || { print_error "Failed to cd into sublime-platform"; exit 1; }
     fi
 
-    # We are skipping preflight checks because we've already performed them at the start of this script
-    if ! sublime_host=$sublime_host skip_preflight=true interactive=$interactive auto_updates=$auto_updates launch; then
+    if ! sublime_host=$sublime_host interactive=$interactive auto_updates=$auto_updates launch; then
         print_error "Failed to launch Sublime Platform\n"
         printf "Troubleshooting tips: https://docs.sublimesecurity.com/docs/quickstart-docker#troubleshooting\n\n"
         printf "If you'd like to re-install Sublime then follow these steps: https://docs.sublimesecurity.com/docs/quickstart-docker#wipe-your-data\n\n"
@@ -547,8 +549,6 @@ doit() {
     print_success "Your Sublime Dashboard: $dashboard_url"
 }
 
-if [ ! "$skip_preflight" = "true" ]; then
-    preflight_checks
-fi
+preflight_checks
 
 doit

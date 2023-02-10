@@ -1,9 +1,57 @@
 #!/bin/sh
-set -ue
+set -e
 
-. ./utils.sh
+: ==========================================
+:   Installation utilities
+: ==========================================
 
-if ! which jq > /dev/null 2>&1; then
+color_default="0m"
+color_info="94m" # blue
+color_success="92m" # green
+color_warning="93m" # yellow
+color_error="91m" # red
+
+# prints colored text
+print_color() {
+    if [ "$2" == "info" ] ; then
+        COLOR="$color_info"
+    elif [ "$2" == "success" ] ; then
+        COLOR="$color_success"
+    elif [ "$2" == "warning" ] ; then
+        COLOR="$color_warning"
+    elif [ "$2" == "error" ] ; then
+        COLOR="$color_error"
+    else #default color
+        COLOR="$color_default"
+    fi
+
+    STARTCOLOR="\e[$COLOR"
+    ENDCOLOR="\e[$color_default"
+
+    printf "${STARTCOLOR}%b${ENDCOLOR}" "$1"
+}
+
+print_error() {
+   print_color "\n$1\n" "error"
+}
+
+print_success() {
+   print_color "\n$1\n" "success"
+}
+
+print_info() {
+   print_color "\n$1\n" "info"
+}
+
+print_warning() {
+   print_color "\n$1\n" "warning"
+}
+
+command_exists() {
+    command -v "$@" > /dev/null 2>&1
+}
+
+if ! command_exists jq; then
     print_error "Post-flight checks require jq to be installed. Please install jq and retry (https://stedolan.github.io/jq/download/)"
     exit 1
 fi
