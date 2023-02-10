@@ -224,20 +224,15 @@ preflight_checks() {
         fi
     fi
 
-    if command_exists lsof; then
-        check_port 3000
-        check_port 8000
-    else
-        print_color "\nlsof command not available - unable to complete port check." warning
-        print_warning "Please ensure that ports 3000 and 8000 are available, or installation may fail."
-        print_color "\nPress [ENTER] to continue." info
-        read -r
-        printf "\n"
+    if ! command_exists git; then
+        print_color "\nGit is not installed. Please install git and retry:" error
+        print_error "https://git-scm.com/downloads"
+        exit 1
     fi
 
-    if ! command_exists git; then
-        print_error "Git is not installed. Please install git and retry:"
-        print_error "https://git-scm.com/downloads"
+    if ! command_exists openssl; then
+        print_color "\nOpenssl is not installed. Please install openssl and retry:" error
+        print_error "https://www.openssl.org/source/"
         exit 1
     fi
 
@@ -253,7 +248,7 @@ preflight_checks() {
     git_version=${git_version%% (*}
 
     if version_lt "$(major_minor "$git_version")" "2.7"; then
-        print_error "Git version $git_version does not meet the minimum version of 2.7"
+        print_color "\nGit version $git_version does not meet the minimum version of 2.7" error
         print_error "Please update git and retry."
         exit 1
     fi
@@ -266,7 +261,7 @@ preflight_checks() {
             exit 1
         fi
 
-        print_error "Docker not installed. Please install Docker and retry:"
+        print_color "\nDocker not installed. Please install Docker and retry:" error
         print_error "https://docs.docker.com/get-docker"
         exit 1
     fi
@@ -288,7 +283,7 @@ preflight_checks() {
     docker_version=${docker_version%%, *}
 
     if version_lt "$(major_minor "$docker_version")" "20.10"; then
-        print_error "Docker version $docker_version does not meet the minimum version of 20.10"
+        print_color "\nDocker version $docker_version does not meet the minimum version of 20.10" error
         print_error "Please update Docker and retry."
         exit 1
     fi
@@ -307,18 +302,18 @@ preflight_checks() {
 
     if [ -z "$docker_compose_version" ]; then
         if [ "$machine" = "linux" ]; then
-            print_error "Docker Compose is not installed. Please install Docker Compose and retry:"
+            print_color "\nDocker Compose is not installed. Please install Docker Compose and retry:" error
             print_error "https://docs.docker.com/compose/install/linux/#install-using-the-repository"
             exit 1
         fi
 
-        print_error "Docker Compose is not installed. Please install Docker Compose and retry:"
+        print_color "\nDocker Compose is not installed. Please install Docker Compose and retry:" error
         print_error "https://docs.docker.com/compose/install/"
         exit 1
     fi
 
     if version_lt "$(major_minor "$docker_compose_version")" "2.4"; then
-        print_error "Docker Compose version $docker_compose_version does not meet the minimum version of 2.4"
+        print_color "\nDocker Compose version $docker_compose_version does not meet the minimum version of 2.4" error
         print_error "Please update Docker Compose and retry."
         exit 1
     fi
@@ -338,12 +333,23 @@ preflight_checks() {
     # our software is related to snap issues, but we don't want anyone to uninstall snap
     # docker without realizing they could loose data (from our platform or other applications).
     if command_exists snap && snap list | grep -i docker >/dev/null 2>&1; then
-        print_error "Snap versions of Docker are not supported. Please follow these instructions to remove the package and re-install:"
+        print_color "Snap versions of Docker are not supported. Please follow these instructions to remove the package and re-install:" error
         print_error "https://docs.sublimesecurity.com/docs/quickstart-docker#snap-is-not-supported"
         printf "\nIf you have existing docker containers or volumes or have any questions, please contact support@sublimesecurity.com for assistance\n"
 
         exit 1
 
+    fi
+
+    if command_exists lsof; then
+        check_port 3000
+        check_port 8000
+    else
+        print_color "\nlsof command not available - unable to complete port check." warning
+        print_warning "Please ensure that ports 3000 and 8000 are available, or installation may fail."
+        print_color "\nPress [ENTER] to continue." info
+        read -r
+        printf "\n"
     fi
 
     print_success "** Successfully completed preflight checks! **"
