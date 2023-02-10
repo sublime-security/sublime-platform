@@ -14,6 +14,10 @@ if ! ./preflight_checks.sh; then
     exit 1
 fi
 
+command_exists() {
+    command -v "$@" > /dev/null 2>&1
+}
+
 print_info "Configuring automatic updates..."
 if [ "$interactive" == "true" ] && [ -z "$auto_updates" ]; then
     while true; do
@@ -34,13 +38,13 @@ fi
 
 if [ "$auto_updates" == "true" ]; then
     # We run cron specific preflight checks again in case the user interactively enabled automatic updates
-    if ! which cron > /dev/null 2>&1; then
+    if ! command_exists cron; then
         print_error "Cron not installed"
         echo "Please install cron and retry"
         exit 1
     fi
 
-    if which systemctl > /dev/null 2>&1 && ! systemctl status cron > /dev/null 2>&1; then
+    if command_exists systemctl && ! systemctl status cron > /dev/null 2>&1; then
         # This check may not be reliable if some other init system is used, or maybe cron was temp disabled
         print_warning "cron may not be running! Will proceed, but auto updates will not function without cron"
     fi

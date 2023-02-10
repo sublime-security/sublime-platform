@@ -13,6 +13,10 @@ source /dev/stdin <<< "$(curl -sL https://raw.github.com/sublime-security/sublim
 
 print_info "Running preflight checks..."
 
+command_exists() {
+    command -v "$@" > /dev/null 2>&1
+}
+
 major_minor() {
   echo "${1%%.*}.$(
     x="${1#*.}"
@@ -79,7 +83,7 @@ fi
 check_port 3000
 check_port 8000
 
-if ! which git > /dev/null 2>&1; then
+if ! command_exists git; then
     print_error "Git is not installed. Please install git and retry:"
     print_error "https://git-scm.com/downloads"
     exit 1
@@ -102,7 +106,7 @@ if version_lt "$(major_minor "$git_version")" "2.7"; then
     exit 1
 fi
 
-if ! which docker > /dev/null 2>&1; then
+if ! command_exists docker; then
     if [ "$machine" == "linux" ]; then
         print_error "Docker is not installed. Please install Docker and retry."
         print_warning "Snap installations of Docker are *not supported*. Please use this link to install Docker:"
@@ -167,12 +171,12 @@ if version_lt "$(major_minor "$docker_compose_version")" "2.4"; then
     exit 1
 fi
 
-if [ "$auto_updates" == "true" ] && ! which cron > /dev/null 2>&1; then
+if [ "$auto_updates" == "true" ] && ! command_exists cron; then
     print_error "Cron is not installed. Please install cron and retry."
     exit 1
 fi
 
-if [ "$auto_updates" == "true" ] && which systemctl > /dev/null 2>&1 && ! systemctl status cron > /dev/null 2>&1; then
+if [ "$auto_updates" == "true" ] && command_exists systemctl && ! systemctl status cron > /dev/null 2>&1; then
     # This check may not be reliable if some other init system is used, or maybe cron was temp disabled
     print_warning "Cron may not be running! Will proceed, but auto updates will not function without cron"
 fi
@@ -181,7 +185,7 @@ fi
 # reject these early and recommend users contact us if needed. Nothing specific about
 # our software is related to snap issues, but we don't want anyone to uninstall snap
 # docker without realizing they could loose data (from our platform or other applications).
-if which snap > /dev/null 2>&1 && snap list | grep -i docker > /dev/null 2>&1; then
+if command_exists snap && snap list | grep -i docker > /dev/null 2>&1; then
     print_error "Snap versions of Docker are not supported. Please follow these instructions to remove the package and re-install:"
     print_error "https://docs.sublimesecurity.com/docs/quickstart-docker#snap-is-not-supported"
     printf "\nIf you have existing docker containers or volumes or have any questions, please contact support@sublimesecurity.com for assistance\n"

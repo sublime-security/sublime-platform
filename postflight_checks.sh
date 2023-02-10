@@ -2,7 +2,11 @@
 
 . ./utils.sh
 
-if ! which jq > /dev/null 2>&1; then
+command_exists() {
+    command -v "$@" > /dev/null 2>&1
+}
+
+if ! command_exists jq; then
     print_error "Post-flight checks require jq to be installed. Please install jq and retry (https://stedolan.github.io/jq/download/)"
     exit 1
 fi
