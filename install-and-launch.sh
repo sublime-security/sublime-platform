@@ -350,6 +350,58 @@ preflight_checks() {
     print_success "** Successfully completed preflight checks! **"
 }
 
+launch_sublime() {
+    print_info "Configuring automatic updates..."
+    if [ "$interactive" = "true" ] && [ -z "$auto_updates" ]; then
+        while true; do
+            # Since this script is intended to be piped into bash, we need to explicitly read input from /dev/tty because stdin
+            # is streaming the script itself
+            printf 'Would you like to enable auto-updates? [Y/n]: '
+            read -r yn </dev/tty
+            case $yn in
+                [Yy]* | "" )
+                    auto_updates="true";
+                    printf 'Your terminal may request permission to add a cron job in the next step. Press enter to continue...';
+                    read -r
+                    break;;
+                [Nn]* ) auto_updates="false"; break;;
+                * ) echo "Please answer y or n.";;
+            esac
+        done
+    fi
+
+    if [ -z "$auto_updates" ]; then
+        auto_updates=true
+    fi
+
+    if [ "$auto_updates" = "true" ]; then
+        # We run cron specific preflight checks again in case the user interactively enabled automatic updates
+        if ! command_exists cron; then
+            print_error "Cron not installed"
+            echo "Please install cron and retry"
+            exit 1
+        fi
+
+        if command_exists systemctl && ! systemctl status cron > /dev/null 2>&1; then
+            # This check may not be reliable if some other init system is used, or maybe cron was temp disabled
+            print_warning "cron may not be running! Will proceed, but auto updates will not function without cron"
+        fi
+
+        # If this command is modified we might need a more sophisticated check below (worse case is more updates than intended)
+        update_command="cd ""$(pwd)"" && bash -lc ./update-and-run.sh"
+
+        if ! crontab -l | grep "$update_command" > /dev/null 2>&1; then
+            echo "Adding daily update check"
+            (crontab -l 2>/dev/null; echo "0 12 * * * ""$update_command") | crontab -
+        else
+            echo "Daily update check is already setup"
+        fi
+    fi
+
+    print_info "Launching Sublime Platform..."
+    ./update-and-run.sh always_launch
+}
+
 install_sublime() {
     if [ "$interactive" = "true" ] && [ -z "$sublime_host" ]; then
         print_info "Configuring host...\n"
@@ -399,7 +451,7 @@ install_sublime() {
         cd sublime-platform || { print_error "Failed to cd into sublime-platform"; exit 1; }
     fi
 
-    if ! sublime_host=$sublime_host interactive=$interactive auto_updates=$auto_updates ./launch-sublime-platform.sh; then
+    if ! sublime_host=$sublime_host interactive=$interactive auto_updates=$auto_updates launch_sublime; then
         print_error "Failed to launch Sublime Platform\n"
         printf "Troubleshooting tips: https://docs.sublimesecurity.com/docs/quickstart-docker#troubleshooting\n\n"
         printf "If you'd like to re-install Sublime then follow these steps: https://docs.sublimesecurity.com/docs/quickstart-docker#wipe-your-data\n\n"
