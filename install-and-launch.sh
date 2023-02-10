@@ -106,11 +106,11 @@ fi
 
 export remote_branch
 
-if ! curl -sL https://raw.githubusercontent.com/sublime-security/sublime-platform/${remote_branch}/preflight_checks.sh  | bash; then
+if ! curl -sL https://raw.githubusercontent.com/sublime-security/sublime-platform/"${remote_branch}"/preflight_checks.sh  | bash; then
     exit 1
 fi
 
-source /dev/stdin <<< "$(curl -sL https://raw.github.com/sublime-security/sublime-platform/${remote_branch}/utils.sh)"
+source /dev/stdin <<< "$(curl -sL https://raw.github.com/sublime-security/sublime-platform/"${remote_branch}"/utils.sh)"
 
 default_host="http://localhost"
 if [ "$interactive" == "true" ] && [ -z "$sublime_host" ]; then
@@ -122,7 +122,7 @@ if [ "$interactive" == "true" ] && [ -z "$sublime_host" ]; then
     # if $SSH_CONNECTION is set, parse the IP and use that as the default
     # this should generally always be set if you're SSH'd in, unless you've forced no TTY (i.e. ssh -T)
     if [ -n "$SSH_CONNECTION" ]; then
-        sshvars=($SSH_CONNECTION)
+        sshvars=("$SSH_CONNECTION")
         default_host="http://${sshvars[2]}"
     fi
 

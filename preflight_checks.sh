@@ -87,7 +87,7 @@ else
   print_color "\nlsof command not available - unable to complete port check." warning
   print_warning "Please ensure that ports 3000 and 8000 are available, or installation may fail."
   print_color "\nPress [ENTER] to continue." info
-  read -n 1 -s
+  read -rn 1 -s
   printf "\n"
 fi
 
