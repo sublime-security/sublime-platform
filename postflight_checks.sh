@@ -3,7 +3,7 @@
 . ./utils.sh
 
 command_exists() {
-    command -v "$@" > /dev/null 2>&1
+    command -v "$@" >/dev/null 2>&1
 }
 
 if ! command_exists jq; then
@@ -23,7 +23,7 @@ if [ -z "$unhealthy_retries" ]; then
     unhealthy_retries=3
 fi
 
-remaining_timeout_seconds=$(( timeout_minutes * 60 ))
+remaining_timeout_seconds=$((timeout_minutes * 60))
 remaining_unhealthy_retries=$unhealthy_retries
 
 health_endpoint="$(grep 'API_PUBLIC_BASE_URL' sublime.env | cut -d'=' -f2)/v1/health"
@@ -36,7 +36,7 @@ while [ $remaining_timeout_seconds -gt 0 ]; do
     fi
 
     if [ "$(curl -s "$health_endpoint" | jq '.success')" = "false" ]; then
-        remaining_unhealthy_retries=$(( remaining_unhealthy_retries - 1 ))
+        remaining_unhealthy_retries=$((remaining_unhealthy_retries - 1))
     fi
 
     if [ "$remaining_unhealthy_retries" -lt 0 ]; then
@@ -45,7 +45,7 @@ while [ $remaining_timeout_seconds -gt 0 ]; do
         exit 1
     fi
 
-    remaining_timeout_seconds=$(( remaining_timeout_seconds - retry_interval_seconds ))
+    remaining_timeout_seconds=$((remaining_timeout_seconds - retry_interval_seconds))
     sleep "$retry_interval_seconds"
 done
 

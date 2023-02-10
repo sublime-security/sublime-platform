@@ -1,7 +1,7 @@
 #!/bin/sh
 
 : ==========================================
-:   Introduction
+: Introduction
 : ==========================================
 
 # This script allows you to install the latest version of the Sublime Platform by running:
@@ -12,7 +12,7 @@
 # take an infinite number of arguments and still return true. Inspired from the Firebase tool installer.
 
 : ==========================================
-:   Advanced Usage
+: Advanced Usage
 : ==========================================
 
 # You can change the behavior of this script by passing environmental variables to the bash process. For example:
@@ -21,7 +21,7 @@
 #
 
 : -----------------------------------------
-:  Sublime Host - default: localhost
+: Sublime Host - default: localhost
 : -----------------------------------------
 
 # By default, this script assumes that Sublime is deployed locally. If you installed Sublime on a remote VPS or VM,
@@ -32,7 +32,7 @@
 # Replace 0.0.0.0 with the IP address of your remote system.
 
 : -----------------------------------------
-:  Interactive - default: true
+: Interactive - default: true
 : -----------------------------------------
 
 # By default, this script assumes that it is being called through the quickstart one-liner. In that case, we need to
@@ -42,7 +42,7 @@
 #
 
 : -----------------------------------------
-:  Branch - default: main
+: Branch - default: main
 : -----------------------------------------
 
 # By default, this script assumes that it should pull dependencies from branch `main`. If you wish to get dependencies
@@ -52,7 +52,7 @@
 #
 
 : -----------------------------------------
-:  Clone Platform - default: true
+: Clone Platform - default: true
 : -----------------------------------------
 
 # By default, this script will clone the latest Sublime Platform repo and enter into it before proceeding with the rest
@@ -63,7 +63,7 @@
 #
 
 : -----------------------------------------
-:  Auto Updates - default: true
+: Auto Updates - default: true
 : -----------------------------------------
 
 # By default, this script will configure automatic updates to the Sublime Platform via a nightly cron job. Editing your
@@ -79,7 +79,7 @@ if [ -z "$interactive" ]; then
     # ascii art
     # credit: https://patorjk.com/
     # font: Cyberlarge
-    cat << EOF
+    cat <<EOF
 
 ======================================================================
 |  _______ _     _ ______         _____ _______ _______              |
@@ -97,26 +97,26 @@ EOF
 fi
 
 : ==========================================
-:   Installation utilities
+: Installation utilities
 : ==========================================
 
 # Copied from utils.sh
 
 color_default="0m"
-color_info="94m" # blue
+color_info="94m"    # blue
 color_success="92m" # green
 color_warning="93m" # yellow
-color_error="91m" # red
+color_error="91m"   # red
 
 # prints colored text
 print_color() {
-    if [ "$2" = "info" ] ; then
+    if [ "$2" = "info" ]; then
         COLOR="$color_info"
-    elif [ "$2" = "success" ] ; then
+    elif [ "$2" = "success" ]; then
         COLOR="$color_success"
-    elif [ "$2" = "warning" ] ; then
+    elif [ "$2" = "warning" ]; then
         COLOR="$color_warning"
-    elif [ "$2" = "error" ] ; then
+    elif [ "$2" = "error" ]; then
         COLOR="$color_error"
     else #default color
         COLOR="$color_default"
@@ -129,58 +129,58 @@ print_color() {
 }
 
 print_error() {
-   print_color "\n$1\n" "error"
+    print_color "\n$1\n" "error"
 }
 
 print_success() {
-   print_color "\n$1\n" "success"
+    print_color "\n$1\n" "success"
 }
 
 print_info() {
-   print_color "\n$1\n" "info"
+    print_color "\n$1\n" "info"
 }
 
 print_warning() {
-   print_color "\n$1\n" "warning"
+    print_color "\n$1\n" "warning"
 }
 
 command_exists() {
-    command -v "$@" > /dev/null 2>&1
+    command -v "$@" >/dev/null 2>&1
 }
 
 major_minor() {
     echo "${1%%.*}.$(
-      x="${1#*.}"
-      echo "${x%%.*}"
+        x="${1#*.}"
+        echo "${x%%.*}"
     )"
 }
 
 version_gt() {
-  [ "${1%.*}" -gt "${2%.*}" ] || [ "${1%.*}" -eq "${2%.*}" ] && [ "${1#*.}" -gt "${2#*.}" ]
+    [ "${1%.*}" -gt "${2%.*}" ] || [ "${1%.*}" -eq "${2%.*}" ] && [ "${1#*.}" -gt "${2#*.}" ]
 }
 
 version_ge() {
-  [ "${1%.*}" -gt "${2%.*}" ] || [ "${1%.*}" -eq "${2%.*}" ] && [ "${1#*.}" -ge "${2#*.}" ]
+    [ "${1%.*}" -gt "${2%.*}" ] || [ "${1%.*}" -eq "${2%.*}" ] && [ "${1#*.}" -ge "${2#*.}" ]
 }
 
 version_lt() {
-  [ "${1%.*}" -lt "${2%.*}" ] || [ "${1%.*}" -eq "${2%.*}" ] && [ "${1#*.}" -lt "${2#*.}" ]
+    [ "${1%.*}" -lt "${2%.*}" ] || [ "${1%.*}" -eq "${2%.*}" ] && [ "${1#*.}" -lt "${2#*.}" ]
 }
 
 open_ports() {
-  lsof -i -P -n | grep LISTEN | sed 's/^.*:\([0-9][0-9]*\) (LISTEN)/\1/g' | uniq
+    lsof -i -P -n | grep LISTEN | sed 's/^.*:\([0-9][0-9]*\) (LISTEN)/\1/g' | uniq
 }
 
 check_port() {
-  if open_ports | grep -q "$1"; then
-    print_error "Port $1 is already in use\n"
-    echo "If you're unable to free this port, reach out for assistance: support@sublimesecurity.com"
-    exit 1
-  fi
+    if open_ports | grep -q "$1"; then
+        print_error "Port $1 is already in use\n"
+        echo "If you're unable to free this port, reach out for assistance: support@sublimesecurity.com"
+        exit 1
+    fi
 }
 
 if [ -z "$remote_branch" ]; then
-  remote_branch="main"
+    remote_branch="main"
 fi
 
 if [ "$interactive" != "true" ] && [ -z "$auto_updates" ]; then
@@ -193,8 +193,8 @@ preflight_checks() {
     print_info "Running preflight checks..."
 
     case "$(uname -s | tr '[:upper:]' '[:lower:]')" in
-        linux*)     machine=linux;;
-        darwin*)    machine=macos;;
+    linux*) machine=linux ;;
+    darwin*) machine=macos ;;
     esac
 
     if [ -z "$machine" ]; then
@@ -225,14 +225,14 @@ preflight_checks() {
     fi
 
     if command_exists lsof; then
-      check_port 3000
-      check_port 8000
+        check_port 3000
+        check_port 8000
     else
-      print_color "\nlsof command not available - unable to complete port check." warning
-      print_warning "Please ensure that ports 3000 and 8000 are available, or installation may fail."
-      print_color "\nPress [ENTER] to continue." info
-      read -r
-      printf "\n"
+        print_color "\nlsof command not available - unable to complete port check." warning
+        print_warning "Please ensure that ports 3000 and 8000 are available, or installation may fail."
+        print_color "\nPress [ENTER] to continue." info
+        read -r
+        printf "\n"
     fi
 
     if ! command_exists git; then
@@ -293,7 +293,7 @@ preflight_checks() {
         exit 1
     fi
 
-    if ! $docker_cmd_prefix docker info > /dev/null 2>&1; then
+    if ! $docker_cmd_prefix docker info >/dev/null 2>&1; then
         print_error "Docker is not running. Please start Docker and retry."
         exit 1
     fi
@@ -328,7 +328,7 @@ preflight_checks() {
         exit 1
     fi
 
-    if [ "$auto_updates" = "true" ] && command_exists systemctl && ! systemctl status cron > /dev/null 2>&1; then
+    if [ "$auto_updates" = "true" ] && command_exists systemctl && ! systemctl status cron >/dev/null 2>&1; then
         # This check may not be reliable if some other init system is used, or maybe cron was temp disabled
         print_warning "Cron may not be running! Will proceed, but auto updates will not function without cron"
     fi
@@ -337,7 +337,7 @@ preflight_checks() {
     # reject these early and recommend users contact us if needed. Nothing specific about
     # our software is related to snap issues, but we don't want anyone to uninstall snap
     # docker without realizing they could loose data (from our platform or other applications).
-    if command_exists snap && snap list | grep -i docker > /dev/null 2>&1; then
+    if command_exists snap && snap list | grep -i docker >/dev/null 2>&1; then
         print_error "Snap versions of Docker are not supported. Please follow these instructions to remove the package and re-install:"
         print_error "https://docs.sublimesecurity.com/docs/quickstart-docker#snap-is-not-supported"
         printf "\nIf you have existing docker containers or volumes or have any questions, please contact support@sublimesecurity.com for assistance\n"
@@ -358,13 +358,17 @@ launch_sublime() {
             printf 'Would you like to enable auto-updates? [Y/n]: '
             read -r yn </dev/tty
             case $yn in
-                [Yy]* | "" )
-                    auto_updates="true";
-                    printf 'Your terminal may request permission to add a cron job in the next step. Press enter to continue...';
-                    read -r
-                    break;;
-                [Nn]* ) auto_updates="false"; break;;
-                * ) echo "Please answer y or n.";;
+            [Yy]* | "")
+                auto_updates="true"
+                printf 'Your terminal may request permission to add a cron job in the next step. Press enter to continue...'
+                read -r
+                break
+                ;;
+            [Nn]*)
+                auto_updates="false"
+                break
+                ;;
+            *) echo "Please answer y or n." ;;
             esac
         done
     fi
@@ -381,7 +385,7 @@ launch_sublime() {
             exit 1
         fi
 
-        if command_exists systemctl && ! systemctl status cron > /dev/null 2>&1; then
+        if command_exists systemctl && ! systemctl status cron >/dev/null 2>&1; then
             # This check may not be reliable if some other init system is used, or maybe cron was temp disabled
             print_warning "cron may not be running! Will proceed, but auto updates will not function without cron"
         fi
@@ -389,9 +393,12 @@ launch_sublime() {
         # If this command is modified we might need a more sophisticated check below (worse case is more updates than intended)
         update_command="cd ""$(pwd)"" && bash -lc ./update-and-run.sh"
 
-        if ! crontab -l | grep "$update_command" > /dev/null 2>&1; then
+        if ! crontab -l | grep "$update_command" >/dev/null 2>&1; then
             echo "Adding daily update check"
-            (crontab -l 2>/dev/null; echo "0 12 * * * ""$update_command") | crontab -
+            (
+                crontab -l 2>/dev/null
+                echo "0 12 * * * ""$update_command"
+            ) | crontab -
         else
             echo "Daily update check is already setup"
         fi
@@ -430,7 +437,7 @@ install_sublime() {
     fi
 
     case "$sublime_host" in
-    http*) sublime_host="http://$sublime_host";
+    http*) sublime_host="http://$sublime_host" ;;
     esac
 
     if [ -z "$clone_platform" ]; then
@@ -447,7 +454,10 @@ install_sublime() {
             exit 1
         fi
 
-        cd sublime-platform || { print_error "Failed to cd into sublime-platform"; exit 1; }
+        cd sublime-platform || {
+            print_error "Failed to cd into sublime-platform"
+            exit 1
+        }
     fi
 
     if ! sublime_host=$sublime_host interactive=$interactive auto_updates=$auto_updates launch_sublime; then
