@@ -100,8 +100,7 @@ fi
 :   Installation utilities
 : ==========================================
 
-# This file contains utility functions to be used within the
-# Sublime installation scripts.
+# Copied from utils.sh
 
 color_default="0m"
 color_info="94m" # blue

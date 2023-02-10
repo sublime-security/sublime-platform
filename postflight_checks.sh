@@ -1,4 +1,4 @@
-#!/usr/bin/env bash
+#!/bin/sh
 
 . ./utils.sh
 
@@ -30,12 +30,12 @@ health_endpoint="$(grep 'API_PUBLIC_BASE_URL' sublime.env | cut -d'=' -f2)/v1/he
 while [ $remaining_timeout_seconds -gt 0 ]; do
     print_info "Attempting to check Sublime Platform health"
 
-    if [ "$(curl -s "$health_endpoint" | jq '.success')" == "true" ]; then
+    if [ "$(curl -s "$health_endpoint" | jq '.success')" = "true" ]; then
         print_success "** Sublime Platform is healthy! **"
         exit 0
     fi
 
-    if [ "$(curl -s "$health_endpoint" | jq '.success')" == "false" ]; then
+    if [ "$(curl -s "$health_endpoint" | jq '.success')" = "false" ]; then
         remaining_unhealthy_retries=$(( remaining_unhealthy_retries - 1 ))
     fi
 

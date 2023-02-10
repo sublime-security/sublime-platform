@@ -1,9 +1,8 @@
-#!/bin/bash
-
-
-cmd_prefix="sudo "
+#!/bin/sh
 
 . ./utils.sh
+
+cmd_prefix="sudo "
 
 # Docker setups on OS X generally won't need sudo
 # TODO this check is pretty naive -- a properly setup docker/compose setup in Linux won't need sudo either
@@ -12,21 +11,21 @@ case "$(uname -s | tr '[:upper:]' '[:lower:]')" in
     darwin*)    cmd_prefix="";;
 esac
 
-if [[ "$1" != "always_launch" ]]; then
+if [ "$1" != "always_launch" ]; then
     if ! $cmd_prefix docker compose ps | grep "mantis" > /dev/null 2>&1; then
         print_error "docker compose appears to be brought down. Will not proceed to avoid relaunching."
         exit 0
     fi
 fi
 
-if [[ -z "$(git status --porcelain)" ]]; then
+if [ -z "$(git status --porcelain)" ]; then
 	echo "git working dir clean. Proceeding with git updates."
 
 	old_ref=$(git rev-parse HEAD)
 	git pull
 	new_ref=$(git rev-parse HEAD)
 
-	if [[ "${old_ref}" != "${new_ref}" ]]; then
+	if [ "${old_ref}" != "${new_ref}" ]; then
             $cmd_prefix docker compose down --remove-orphans
 	fi
 else
@@ -93,4 +92,3 @@ if ! grep "API_PUBLIC_BASE_URL" $SUBLIME_ENV_FILE > /dev/null 2>&1; then
 fi
 
 $cmd_prefix docker compose up --quiet-pull -d
-

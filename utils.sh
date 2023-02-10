@@ -1,4 +1,4 @@
-#!/usr/bin/env bash
+#!/bin/sh
 
 : ==========================================
 :   Installation utilities
@@ -15,13 +15,13 @@ color_error="91m" # red
 
 # prints colored text
 print_color() {
-    if [ "$2" == "info" ] ; then
+    if [ "$2" = "info" ] ; then
         COLOR="$color_info"
-    elif [ "$2" == "success" ] ; then
+    elif [ "$2" = "success" ] ; then
         COLOR="$color_success"
-    elif [ "$2" == "warning" ] ; then
+    elif [ "$2" = "warning" ] ; then
         COLOR="$color_warning"
-    elif [ "$2" == "error" ] ; then
+    elif [ "$2" = "error" ] ; then
         COLOR="$color_error"
     else #default color
         COLOR="$color_default"
