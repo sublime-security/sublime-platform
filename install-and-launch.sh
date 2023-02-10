@@ -6,18 +6,18 @@
 
 # This script allows you to install the latest version of the Sublime Platform by running:
 #
-: curl -sL https://sublimesecurity.com/install.sh | bash
+: curl -sL https://sublimesecurity.com/install.sh | sh
 #
-# Note: lines prefixed with ":" are no-ops but still retain syntax highlighting. Bash considers ":" as true and true can
+# Note: lines prefixed with ":" are no-ops but still retain syntax highlighting. sh considers ":" as true and true can
 # take an infinite number of arguments and still return true. Inspired from the Firebase tool installer.
 
 : ==========================================
 : Advanced Usage
 : ==========================================
 
-# You can change the behavior of this script by passing environmental variables to the bash process. For example:
+# You can change the behavior of this script by passing environmental variables to the sh process. For example:
 #
-: curl -sL https://sublimesecurity.com/install.sh | arg1=foo arg2=bar bash
+: curl -sL https://sublimesecurity.com/install.sh | arg1=foo arg2=bar sh
 #
 
 : -----------------------------------------
@@ -27,7 +27,7 @@
 # By default, this script assumes that Sublime is deployed locally. If you installed Sublime on a remote VPS or VM,
 # you'll need to specify IP address of your remote system.
 #
-: curl -sL https://sublimesecurity.com/install.sh | sublime_host=0.0.0.0 bash
+: curl -sL https://sublimesecurity.com/install.sh | sublime_host=0.0.0.0 sh
 #
 # Replace 0.0.0.0 with the IP address of your remote system.
 
@@ -38,7 +38,7 @@
 # By default, this script assumes that it is being called through the quickstart one-liner. In that case, we need to
 # confirm where the Sublime instance is deployed unless it's passed in explicitly.
 #
-: curl -sL https://sublimesecurity.com/install.sh | interactive=false bash
+: curl -sL https://sublimesecurity.com/install.sh | interactive=false sh
 #
 
 : -----------------------------------------
@@ -48,7 +48,7 @@
 # By default, this script assumes that it should pull dependencies from branch `main`. If you wish to get dependencies
 # from another branch, you can specify it here.
 #
-: curl -sL https://sublimesecurity.com/install.sh | remote_branch=custom-branch bash
+: curl -sL https://sublimesecurity.com/install.sh | remote_branch=custom-branch sh
 #
 
 : -----------------------------------------
@@ -59,7 +59,7 @@
 # of the installation. You may want to disable this if you're running this script from within the Sublime Platform repo
 # already.
 #
-: curl -sL https://sublimesecurity.com/install.sh | clone_platform=false bash
+: curl -sL https://sublimesecurity.com/install.sh | clone_platform=false sh
 #
 
 : -----------------------------------------
@@ -70,7 +70,7 @@
 # crontab may require elevated accessibility permissions on certain operation systems (e.g. MacOS). If you're not
 # comfortable with giving these permissions or you don't want automatic updates then disable this option.
 #
-: curl -sL https://sublimesecurity.com/install.sh | auto_updates=false bash
+: curl -sL https://sublimesecurity.com/install.sh | auto_updates=false sh
 #
 
 if [ -z "$interactive" ]; then
@@ -353,7 +353,7 @@ launch_sublime() {
     print_info "Configuring automatic updates..."
     if [ "$interactive" = "true" ] && [ -z "$auto_updates" ]; then
         while true; do
-            # Since this script is intended to be piped into bash, we need to explicitly read input from /dev/tty because stdin
+            # Since this script is intended to be piped into sh, we need to explicitly read input from /dev/tty because stdin
             # is streaming the script itself
             printf 'Would you like to enable auto-updates? [Y/n]: '
             read -r yn </dev/tty
@@ -391,7 +391,7 @@ launch_sublime() {
         fi
 
         # If this command is modified we might need a more sophisticated check below (worse case is more updates than intended)
-        update_command="cd ""$(pwd)"" && bash -lc ./update-and-run.sh"
+        update_command="cd ""$(pwd)"" && sh -lc ./update-and-run.sh"
 
         if ! crontab -l | grep "$update_command" >/dev/null 2>&1; then
             echo "Adding daily update check"
@@ -422,7 +422,7 @@ install_sublime() {
             default_host="http://${hostname}"
         fi
 
-        # Since this script is intended to be piped into bash, we need to explicitly read input from /dev/tty because stdin
+        # Since this script is intended to be piped into sh, we need to explicitly read input from /dev/tty because stdin
         # is streaming the script itself
         printf "Please specify the hostname or IP address of where you're deploying Sublime. We'll use this to configure your CORS settings.\n\n"
         printf "This should match the hostname you'll use to access your deployment after setup. You can change this later.\n\n"
