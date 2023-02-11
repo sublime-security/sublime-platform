@@ -172,6 +172,7 @@ open_ports() {
 }
 
 check_port() {
+    # TODO: in future PR, where 'ss' is available: ss -tl4 '( sport = :22 )'
     if open_ports | grep -q "$1"; then
         print_error "Port $1 is already in use\n"
         echo "If you're unable to free this port, reach out for assistance: support@sublimesecurity.com"
@@ -348,7 +349,7 @@ preflight_checks() {
         print_color "\nlsof command not available - unable to complete port check." warning
         print_warning "Please ensure that ports 3000 and 8000 are available, or installation may fail."
         print_color "\nPress [ENTER] to continue." info
-        read -r
+        read -r _ </dev/tty
         printf "\n"
     fi
 
@@ -367,7 +368,7 @@ launch_sublime() {
             [Yy]* | "")
                 auto_updates="true"
                 printf 'Your terminal may request permission to add a cron job in the next step. Press enter to continue...'
-                read -r
+                read -r _ </dev/tty
                 break
                 ;;
             [Nn]*)
