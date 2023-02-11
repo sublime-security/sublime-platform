@@ -443,7 +443,8 @@ install_sublime() {
     fi
 
     case "$sublime_host" in
-    http*) sublime_host="http://$sublime_host" ;;
+    http*) ;;
+    *) sublime_host="http://$sublime_host" ;;
     esac
 
     if [ -z "$clone_platform" ]; then
