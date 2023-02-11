@@ -11,6 +11,11 @@ if ! command_exists jq; then
     exit 1
 fi
 
+if ! command_exists curl; then
+    print_error "Post-flight checks require curl to be installed. Please install curl and retry (https://curl.se/download.html)"
+    exit 1
+fi
+
 if [ -z "$timeout_minutes" ]; then
     timeout_minutes=20
 fi
