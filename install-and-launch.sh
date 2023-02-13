@@ -349,9 +349,11 @@ preflight_checks() {
     else
         print_color "\nlsof command not available - unable to complete port check." warning
         print_warning "Please ensure that ports 3000 and 8000 are available, or installation may fail."
-        print_color "\nPress [ENTER] to continue." info
-        read -r _ </dev/tty
-        printf "\n"
+        if [ "$interactive" = "true" ]; then
+            print_color "\nPress [ENTER] to continue." info
+            read -r _ </dev/tty
+            printf "\n"
+        fi
     fi
 
     print_success "** Successfully completed preflight checks! **"
@@ -434,8 +436,6 @@ install_sublime() {
         # is streaming the script itself
         printf "Please specify the hostname or IP address of where you're deploying Sublime. We'll use this to configure your CORS settings.\n\n"
         printf "This should match the hostname you'll use to access your deployment after setup. You can change this later.\n\n"
-        # printf "You can change this at any time: https://docs.sublimesecurity.com/docs/quickstart-docker#updating-your-sublime-host\n\n"
-        # read -rp "Press enter to accept '$default_host' as the default: " sublime_host </dev/tty
         printf "Press enter to accept '%s' as the default: " "$default_host"
         read -r sublime_host </dev/tty
     fi
