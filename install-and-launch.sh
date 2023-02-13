@@ -296,7 +296,7 @@ preflight_checks() {
     fi
 
     # "Docker Compose version v2.10.2"
-    docker_compose_version="$(docker compose version 2>/dev/null)"
+    docker_compose_version="$(docker compose version 2>/dev/null || true)"
 
     # Remove longest substring matching "*version v" starting from the front of the string
     # Should be "2.10.2"
