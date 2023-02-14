@@ -415,7 +415,7 @@ launch_sublime() {
     fi
 
     print_info "Launching Sublime Platform..."
-    ./update-and-run.sh always_launch
+    sublime_host="$1" ./update-and-run.sh always_launch
 }
 
 install_sublime() {
@@ -469,7 +469,7 @@ install_sublime() {
         }
     fi
 
-    if ! sublime_host=$sublime_host interactive=$interactive auto_updates=$auto_updates launch_sublime; then
+    if ! launch_sublime "$sublime_host"; then
         print_error "Failed to launch Sublime Platform\n"
         printf "Troubleshooting tips: https://docs.sublimesecurity.com/docs/quickstart-docker#troubleshooting\n\n"
         printf "If you'd like to re-install Sublime then follow these steps: https://docs.sublimesecurity.com/docs/quickstart-docker#wipe-your-data\n\n"
