@@ -93,3 +93,20 @@ if ! grep "API_PUBLIC_BASE_URL" $SUBLIME_ENV_FILE >/dev/null 2>&1; then
 fi
 
 $cmd_prefix docker compose up --quiet-pull -d
+
+. "$SUBLIME_ENV_FILE"
+
+pg_auth_query="select count(*) from pg_authid WHERE rolpassword = 'md5' || md5('${POSTGRES_PASSWORD}' || 'sublime')"
+
+pg_auth_result=$(docker exec --env-file=sublime.env sublime_postgres bash -c "psql --user sublime -d mantis -c "${pg_auth_query}"")
+if ! echo "$pg_auth_result" | grep -q "(1 row)"; then
+    print_error "An error was encountered. Stopping containers..."
+
+    docker compose down
+
+    print_error "Your sublime.env file no longer contains the correct Postgres credentials."
+    print_color "\nIf this is a new install and you don't have any data to lose, follow the instructions at this link:" error
+    print_error "https://docs.sublimesecurity.com/docs/quickstart-docker#wipe-your-data"
+    print_error "Then, delete the sublime-platform directory and re-run the installer."
+    print_error "If you have data that you need to keep, please contact Sublime support."
+fi
