@@ -1,9 +1,9 @@
 #!/bin/sh
 set -e
 
-: ==========================================
+: -----------------------------------------
 : Introduction
-: ==========================================
+: -----------------------------------------
 
 # This script allows you to install the latest version of the Sublime Platform by running:
 #
@@ -12,9 +12,9 @@ set -e
 # Note: lines prefixed with ":" are no-ops but still retain syntax highlighting. sh considers ":" as true and true can
 # take an infinite number of arguments and still return true. Inspired from the Firebase tool installer.
 
-: ==========================================
+: -----------------------------------------
 : Advanced Usage
-: ==========================================
+: -----------------------------------------
 
 # You can change the behavior of this script by passing environmental variables to the sh process. For example:
 #
@@ -97,9 +97,9 @@ EOF
 
 fi
 
-: ==========================================
+: -----------------------------------------
 : Installation utilities
-: ==========================================
+: -----------------------------------------
 
 # Copied from utils.sh
 
@@ -247,7 +247,7 @@ preflight_checks() {
 
     # Remove longest substring matching " (*" starting from the end of the string
     # Should be "2.37.0"
-    git_version=${git_version%% (*}
+    git_version=${git_version%% \(*}
 
     if version_lt "$(major_minor "$git_version")" "2.7"; then
         print_color "\nGit version $git_version does not meet the minimum version of 2.7" error
