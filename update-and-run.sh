@@ -93,32 +93,3 @@ if ! grep "API_PUBLIC_BASE_URL" $SUBLIME_ENV_FILE >/dev/null 2>&1; then
 fi
 
 $cmd_prefix docker compose up --quiet-pull -d
-
-echo
-echo "Checking health of containers..."
-sleep 3
-
-container_id_by_name() {
-    echo $(docker ps -aqf "name="$1"")
-}
-
-pg_error_string="retryable migration error: pq: password authentication failed for user"
-bora_container_id="$(container_id_by_name "sublime_bora_lite")"
-
-if [ -z "$bora_container_id" ]; then
-    echo "error: bora container not found"
-fi
-
-bora_logs="$(docker logs "$bora_container_id")"
-
-if echo "$bora_logs" | grep -q "$pg_error_string"; then
-    print_error "An error was encountered. Stopping containers..."
-
-    docker compose down
-
-    print_error "Your sublime.env file no longer contains the correct Postgres credentials."
-    print_color "\nIf this is a new install and you don't have any data to lose, follow the instructions at this link:" error
-    print_error "https://docs.sublimesecurity.com/docs/quickstart-docker#wipe-your-data"
-    print_error "Then, delete the sublime-platform directory and re-run the installer."
-    print_error "If you have data that you need to keep, please contact Sublime support."
-fi

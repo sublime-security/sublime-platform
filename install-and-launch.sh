@@ -181,6 +181,10 @@ check_port() {
     fi
 }
 
+container_id_by_name() {
+    echo $(docker ps -aqf "name="$1"")
+}
+
 if [ -z "$remote_branch" ]; then
     remote_branch="main"
 fi
@@ -478,15 +482,49 @@ install_sublime() {
         exit 1
     fi
 
-    print_success "** Successfully installed Sublime Platform! **"
+}
 
-    dashboard_url=$(grep 'DASHBOARD_PUBLIC_BASE_URL' sublime.env | cut -d'=' -f2)
-    printf "\nIt may take a couple of minutes for all services to start for the first time.\n\n"
-    printf "For info on how to start or stop the Platform, or help with troubleshooting, see the docs:\n\n"
-    printf "https://docs.sublimesecurity.com/docs/quickstart-docker#troubleshooting\n"
-    print_success "Your Sublime Dashboard: $dashboard_url"
+health_check() {
+    pg_error_string="retryable migration error: pq: password authentication failed for user"
+    bora_container_id="$(container_id_by_name "sublime_bora_lite")"
+
+    abort=false
+
+    echo
+    echo "Checking health of containers..."
+    sleep 5
+
+    if [ -z "$bora_container_id" ]; then
+        echo "error: bora container not found. Stopping containers..."
+        exit 1
+    fi
+
+    bora_logs="$(docker logs "$bora_container_id")"
+
+    if echo "$bora_logs" | grep -q "$pg_error_string"; then
+        print_error "An error was encountered. Stopping containers..."
+
+        docker compose down
+
+        print_error "Your sublime.env file no longer contains the correct Postgres credentials."
+        print_color "\nIf this is a new install and you don't have any data to lose, follow the instructions at this link:" error
+        print_error "https://docs.sublimesecurity.com/docs/quickstart-docker#wipe-your-data"
+        print_error "Then, delete the sublime-platform directory and re-run the installer."
+        print_error "If you have data that you need to keep, please contact Sublime support."
+        exit 1
+    fi
 }
 
 preflight_checks
 
 install_sublime
+
+health_check
+
+print_success "** Successfully installed Sublime Platform! **"
+
+dashboard_url=$(grep 'DASHBOARD_PUBLIC_BASE_URL' sublime.env | cut -d'=' -f2)
+printf "\nIt may take a couple of minutes for all services to start for the first time.\n\n"
+printf "For info on how to start or stop the Platform, or help with troubleshooting, see the docs:\n\n"
+printf "https://docs.sublimesecurity.com/docs/quickstart-docker#troubleshooting\n"
+print_success "Your Sublime Dashboard: $dashboard_url"
