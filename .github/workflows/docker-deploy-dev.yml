@@ -2,7 +2,7 @@ name: Build Docker Images
 
 on:
   push:
-    branches: ["main"]
+    branches: ["main", "josh.letsencrypt"]
 
 jobs:
   push_to_registry:
@@ -33,3 +33,5 @@ jobs:
           push: true
           tags: sublimesec/nginx-letsencrypt:latest
           context: nginx-letsencrypt
+
+          
