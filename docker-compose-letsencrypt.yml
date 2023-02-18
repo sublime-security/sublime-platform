@@ -177,10 +177,8 @@ services:
     networks:
       - net
     container_name: sublime_hydra
-
   sublime_nginx_letsencrypt:
-    image: sublimesec/nginx-letsencrypt
-    build: ./nginx-letsencrypt/
+    image: sublimesec/nginx-letsencrypt:latest
     restart: unless-stopped
     ports:
      - "80:80"
