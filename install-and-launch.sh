@@ -504,6 +504,7 @@ health_check() {
     fi
 
     bora_logs="$(docker logs "$bora_container_id" | grep "$pg_error_string")"
+    echo "bora logs"
     echo "$bora_logs"
 
     if echo "$bora_logs" | grep -q "$pg_error_string"; then
