@@ -496,20 +496,15 @@ health_check() {
 
     echo
     echo "Checking health of containers..."
-    sleep 7
 
-    echo "1"
+    sleep 7
 
     if [ -z "$bora_container_id" ]; then
         print_error "Bora container not found"
         exit 1
     fi
 
-    echo "2"
-
-    bora_logs="$(docker logs "$bora_container_id" | grep "$pg_error_string")"
-    echo "bora logs"
-    echo "$bora_logs"
+    bora_logs="$(docker logs "$bora_container_id")"
 
     if echo "$bora_logs" | grep -q "$pg_error_string"; then
         print_error "An error was encountered. Stopping containers..."
