@@ -182,7 +182,7 @@ check_port() {
 }
 
 container_id_by_name() {
-    echo $(docker ps -aqf "name="$1"")
+    "$(docker ps -aqf "name=$1")"
 }
 
 if [ -z "$remote_branch" ]; then
@@ -305,6 +305,11 @@ preflight_checks() {
     # Remove longest substring matching "*version v" starting from the front of the string
     # Should be "2.10.2"
     docker_compose_version=${docker_compose_version##*version v}
+
+    # If there was no leading 'v', the above step will have been a no-op, so do a straight substring replace
+    case "$docker_compose_version" in
+    "Docker Compose version"*) docker_compose_version="$(echo "$docker_compose_version" | sed 's/Docker Compose version //g')" ;;
+    esac
 
     if [ -z "$docker_compose_version" ]; then
         if [ "$machine" = "linux" ]; then
@@ -487,8 +492,6 @@ install_sublime() {
 health_check() {
     pg_error_string="retryable migration error: pq: password authentication failed for user"
     bora_container_id="$(container_id_by_name "sublime_bora_lite")"
-
-    abort=false
 
     echo
     echo "Checking health of containers..."
