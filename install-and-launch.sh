@@ -182,7 +182,8 @@ check_port() {
 }
 
 container_id_by_name() {
-    "$(docker ps -aqf "name=$1")"
+    # shellcheck disable=SC2005 # we need to echo the output from this function
+    echo "$(docker ps -aqf "name=$1")"
 }
 
 if [ -z "$remote_branch" ]; then
