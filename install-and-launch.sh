@@ -492,21 +492,21 @@ health_check() {
 
     echo
     echo "Checking health of containers..."
-    sleep 5
+    sleep 7
 
     if [ -z "$bora_container_id" ]; then
         print_error "Bora container not found"
         exit 1
     fi
 
-    bora_logs="$(docker logs "$bora_container_id")"
+    bora_logs="$(docker logs "$bora_container_id" | grep "$pg_error_string")"
 
     if echo "$bora_logs" | grep -q "$pg_error_string"; then
         print_error "An error was encountered. Stopping containers..."
 
         docker compose down
 
-        print_error "Your sublime.env file no longer contains the correct Postgres credentials."
+        print_error "Your sublime.env does not contain the correct Postgres credentials."
         print_color "\nIf this is a new install and you don't have any data to lose, follow the instructions at this link:" error
         print_error "https://docs.sublimesecurity.com/docs/quickstart-docker#wipe-your-data"
         print_error "Then, delete the sublime-platform directory and re-run the installer."
