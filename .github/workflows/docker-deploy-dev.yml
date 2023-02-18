@@ -2,7 +2,7 @@ name: Build Docker Images
 
 on:
   push:
-    branches: ["main", "josh.letsencrypt"]
+    branches: ["main"]
 
 jobs:
   push_to_registry:
