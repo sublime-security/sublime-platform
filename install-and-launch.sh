@@ -495,7 +495,7 @@ health_check() {
     sleep 5
 
     if [ -z "$bora_container_id" ]; then
-        echo "error: bora container not found. Stopping containers..."
+        print_error "Bora container not found"
         exit 1
     fi
 
