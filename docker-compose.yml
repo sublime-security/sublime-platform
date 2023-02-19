@@ -190,7 +190,7 @@ services:
       - sublime_dashboard
     container_name: sublime_nginx_letsencrypt
     env_file:
-      - certbot.env
+      - "${LETSENCRYPT_ENV:-certbot.env.example}"
     volumes:
       - /etc/letsencrypt/:/etc/letsencrypt/
     networks:
