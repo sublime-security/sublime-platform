@@ -181,6 +181,11 @@ check_port() {
     fi
 }
 
+container_id_by_name() {
+    # shellcheck disable=SC2005 # we need to echo the output from this function
+    echo "$(docker ps -aqf "name=$1")"
+}
+
 if [ -z "$remote_branch" ]; then
     remote_branch="main"
 fi
@@ -301,6 +306,11 @@ preflight_checks() {
     # Remove longest substring matching "*version v" starting from the front of the string
     # Should be "2.10.2"
     docker_compose_version=${docker_compose_version##*version v}
+
+    # If there was no leading 'v', the above step will have been a no-op, so do a straight substring replace
+    case "$docker_compose_version" in
+    "Docker Compose version"*) docker_compose_version="$(echo "$docker_compose_version" | sed 's/Docker Compose version //g')" ;;
+    esac
 
     if [ -z "$docker_compose_version" ]; then
         if [ "$machine" = "linux" ]; then
@@ -478,15 +488,48 @@ install_sublime() {
         exit 1
     fi
 
-    print_success "** Successfully installed Sublime Platform! **"
+}
 
-    dashboard_url=$(grep 'DASHBOARD_PUBLIC_BASE_URL' sublime.env | cut -d'=' -f2)
-    printf "\nIt may take a couple of minutes for all services to start for the first time.\n\n"
-    printf "For info on how to start or stop the Platform, or help with troubleshooting, see the docs:\n\n"
-    printf "https://docs.sublimesecurity.com/docs/quickstart-docker#troubleshooting\n"
-    print_success "Your Sublime Dashboard: $dashboard_url"
+health_check() {
+    pg_error_string="retryable migration error: pq: password authentication failed for user"
+    bora_container_id="$(container_id_by_name "sublime_bora_lite")"
+
+    echo
+    echo "Checking health of containers..."
+
+    sleep 7
+
+    if [ -z "$bora_container_id" ]; then
+        print_error "Bora container not found"
+        exit 1
+    fi
+
+    bora_logs="$(docker logs "$bora_container_id")"
+
+    if echo "$bora_logs" | grep -q "$pg_error_string"; then
+        print_error "An error was encountered. Stopping containers..."
+
+        docker compose down
+
+        print_error "Your sublime.env does not contain the correct Postgres credentials."
+        print_color "\nIf this is a new install and you don't have any data to lose, follow the instructions at this link:" error
+        print_error "https://docs.sublimesecurity.com/docs/quickstart-docker#wipe-your-data"
+        print_error "Then, delete the sublime-platform directory and re-run the installer."
+        print_error "If you have data that you need to keep, please contact Sublime support."
+        exit 1
+    fi
 }
 
 preflight_checks
 
 install_sublime
+
+health_check
+
+print_success "** Successfully installed Sublime Platform! **"
+
+dashboard_url=$(grep 'DASHBOARD_PUBLIC_BASE_URL' sublime.env | cut -d'=' -f2)
+printf "\nIt may take a couple of minutes for all services to start for the first time.\n\n"
+printf "For info on how to start or stop the Platform, or help with troubleshooting, see the docs:\n\n"
+printf "https://docs.sublimesecurity.com/docs/quickstart-docker#troubleshooting\n"
+print_success "Your Sublime Dashboard: $dashboard_url"
