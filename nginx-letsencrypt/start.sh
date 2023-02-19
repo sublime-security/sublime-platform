@@ -13,24 +13,24 @@
 
 # h/t to the @thinkst team
 # source: https://github.com/thinkst/canarytokens-docker/blob/c49e96ff16bbf7c1187d39367b4e8e9fe2fe5315/certbot-nginx/start.sh
-echo  "----------------------------------------------------------------"
-echo  "Starting nginx and lets encrypt setup using"
+echo "----------------------------------------------------------------"
+echo "Starting nginx and letsencrypt setup using"
 _args=""
 _server_names=""
 if [ "x${MY_DOMAIN_NAME}" != "x" ]; then
-    echo  "Domain : $MY_DOMAIN_NAME"
-    _args=" -d ${MY_DOMAIN_NAME} -d www.${MY_DOMAIN_NAME}"
-    _server_names="${MY_DOMAIN_NAME} www.${MY_DOMAIN_NAME} "
+    echo "Domain : $MY_DOMAIN_NAME"
+    _args=" -d ${MY_DOMAIN_NAME}"
+    _server_names="${MY_DOMAIN_NAME}"
 fi
 if [ "x${MY_DOMAIN_NAMES}" != "x" ]; then
-    echo  "Domains : $MY_DOMAIN_NAMES"
+    echo "Domains : $MY_DOMAIN_NAMES"
     for domain in $MY_DOMAIN_NAMES; do
         _args="${_args} -d ${domain}"
         _server_names="${_server_names} ${domain}"
     done
 fi
-echo  "Email  : $EMAIL_ADDRESS"
-echo  "----------------------------------------------------------------"
+echo "Email  : $EMAIL_ADDRESS"
+echo "----------------------------------------------------------------"
 sed -i "s/___server_names___/$_server_names/g" /etc/nginx/nginx.conf
 sleep 5
 nginx
