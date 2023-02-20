@@ -460,6 +460,8 @@ install_sublime() {
         print_color "\nYou will need to perform some manual steps in order to enable SSL. Please follow the instructions" info
         print_info "at https://docs.sublimesecurity.com/docs/quickstart-docker#ssl and re-run this script to finish setup.\n" info
         exit 0
+    else
+        print_success "** SSL is configured **"
     fi
 
     if [ "$interactive" = "true" ] && [ -z "$sublime_host" ] && [ ! -f "$CERTBOT_ENV_FILE" ]; then
