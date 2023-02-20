@@ -452,13 +452,13 @@ install_sublime() {
     fi
 
     if [ "$interactive" = "true" ] && [ ! -f "$CERTBOT_ENV_FILE" ]; then
-        printf "\nWill your installation use SSL? (y/n) "
+        printf "\nWould you like to setup SSL with LetsEncrypt? You must have a custom domain. (y/N): "
         read -r enable_ssl </dev/tty
     fi
 
-    if [ "$enable_ssl" = "y" ]; then
+    if [ "$enable_ssl" = "y" ] || [ "$enable_ssl" = "Y" ] || [ "$enable_ssl" = "yes" ]; then
         print_color "\nYou will need to perform some manual steps in order to enable SSL. Please follow the instructions" info
-        print_info "at https://docs.sublimesecurity.com/docs/quickstart-docker#ssl and re-run the script to finish installation.\n" info
+        print_info "at https://docs.sublimesecurity.com/docs/quickstart-docker#ssl and re-run this script to finish setup.\n" info
         exit 0
     fi
 
