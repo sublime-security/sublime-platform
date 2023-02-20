@@ -431,14 +431,34 @@ launch_sublime() {
 }
 
 install_sublime() {
+    if [ -z "$clone_platform" ]; then
+        clone_platform=true
+    fi
+
+    if [ "$clone_platform" = "true" ]; then
+        print_info "Cloning Sublime Platform repo..."
+        if ! git clone --depth=1 https://github.com/sublime-security/sublime-platform.git; then
+            print_error "Failed to clone Sublime Platform repo\n"
+            printf "Troubleshooting tips: https://docs.sublimesecurity.com/docs/quickstart-docker#troubleshooting\n\n"
+            printf "You may need to run the following command before retrying installation:\n\n"
+            printf "rm -rf ./sublime-platform\n"
+            exit 1
+        fi
+
+        cd sublime-platform || {
+            print_error "Failed to cd into sublime-platform"
+            exit 1
+        }
+    fi
+
     if [ "$interactive" = "true" ] && [ ! -f "$CERTBOT_ENV_FILE" ]; then
-        printf "\nWill your installation use SSL? (y|n) "
+        printf "\nWill your installation use SSL? (y/n) "
         read -r enable_ssl </dev/tty
     fi
 
     if [ "$enable_ssl" = "y" ]; then
-        print_color "\nYou will need to perform some manual steps in order to enable SSL. Please follow the" info
-        print_info "instructions at https://docs.sublimesecurity.com/todo and re-run the script to finish installation.\n" info
+        print_color "\nYou will need to perform some manual steps in order to enable SSL. Please follow the instructions" info
+        print_info "at https://docs.sublimesecurity.com/docs/quickstart-docker#ssl and re-run the script to finish installation.\n" info
         exit 0
     fi
 
@@ -472,26 +492,6 @@ install_sublime() {
     *) sublime_host="http://$sublime_host" ;;
     esac
 
-    if [ -z "$clone_platform" ]; then
-        clone_platform=true
-    fi
-
-    if [ "$clone_platform" = "true" ]; then
-        print_info "Cloning Sublime Platform repo..."
-        if ! git clone --depth=1 https://github.com/sublime-security/sublime-platform.git; then
-            print_error "Failed to clone Sublime Platform repo\n"
-            printf "Troubleshooting tips: https://docs.sublimesecurity.com/docs/quickstart-docker#troubleshooting\n\n"
-            printf "You may need to run the following command before retrying installation:\n\n"
-            printf "rm -rf ./sublime-platform\n"
-            exit 1
-        fi
-
-        cd sublime-platform || {
-            print_error "Failed to cd into sublime-platform"
-            exit 1
-        }
-    fi
-
     if ! launch_sublime "$sublime_host"; then
         print_error "Failed to launch Sublime Platform\n"
         printf "Troubleshooting tips: https://docs.sublimesecurity.com/docs/quickstart-docker#troubleshooting\n\n"
@@ -500,7 +500,6 @@ install_sublime() {
         printf "You can then go through the Sublime Platform installation again\n"
         exit 1
     fi
-
 }
 
 health_check() {
