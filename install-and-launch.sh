@@ -194,6 +194,8 @@ if [ "$interactive" != "true" ] && [ -z "$auto_updates" ]; then
     auto_updates=true
 fi
 
+CERTBOT_ENV_FILE=certbot.env
+
 default_host="http://localhost"
 
 preflight_checks() {
@@ -429,6 +431,17 @@ launch_sublime() {
 }
 
 install_sublime() {
+    if [ "$interactive" = "true" ] && [ ! -f "$CERTBOT_ENV_FILE" ]; then
+        printf "\nWill your installation use SSL? (y|n) "
+        read -r enable_ssl </dev/tty
+    fi
+
+    if [ "$enable_ssl" = "y" ]; then
+        print_color "\nYou will need to perform some manual steps in order to enable SSL. Please follow the" info
+        print_info "instructions at https://docs.sublimesecurity.com/todo and re-run the script to finish installation.\n" info
+        exit 0
+    fi
+
     if [ "$interactive" = "true" ] && [ -z "$sublime_host" ]; then
         print_info "Configuring host...\n"
 
