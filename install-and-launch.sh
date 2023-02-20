@@ -204,6 +204,8 @@ if [ "$interactive" != "true" ] && [ -z "$auto_updates" ]; then
     auto_updates=true
 fi
 
+CERTBOT_ENV_FILE=certbot.env
+
 default_host="http://localhost"
 
 preflight_checks() {
@@ -429,7 +431,40 @@ launch_sublime() {
 }
 
 install_sublime() {
-    if [ "$interactive" = "true" ] && [ -z "$sublime_host" ]; then
+    if [ -z "$clone_platform" ]; then
+        clone_platform=true
+    fi
+
+    if [ "$clone_platform" = "true" ]; then
+        print_info "Cloning Sublime Platform repo..."
+        if ! git clone --depth=1 https://github.com/sublime-security/sublime-platform.git; then
+            print_error "Failed to clone Sublime Platform repo\n"
+            printf "Troubleshooting tips: https://docs.sublimesecurity.com/docs/quickstart-docker#troubleshooting\n\n"
+            printf "You may need to run the following command before retrying installation:\n\n"
+            printf "rm -rf ./sublime-platform\n"
+            exit 1
+        fi
+
+        cd sublime-platform || {
+            print_error "Failed to cd into sublime-platform"
+            exit 1
+        }
+    fi
+
+    if [ "$interactive" = "true" ] && [ ! -f "$CERTBOT_ENV_FILE" ]; then
+        printf "\nWould you like to setup SSL with LetsEncrypt? You must have a custom domain. (y/N): "
+        read -r enable_ssl </dev/tty
+    fi
+
+    if [ "$enable_ssl" = "y" ] || [ "$enable_ssl" = "Y" ] || [ "$enable_ssl" = "yes" ]; then
+        print_color "\nYou will need to perform some manual steps in order to enable SSL. Please follow the instructions" info
+        print_info "at https://docs.sublimesecurity.com/docs/quickstart-docker#ssl and re-run this script to finish setup.\n" info
+        exit 0
+    else
+        print_success "** SSL is configured **"
+    fi
+
+    if [ "$interactive" = "true" ] && [ -z "$sublime_host" ] && [ ! -f "$CERTBOT_ENV_FILE" ]; then
         print_info "Configuring host...\n"
 
         # showing 'http://localhost' as the default can be confusing if you're on a remote host
@@ -459,26 +494,6 @@ install_sublime() {
     *) sublime_host="http://$sublime_host" ;;
     esac
 
-    if [ -z "$clone_platform" ]; then
-        clone_platform=true
-    fi
-
-    if [ "$clone_platform" = "true" ]; then
-        print_info "Cloning Sublime Platform repo..."
-        if ! git clone --depth=1 https://github.com/sublime-security/sublime-platform.git; then
-            print_error "Failed to clone Sublime Platform repo\n"
-            printf "Troubleshooting tips: https://docs.sublimesecurity.com/docs/quickstart-docker#troubleshooting\n\n"
-            printf "You may need to run the following command before retrying installation:\n\n"
-            printf "rm -rf ./sublime-platform\n"
-            exit 1
-        fi
-
-        cd sublime-platform || {
-            print_error "Failed to cd into sublime-platform"
-            exit 1
-        }
-    fi
-
     if ! launch_sublime "$sublime_host"; then
         print_error "Failed to launch Sublime Platform\n"
         printf "Troubleshooting tips: https://docs.sublimesecurity.com/docs/quickstart-docker#troubleshooting\n\n"
@@ -487,7 +502,6 @@ install_sublime() {
         printf "You can then go through the Sublime Platform installation again\n"
         exit 1
     fi
-
 }
 
 health_check() {
