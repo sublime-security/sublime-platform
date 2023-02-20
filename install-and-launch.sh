@@ -462,7 +462,7 @@ install_sublime() {
         exit 0
     fi
 
-    if [ "$interactive" = "true" ] && [ -z "$sublime_host" ]; then
+    if [ "$interactive" = "true" ] && [ -z "$sublime_host" ] && [ ! -f "$CERTBOT_ENV_FILE" ]; then
         print_info "Configuring host...\n"
 
         # showing 'http://localhost' as the default can be confusing if you're on a remote host
