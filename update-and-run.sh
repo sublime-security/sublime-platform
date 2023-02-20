@@ -94,8 +94,7 @@ if ! grep "API_PUBLIC_BASE_URL" $SUBLIME_ENV_FILE >/dev/null 2>&1; then
 fi
 
 if [ -f "$CERTBOT_ENV_FILE" ]; then
-    export LETSENCRYPT_ENV="$CERTBOT_ENV_FILE"
-    $cmd_prefix docker compose --profile letsencrypt up --quiet-pull -d
+    $cmd_prefix sudo sh -c "LETSENCRYPT_ENV=$CERTBOT_ENV_FILE docker compose --profile letsencrypt up --quiet-pull -d"
 else
     $cmd_prefix docker compose up --quiet-pull -d
 fi
