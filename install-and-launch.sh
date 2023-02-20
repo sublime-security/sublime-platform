@@ -181,9 +181,19 @@ check_port() {
     fi
 }
 
+case "$(uname -s | tr '[:upper:]' '[:lower:]')" in
+linux*) machine=linux ;;
+darwin*) machine=macos ;;
+esac
+
+docker_cmd_prefix=""
+if [ "$machine" = "linux" ]; then
+    docker_cmd_prefix="sudo "
+fi
+
 container_id_by_name() {
     # shellcheck disable=SC2005 # we need to echo the output from this function
-    echo "$(docker ps -aqf "name=$1")"
+    echo "$($docker_cmd_prefix docker ps -aqf "name=$1")"
 }
 
 if [ -z "$remote_branch" ]; then
@@ -198,11 +208,6 @@ default_host="http://localhost"
 
 preflight_checks() {
     print_info "Running preflight checks..."
-
-    case "$(uname -s | tr '[:upper:]' '[:lower:]')" in
-    linux*) machine=linux ;;
-    darwin*) machine=macos ;;
-    esac
 
     if [ -z "$machine" ]; then
         print_warning "Warning: You are using a non-recommended operating system so subsequent failures may occur."
@@ -271,11 +276,6 @@ preflight_checks() {
         print_color "\nDocker not installed. Please install Docker and retry:" error
         print_error "https://docs.docker.com/get-docker"
         exit 1
-    fi
-
-    docker_cmd_prefix=""
-    if [ "$machine" = "linux" ]; then
-        docker_cmd_prefix="sudo "
     fi
 
     # "Docker version 20.10.17, build 100c701"
