@@ -504,7 +504,7 @@ health_check() {
         exit 1
     fi
 
-    bora_logs="$(docker logs "$bora_container_id")"
+    bora_logs="$($docker_cmd_prefix docker logs "$bora_container_id")"
 
     if echo "$bora_logs" | grep -q "$pg_error_string"; then
         print_error "An error was encountered. Stopping containers..."
