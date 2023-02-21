@@ -6,32 +6,31 @@ by Sublime Security
 
 Overview
 ---------
-An open, adaptable email security platform for writing and running custom detection and response rules to block phishing attacks, hunt for threats, and more.
+An open, adaptable email security platform for writing, running, and sharing custom detection and response rules to block phishing attacks, hunt for threats, and more.
 
 Why?
 ----------
-Modern email security is a one-size-fits-all black box. The same phishing attacks continue to land, and the same legitimate emails continue to get blocked.
+Traditional email security is a one-size-fits-all black box.
 
-The Sublime Platform **gives defenders control over their email environment** and uses an intuitive, interoperable, purpose-built [YARA-like rules language](https://docs.sublimesecurity.com/docs/message-query-language) for sharing new detection rules with others.
+The Sublime Platform **gives defenders control over their email environment** and uses an intuitive, interoperable, purpose-built domain-specific language (DSL).
 
 Setup
 ----------
 
-Follow the [setup instructions](https://docs.sublimesecurity.com/docs/installation) to deploy using Docker, AWS, or use a Managed instance.
+```console
+curl -sL https://sublime.security/install.sh | sh
+```
 
-The following message sources are supported today:
-- Microsoft 365
-- Google Workspace
-- IMAP
-- Custom API
-
-Learn more
-----------
-- [Sublime Platform overview](https://docs.sublimesecurity.com)
-- [Message Query Language (MQL) reference](https://docs.sublimesecurity.com/docs/message-query-language) - Sublime's DSL purpose-built for email analysis
-- [Release log](https://new.sublimesecurity.com)
-
+[View Docker Quickstart](https://docs.sublimesecurity.com/docs/quickstart-docker)
 
 Detection rules
 ----------
 Open-source detection rules are maintained in the [sublime-rules repo](https://github.com/sublime-security/sublime-rules).
+
+
+Learn more
+----------
+- [Sublime overview](https://sublime.security)
+- [Docs](https://docs.sublimesecurity.com)
+- [Message Query Language (MQL) reference](https://docs.sublimesecurity.com/docs/message-query-language) - Sublime's DSL purpose-built for email analysis
+- [Release log](https://new.sublimesecurity.com)
