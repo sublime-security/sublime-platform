@@ -18,15 +18,14 @@ The Sublime Platform **gives defenders control over their email environment** an
 
 Installation
 ----------
-*Sublime Platform is currently in early access, which means it's not publicly available yet. You can [request to join early access here](https://sublimesecurity.com/platform), or star/watch this repo for updates and general availability.*
 
-Follow the [Docker deployment instructions](https://docs.sublimesecurity.com/docs/installation). A cloud-native AWS deployment is also available.
+Follow the [setup instructions](https://docs.sublimesecurity.com/docs/installation) to deploy using Docker, AWS, or use a Managed instance.
 
 The following message sources are supported today:
 - Microsoft 365
 - Google Workspace
 - IMAP
-- API
+- Custom API
 
 Learn more
 ----------
