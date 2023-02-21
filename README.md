@@ -8,15 +8,13 @@ Overview
 ---------
 An open, adaptable email security platform for writing and running custom detection and response rules to block phishing attacks, hunt for threats, and more.
 
-Sublime Platform is completely free and self-hosted, which means your emails are completely controlled by you and never seen by a third party. For more information on the different versions available, including Enterprise and managed Cloud offerings, see the [Versions page](https://sublimesecurity.com/versions).
-
 Why?
 ----------
 Modern email security is a one-size-fits-all black box. The same phishing attacks continue to land, and the same legitimate emails continue to get blocked.
 
-The Sublime Platform **gives defenders control over their email environment** and uses an intuitive, interoperable, purpose-built [YARA-like rules language](https://docs.sublimesecurity.com/docs/message-query-language) for sharing new detection rules with anyone else running Sublime.
+The Sublime Platform **gives defenders control over their email environment** and uses an intuitive, interoperable, purpose-built [YARA-like rules language](https://docs.sublimesecurity.com/docs/message-query-language) for sharing new detection rules with others.
 
-Installation
+Setup
 ----------
 
 Follow the [setup instructions](https://docs.sublimesecurity.com/docs/installation) to deploy using Docker, AWS, or use a Managed instance.
