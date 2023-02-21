@@ -457,7 +457,7 @@ install_sublime() {
     fi
 
     if [ "$interactive" = "true" ] && [ ! -f "$CERTBOT_ENV_FILE" ]; then
-        printf "\nWould you like to setup SSL with LetsEncrypt? You must have a custom domain. [y/N]: "
+        printf "\nWould you like to setup SSL with LetsEncrypt? You must have a custom domain and a publicly routable IP address. [y/N]: "
         read -r enable_ssl </dev/tty
     elif [ -f "$CERTBOT_ENV_FILE" ]; then
         print_success "** SSL is configured **"
