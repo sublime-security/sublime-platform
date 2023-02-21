@@ -417,6 +417,25 @@ launch_sublime() {
 }
 
 install_sublime() {
+    print_info "Sublime Security recommends the following specs in order to provide a maximal experience:\n"
+    printf "\t----------------------------------------------\n"
+    printf "\t|  Mailboxes  |   RAM   |  CPUs  |  Storage  |\n"
+    printf "\t|---------------------------------------------\n"
+    printf "\t|    10       |  8GB    |   4    |    50GB   |\n"
+    printf "\t|    100      |  16GB   |   8    |    100GB  |\n"
+    printf "\t|    1000     |  32GB   |   16   |    200GB  |\n"
+    printf "\t|____________________________________________|\n"
+
+    if [ "$interactive" = "true" ]; then
+        printf "\nPlease confirm that your host meets these requirements. [Y/n] "
+        read -r confirmation </dev/tty
+
+        if [ "$confirmation" = "n" ] || [ "$confirmation" = "N" ] || [ "$confirmation" = "no" ]; then
+            print_warning "Aborting due to insufficient specs."
+            exit 0
+        fi
+    fi
+
     if [ -z "$clone_platform" ]; then
         clone_platform=true
     fi
