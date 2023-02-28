@@ -43,10 +43,10 @@ set -e
 #
 
 : -----------------------------------------
-: Branch - default: main
+: Branch - default: dev
 : -----------------------------------------
 
-# By default, this script assumes that it should pull dependencies from branch `main`. If you wish to get dependencies
+# By default, this script assumes that it should pull dependencies from branch `dev`. If you wish to get dependencies
 # from another branch, you can specify it here.
 #
 : curl -sL https://sublimesecurity.com/install.sh | remote_branch=custom-branch sh
@@ -197,7 +197,7 @@ container_id_by_name() {
 }
 
 if [ -z "$remote_branch" ]; then
-    remote_branch="main"
+    remote_branch="dev"
 fi
 
 if [ "$interactive" != "true" ] && [ -z "$auto_updates" ]; then

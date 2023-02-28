@@ -1,58 +1,6 @@
 version: '3'
 
 services:
-  sublime_mantis:
-    image: sublimesec/mantis:1.1
-    restart: unless-stopped
-    container_name: sublime_mantis
-    environment:
-      POSTGRES_HOST: sublime_postgres
-      POSTGRES_USER: sublime
-      POSTGRES_DB: mantis
-      REDIS_HOST: sublime_redis
-      STRELKA_URL: sublime_strelka_frontend
-      SCREENSHOT_SERVICE_ENDPOINT: http://sublime_screenshot_service:8100/capture
-      SCREENSHOT_SERVICE_BUCKET: email-screenshots
-      S3_ENDPOINT: http://sublimes3:8110
-      USE_SELF_IMAGE_LINKS: "true"
-      AWS_REGION: us-east-1
-      HYDRA_URL: http://sublime_hydra:8200
-      DEPLOYMENT_INFRA_TYPE: "DOCKER_COMPOSE"
-      LOG_LEVEL: "WARN"
-    env_file: sublime.env
-    ports:
-      - "0.0.0.0:8000:8000"
-    networks:
-      - net
-    depends_on:
-      - sublime_postgres
-      - sublime_strelka_backend
-      - sublime_strelka_frontend
-  sublime_bora_lite:
-    image: sublimesec/bora-lite:1.1
-    restart: unless-stopped
-    container_name: sublime_bora_lite
-    environment:
-      POSTGRES_HOST: sublime_postgres
-      POSTGRES_USER: sublime
-      POSTGRES_DB: mantis
-      REDIS_HOST: sublime_redis
-      STRELKA_URL: sublime_strelka_frontend
-      SCREENSHOT_SERVICE_ENDPOINT: http://sublime_screenshot_service:8100/capture
-      SCREENSHOT_SERVICE_BUCKET: email-screenshots
-      S3_ENDPOINT: http://sublimes3:8110
-      AWS_REGION: us-east-1
-      HYDRA_URL: http://sublime_hydra:8200
-      DEPLOYMENT_INFRA_TYPE: "DOCKER_COMPOSE"
-      LOG_LEVEL: "WARN"
-    env_file: sublime.env
-    networks:
-      - net
-    depends_on:
-      - sublime_mantis
-      - sublime_redis
-      - sublime_strelka_backend
-      - sublime_strelka_frontend
   sublime_postgres:
     image: postgres:13.2
     restart: unless-stopped
@@ -64,6 +12,8 @@ services:
     env_file: sublime.env
     volumes:
        - postgres:/data/postgres
+    ports:
+      - "5432:5432"
     networks:
       - net
   sublime_dashboard:
@@ -75,19 +25,21 @@ services:
     networks:
       - net
     env_file: sublime.env
-    depends_on:
-      - sublime_mantis
   sublime_redis:
     image: redis:6.2
     restart: unless-stopped
     container_name: sublime_redis
     command: redis-server --loglevel warning
+    ports:
+      - "6379:6379"
     networks:
       - net
   sublime_strelka_frontend:
     image: sublimesec/strelka-frontend:0.3
     restart: unless-stopped
     command: strelka-frontend
+    ports:
+      - "57314:57314"
     networks:
       - net
     volumes:
@@ -129,6 +81,8 @@ services:
   sublime_screenshot_service:
     image: sublimesec/render-email-html:0.1
     restart: unless-stopped
+    ports:
+      - "8100:8100"
     environment:
       - S3_ENDPOINT=http://sublimes3:8110
       - SCREENSHOT_BUCKET=email-screenshots
@@ -147,6 +101,8 @@ services:
     restart: unless-stopped
     networks:
       - net
+    ports:
+      - "8110:8110"
     volumes:
       - s3_data:/data
     env_file: sublime.env
@@ -168,12 +124,16 @@ services:
       sleep 15;
       /usr/bin/mc config host add myminio http://sublimes3:8110 $$AWS_ACCESS_KEY_ID $$AWS_SECRET_ACCESS_KEY;
       /usr/bin/mc mb myminio/email-screenshots;
+      /usr/bin/mc mb myminio/events;
+      /usr/bin/mc mb myminio/message-storage;
       /usr/bin/mc ls myminio;
       exit 0;
       "
   sublime_hydra:
     image: sublimesec/hydra-cpu:1.0
     restart: unless-stopped
+    ports:
+      - "8200:8200"
     networks:
       - net
     container_name: sublime_hydra
@@ -186,7 +146,6 @@ services:
       - "80:80"
       - "443:443"
     depends_on:
-      - sublime_mantis
       - sublime_dashboard
     container_name: sublime_nginx_letsencrypt
     env_file:
