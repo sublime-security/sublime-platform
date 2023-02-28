@@ -137,23 +137,6 @@ services:
     networks:
       - net
     container_name: sublime_hydra
-  sublime_nginx_letsencrypt:
-    image: sublimesec/nginx-letsencrypt:latest
-    restart: unless-stopped
-    profiles:
-      - letsencrypt
-    ports:
-      - "80:80"
-      - "443:443"
-    depends_on:
-      - sublime_dashboard
-    container_name: sublime_nginx_letsencrypt
-    env_file:
-      - "${LETSENCRYPT_ENV:-certbot.env.example}"
-    volumes:
-      - /etc/letsencrypt/:/etc/letsencrypt/
-    networks:
-      - net
 
 networks:
   net:
