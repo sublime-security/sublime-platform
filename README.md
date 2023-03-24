@@ -18,6 +18,7 @@ curl -sL https://sublime.security/install.sh | sh
 ```
 
 [View Docker Quickstart](https://docs.sublimesecurity.com/docs/quickstart-docker)
+
 [View other deployment methods](https://sublime.security/start)
 
 Detection rules
