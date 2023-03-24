@@ -8,11 +8,7 @@ Overview
 ---------
 An open, adaptable email security platform for writing, running, and sharing custom detection and response rules to block phishing attacks, hunt for threats, and more.
 
-Why?
-----------
-Traditional email security is a one-size-fits-all black box.
-
-The Sublime Platform **gives defenders control over their email environment** and uses an intuitive, interoperable, purpose-built domain-specific language (DSL).
+Traditional email security is a one-size-fits-all black box. The Sublime Platform gives defenders control over their email environment and uses an intuitive, interoperable, purpose-built domain-specific language (DSL).
 
 Setup
 ----------
@@ -22,11 +18,11 @@ curl -sL https://sublime.security/install.sh | sh
 ```
 
 [View Docker Quickstart](https://docs.sublimesecurity.com/docs/quickstart-docker)
+[View other deployment methods](https://sublime.security/start)
 
 Detection rules
 ----------
 Open-source detection rules are maintained in the [sublime-rules repo](https://github.com/sublime-security/sublime-rules).
-
 
 Learn more
 ----------
