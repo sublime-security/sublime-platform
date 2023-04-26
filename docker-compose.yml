@@ -177,7 +177,6 @@ services:
     networks:
       - net
     container_name: sublime_hydra
-
   sublime_nginx_letsencrypt:
     image: sublimesec/nginx-letsencrypt:latest
     restart: unless-stopped
@@ -196,7 +195,6 @@ services:
       - /etc/letsencrypt/:/etc/letsencrypt/
     networks:
       - net
-
   sublime_nginx_custom_ssl:
     image: sublime_nginx_custom_ssl:latest
     restart: unless-stopped
