@@ -195,6 +195,21 @@ services:
       - /etc/letsencrypt/:/etc/letsencrypt/
     networks:
       - net
+  sublime_nginx_custom_ssl:
+    image: sublime_nginx_custom_ssl:latest
+    restart: unless-stopped
+    profiles:
+      - nginx-custom-ssl
+    ports:
+      - "443:443"
+    depends_on:
+      - sublime_mantis
+      - sublime_dashboard
+    container_name: sublime_nginx_custom_ssl
+    volumes:
+      - /etc/nginx-custom-ssl/:/etc/nginx-custom-ssl/
+    networks:
+      - net
 
 networks:
   net:
