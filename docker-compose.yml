@@ -93,9 +93,10 @@ services:
     volumes:
       - ./configs/frontend/:/etc/strelka/:ro
       - logs:/var/log/strelka/
-    container_name: sublime_strelka_frontend_1
     depends_on:
       - sublime_strelka_coordinator
+    deploy:
+      replicas: 1
   sublime_strelka_backend:
     image: sublimesec/strelka-backend:0.3
     restart: unless-stopped
@@ -105,9 +106,10 @@ services:
       - net
     volumes:
       - ./configs/backend/:/etc/strelka/:ro
-    container_name: sublime_strelka_backend_1
     depends_on:
       - sublime_strelka_coordinator
+    deploy:
+      replicas: 2
   sublime_strelka_manager:
     image: sublimesec/strelka-manager:0.3
     restart: unless-stopped
