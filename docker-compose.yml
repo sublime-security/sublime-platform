@@ -17,7 +17,7 @@ services:
     networks:
       - net
   sublime_dashboard:
-    image: sublimesec/dashboard:1.1
+    image: sublimesec/dashboard:dev
     restart: unless-stopped
     container_name: sublime_dashboard
     ports:
