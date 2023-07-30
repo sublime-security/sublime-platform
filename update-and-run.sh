@@ -14,7 +14,9 @@ esac
 
 if [ "$1" != "always_launch" ]; then
     if ! $cmd_prefix docker compose ps | grep "mantis" >/dev/null 2>&1; then
-        print_error "docker compose appears to be brought down. Will not proceed to avoid relaunching."
+        print_error "Docker Compose appears to be brought down. Will not proceed to avoid relaunching."
+        print_error "Follow these instructions to update and launch manually, then you can use this script again:"
+        print_error "https://docs.sublimesecurity.com/docs/quickstart-docker#how-to-update"
         exit 0
     fi
 fi
