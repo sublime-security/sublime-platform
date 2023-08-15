@@ -174,7 +174,7 @@ services:
       exit 0;
       "
   sublime_hydra:
-    image: sublimesec/hydra:1.0.27
+    image: sublimesec/hydra-cpu:1.0
     restart: unless-stopped
     networks:
       - net
