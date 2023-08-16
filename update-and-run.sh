@@ -12,6 +12,10 @@ linux*) cmd_prefix="sudo " ;;
 darwin*) cmd_prefix="" ;;
 esac
 
+if [ -z "$cmd_prefix_override" ]; then
+    cmd_prefix=$cmd_prefix_override
+fi
+
 if [ "$1" != "always_launch" ]; then
     if ! $cmd_prefix docker compose ps | grep "mantis" >/dev/null 2>&1; then
         print_error "docker compose appears to be brought down. Will not proceed to avoid relaunching."
