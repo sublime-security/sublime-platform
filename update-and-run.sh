@@ -12,7 +12,7 @@ linux*) cmd_prefix="sudo " ;;
 darwin*) cmd_prefix="" ;;
 esac
 
-if [ -z "$cmd_prefix_override" ]; then
+if [ ! -z "$cmd_prefix_override" ]; then
     cmd_prefix=$cmd_prefix_override
 fi
 
