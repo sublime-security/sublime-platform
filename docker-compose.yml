@@ -75,6 +75,8 @@ services:
     networks:
       - net
     env_file: sublime.env
+    environment:
+      MANTIS_HOST_URL: "http://sublime_mantis:8000"
     depends_on:
       - sublime_mantis
   sublime_redis:
