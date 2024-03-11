@@ -19,6 +19,7 @@ services:
       HYDRA_URL: http://sublime_hydra:8200
       DEPLOYMENT_INFRA_TYPE: "DOCKER_COMPOSE"
       LOG_LEVEL: "WARN"
+      HYDRA_CLIENT_TIMEOUT_OVERRIDE_SEC: 30
     env_file: sublime.env
     ports:
       - "0.0.0.0:8000:8000"
@@ -45,6 +46,7 @@ services:
       HYDRA_URL: http://sublime_hydra:8200
       DEPLOYMENT_INFRA_TYPE: "DOCKER_COMPOSE"
       LOG_LEVEL: "WARN"
+      HYDRA_CLIENT_TIMEOUT_OVERRIDE_SEC: 30
     env_file: sublime.env
     networks:
       - net
@@ -183,7 +185,6 @@ services:
       - net
     container_name: sublime_hydra
     environment:
-      HYDRA_CLIENT_TIMEOUT_OVERRIDE_SEC: 30
       WORKERS: 1
   sublime_nginx_letsencrypt:
     image: sublimesec/nginx-letsencrypt:latest
