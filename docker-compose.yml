@@ -184,6 +184,7 @@ services:
     container_name: sublime_hydra
     environment:
       HYDRA_CLIENT_TIMEOUT_OVERRIDE_SEC: 30
+      WORKERS: 1
   sublime_nginx_letsencrypt:
     image: sublimesec/nginx-letsencrypt:latest
     restart: unless-stopped
