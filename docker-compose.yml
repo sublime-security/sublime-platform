@@ -174,7 +174,6 @@ services:
       sleep 15;
       /usr/bin/mc config host add myminio http://sublimes3:8110 $$AWS_ACCESS_KEY_ID $$AWS_SECRET_ACCESS_KEY;
       /usr/bin/mc mb myminio/email-screenshots;
-      /usr/bin/mc mb myminio/inline-messages;
       /usr/bin/mc ls myminio;
       exit 0;
       "
