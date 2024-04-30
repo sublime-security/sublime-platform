@@ -1,5 +1,4 @@
 version: '3'
-
 services:
   sublime_postgres:
     image: postgres:13.2
@@ -140,11 +139,13 @@ services:
     networks:
       - net
     container_name: sublime_hydra
+    environment:
+      WORKERS: "2"
+      WEB_CONCURRENCY: "5"
 
 networks:
   net:
     driver: bridge
-
 volumes:
   postgres:
   logs:
