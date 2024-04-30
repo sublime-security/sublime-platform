@@ -185,6 +185,7 @@ services:
     container_name: sublime_hydra
     environment:
       WORKERS: 1
+      WEB_CONCURRENCY: 5
   sublime_nginx_letsencrypt:
     image: sublimesec/nginx-letsencrypt:latest
     restart: unless-stopped
