@@ -57,6 +57,7 @@ services:
       - sublime_strelka_frontend
   sublime_postgres:
     image: postgres:13.2
+    command: -c 'max_connections=200'
     restart: unless-stopped
     container_name: sublime_postgres
     environment:
