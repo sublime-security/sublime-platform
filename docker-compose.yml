@@ -25,7 +25,7 @@ services:
       - net
     env_file: sublime.env
     environment:
-      MANTIS_HOST_URL: "http://sublime_mantis:8000"
+      MANTIS_HOST_URL: "http://host.docker.internal:8000"
   sublime_redis:
     image: redis:6.2
     restart: unless-stopped
