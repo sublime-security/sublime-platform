@@ -2,7 +2,7 @@ version: '3'
 
 services:
   sublime_mantis:
-    image: sublimesec/mantis:1.41
+    image: sublimesec/mantis:1.42
     restart: unless-stopped
     container_name: sublime_mantis
     environment:
@@ -30,7 +30,7 @@ services:
       - sublime_strelka_backend
       - sublime_strelka_frontend
   sublime_bora_lite:
-    image: sublimesec/bora-lite:1.41
+    image: sublimesec/bora-lite:1.42
     restart: unless-stopped
     container_name: sublime_bora_lite
     environment:
@@ -70,7 +70,7 @@ services:
     networks:
       - net
   sublime_dashboard:
-    image: sublimesec/dashboard:1.41
+    image: sublimesec/dashboard:1.42
     restart: unless-stopped
     container_name: sublime_dashboard
     ports:
