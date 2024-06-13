@@ -187,6 +187,7 @@ services:
     environment:
       WORKERS: 1
       WEB_CONCURRENCY: 5
+      KEEP_ALIVE: 2
       WORKER_TIMEOUT: 30
       GRACEFUL_WORKER_TIMEOUT: 30
   sublime_nginx_letsencrypt:
