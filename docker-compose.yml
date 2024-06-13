@@ -142,8 +142,9 @@ services:
       - net
     container_name: sublime_hydra
     environment:
-      WORKERS: "2"
-      WEB_CONCURRENCY: "5"
+      WORKERS: 2
+      WEB_CONCURRENCY: 5
+      KEEP_ALIVE: 2
 
 networks:
   net:
