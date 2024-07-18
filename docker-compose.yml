@@ -143,16 +143,10 @@ services:
     image: sublimesec/render-email-html:0.1
     restart: unless-stopped
     environment:
-      - S3_ENDPOINT=http://sublimes3:8110
-      - SCREENSHOT_BUCKET=email-screenshots
-      - AWS_REGION=us-east-1
       - DISABLE_DD=true
     container_name: sublime_screenshot_service
-    env_file: sublime.env
     networks:
       - net
-    depends_on:
-      - sublime_create_buckets
   # Keep this name as sublimes3 because underscores don't play nice with certain endpoint validation
   sublimes3:
     container_name: sublimes3
