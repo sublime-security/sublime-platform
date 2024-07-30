@@ -20,6 +20,7 @@ services:
       DEPLOYMENT_INFRA_TYPE: "DOCKER_COMPOSE"
       LOG_LEVEL: "WARN"
       HYDRA_CLIENT_TIMEOUT_OVERRIDE_SEC: 30
+      PERSISTENT_STORAGE: /data/persistent_storage
     env_file: sublime.env
     ports:
       - "0.0.0.0:8000:8000"
@@ -29,6 +30,8 @@ services:
       - sublime_postgres
       - sublime_strelka_backend
       - sublime_strelka_frontend
+    volumes:
+       - persistent_storage:/data/persistent_storage
   sublime_bora_lite:
     image: sublimesec/bora-lite:1.45
     restart: unless-stopped
@@ -47,6 +50,7 @@ services:
       DEPLOYMENT_INFRA_TYPE: "DOCKER_COMPOSE"
       LOG_LEVEL: "WARN"
       HYDRA_CLIENT_TIMEOUT_OVERRIDE_SEC: 30
+      PERSISTENT_STORAGE: /data/persistent_storage
     env_file: sublime.env
     networks:
       - net
@@ -55,6 +59,8 @@ services:
       - sublime_redis
       - sublime_strelka_backend
       - sublime_strelka_frontend
+    volumes:
+       - persistent_storage:/data/persistent_storage
   sublime_postgres:
     image: postgres:13.2
     command: -c 'max_connections=200'
@@ -232,3 +238,4 @@ volumes:
   postgres:
   logs:
   s3_data:
+  persistent_storage:
