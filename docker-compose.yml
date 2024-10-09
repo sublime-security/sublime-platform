@@ -2,7 +2,7 @@ version: '3'
 
 services:
   sublime_mantis:
-    image: sublimesec/mantis:1.46
+    image: sublimesec/mantis:1.47
     restart: unless-stopped
     container_name: sublime_mantis
     environment:
@@ -33,7 +33,7 @@ services:
     volumes:
        - persistent_storage:/data/persistent_storage
   sublime_bora_lite:
-    image: sublimesec/bora-lite:1.46
+    image: sublimesec/bora-lite:1.47
     restart: unless-stopped
     container_name: sublime_bora_lite
     environment:
@@ -76,7 +76,7 @@ services:
     networks:
       - net
   sublime_dashboard:
-    image: sublimesec/dashboard:1.46
+    image: sublimesec/dashboard:1.47
     restart: unless-stopped
     container_name: sublime_dashboard
     ports:
