@@ -179,7 +179,7 @@ services:
       exit 0;
       "
   sublime_hydra:
-    image: sublimesec/hydra-cpu:1.0
+    image: sublimesec/hydra-cpu:1.1
     restart: unless-stopped
     networks:
       - net
