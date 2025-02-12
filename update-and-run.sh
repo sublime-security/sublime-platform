@@ -12,9 +12,15 @@ linux*) cmd_prefix="sudo " ;;
 darwin*) cmd_prefix="" ;;
 esac
 
+if [ ! -z "$cmd_prefix_override" ]; then
+    cmd_prefix=$cmd_prefix_override
+fi
+
 if [ "$1" != "always_launch" ]; then
     if ! $cmd_prefix docker compose ps | grep "mantis" >/dev/null 2>&1; then
-        print_error "docker compose appears to be brought down. Will not proceed to avoid relaunching."
+        print_error "Sublime Platform appears to have been manually shut down. Will not proceed to avoid relaunching."
+        print_warning "If you wish to relaunch, please refer to the documentation here:"
+        print_warning "https://docs.sublimesecurity.com/docs/quickstart-docker#how-to-update"
         exit 0
     fi
 fi
@@ -23,7 +29,7 @@ if [ -z "$(git status --porcelain)" ]; then
     echo "git working dir clean. Proceeding with git updates."
 
     old_ref=$(git rev-parse HEAD)
-    git pull
+    logrun git pull
     new_ref=$(git rev-parse HEAD)
 
     if [ "${old_ref}" != "${new_ref}" ]; then

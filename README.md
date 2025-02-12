@@ -6,31 +6,30 @@ by Sublime Security
 
 Overview
 ---------
-An open, adaptable email security platform for writing, running, and sharing custom detection and response rules to block phishing attacks, hunt for threats, and more.
+A free and open platform for detecting and preventing email attacks like BEC, malware, and credential phishing. Gain visibility and control, hunt for advanced threats, and collaborate with the community.
 
-Why?
-----------
-Traditional email security is a one-size-fits-all black box.
+Sublime uses Message Query Language (MQL), a domain-specific language purpose-built for describing behavior in email. MQL is email provider agnostic, enabling defenders to write, run, and share Detections-as-Code.
 
-The Sublime Platform **gives defenders control over their email environment** and uses an intuitive, interoperable, purpose-built domain-specific language (DSL).
+Learn more about MQL: [Introduction to Message Query Language](https://sublime.security/blog/introduction-to-message-query-language-mql)
 
 Setup
 ----------
 
 ```console
-curl -sL https://sublime.security/install.sh | sh
+curl -sL https://raw.githubusercontent.com/sublime-security/sublime-platform/main/install-and-launch.sh | sh
 ```
 
 [View Docker Quickstart](https://docs.sublimesecurity.com/docs/quickstart-docker)
 
+[View other deployment methods](https://sublime.security/start)
+
 Detection rules
 ----------
-Open-source detection rules are maintained in the [sublime-rules repo](https://github.com/sublime-security/sublime-rules).
-
+Open-source detection rules and links to community Feeds are maintained in the [sublime-rules repo](https://github.com/sublime-security/sublime-rules).
 
 Learn more
 ----------
-- [Sublime overview](https://sublime.security)
 - [Docs](https://docs.sublimesecurity.com)
-- [Message Query Language (MQL) reference](https://docs.sublimesecurity.com/docs/message-query-language) - Sublime's DSL purpose-built for email analysis
+- [API](https://docs.sublimesecurity.com/reference/introduction)
 - [Release log](https://new.sublimesecurity.com)
+- [Message Query Language (MQL)](https://docs.sublimesecurity.com/docs/message-query-language)

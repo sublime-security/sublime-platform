@@ -80,7 +80,7 @@ if [ -z "$interactive" ]; then
     # ascii art
     # credit: https://patorjk.com/
     # font: Cyberlarge
-    cat <<EOF
+    cat <<'EOF'
 
 ======================================================================
 |   _______ _     _ ______         _____ _______ _______             |
@@ -410,6 +410,8 @@ launch_sublime() {
         else
             echo "Daily update check is already setup"
         fi
+    else
+        echo "Automatic updates not enabled"
     fi
 
     print_info "Launching Sublime Platform..."
