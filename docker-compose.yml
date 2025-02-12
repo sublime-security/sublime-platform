@@ -1,7 +1,7 @@
-version: '3'
 services:
   sublime_postgres:
     image: postgres:13.2
+    command: -c 'max_connections=200'
     restart: unless-stopped
     container_name: sublime_postgres
     environment:
@@ -82,21 +82,15 @@ services:
     networks:
       - net
   sublime_screenshot_service:
-    image: sublimesec/render-email-html:0.1
+    image: sublimesec/render-email-html:0.2
     restart: unless-stopped
     ports:
       - "8100:8100"
     environment:
-      - S3_ENDPOINT=http://sublimes3:8110
-      - SCREENSHOT_BUCKET=email-screenshots
-      - AWS_REGION=us-east-1
       - DISABLE_DD=true
     container_name: sublime_screenshot_service
-    env_file: sublime.env
     networks:
       - net
-    depends_on:
-      - sublime_create_buckets
   # Keep this name as sublimes3 because underscores don't play nice with certain endpoint validation
   sublimes3:
     container_name: sublimes3
@@ -145,6 +139,8 @@ services:
       WORKERS: 2
       WEB_CONCURRENCY: 5
       KEEP_ALIVE: 2
+      WORKER_TIMEOUT: 30
+      GRACEFUL_WORKER_TIMEOUT: 30
 
 networks:
   net:
@@ -153,3 +149,4 @@ volumes:
   postgres:
   logs:
   s3_data:
+  persistent_storage:
