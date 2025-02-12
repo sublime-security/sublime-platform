@@ -410,6 +410,8 @@ launch_sublime() {
         else
             echo "Daily update check is already setup"
         fi
+    else
+        echo "Automatic updates not enabled"
     fi
 
     print_info "Launching Sublime Platform..."
