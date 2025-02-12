@@ -80,7 +80,7 @@ if [ -z "$interactive" ]; then
     # ascii art
     # credit: https://patorjk.com/
     # font: Cyberlarge
-    cat <<EOF
+    cat <<'EOF'
 
 ======================================================================
 |   _______ _     _ ______         _____ _______ _______             |
