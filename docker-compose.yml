@@ -1,5 +1,3 @@
-version: '3'
-
 services:
   sublime_mantis:
     image: sublimesec/mantis:1.57
