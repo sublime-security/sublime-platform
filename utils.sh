@@ -49,7 +49,7 @@ print_warning() {
     print_color "\n$1\n" "warning"
 }
 
-run() {
+logrun() {
     echo >&2 "+ $*"
     "$@"
 }
