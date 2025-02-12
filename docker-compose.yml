@@ -1,4 +1,3 @@
-version: '3'
 services:
   sublime_postgres:
     image: postgres:13.2
