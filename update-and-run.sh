@@ -29,7 +29,7 @@ if [ -z "$(git status --porcelain)" ]; then
     echo "git working dir clean. Proceeding with git updates."
 
     old_ref=$(git rev-parse HEAD)
-    git pull
+    run git pull
     new_ref=$(git rev-parse HEAD)
 
     if [ "${old_ref}" != "${new_ref}" ]; then
