@@ -1,6 +1,6 @@
 services:
   sublime_mantis:
-    image: sublimesec/mantis:1.62
+    image: sublimesec/mantis:local
     restart: unless-stopped
     container_name: sublime_mantis
     environment:
@@ -31,7 +31,7 @@ services:
     volumes:
        - persistent_storage:/data/persistent_storage
   sublime_bora_lite:
-    image: sublimesec/bora-lite:1.62
+    image: sublimesec/bora-lite:local
     restart: unless-stopped
     container_name: sublime_bora_lite
     environment:
