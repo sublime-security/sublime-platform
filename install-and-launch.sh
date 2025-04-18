@@ -444,7 +444,7 @@ install_sublime() {
 
     if [ "$clone_platform" = "true" ]; then
         print_info "Cloning Sublime Platform repo..."
-        if ! git clone --depth=1 https://github.com/sublime-security/sublime-platform.git; then
+        if ! git clone -b $remote_branch --depth=1 https://github.com/sublime-security/sublime-platform.git; then
             print_error "Failed to clone Sublime Platform repo\n"
             printf "Troubleshooting tips: https://docs.sublimesecurity.com/docs/quickstart-docker#troubleshooting\n\n"
             printf "You may need to run the following command before retrying installation:\n\n"
