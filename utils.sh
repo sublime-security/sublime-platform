@@ -48,3 +48,8 @@ print_info() {
 print_warning() {
     print_color "\n$1\n" "warning"
 }
+
+logrun() {
+    echo >&2 "+ $*"
+    "$@"
+}
