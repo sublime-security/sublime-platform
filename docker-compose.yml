@@ -9,7 +9,7 @@ services:
       PGDATA: /data/postgres
     env_file: sublime.env
     volumes:
-       - postgres:/data/postgres
+      - postgres:/data/postgres
     ports:
       - "5432:5432"
     networks:
