@@ -29,7 +29,7 @@ services:
       - sublime_strelka_backend
       - sublime_strelka_frontend
     volumes:
-       - persistent_storage:/data/persistent_storage
+      - persistent_storage:/data/persistent_storage
   sublime_bora_lite:
     image: sublimesec/bora-lite:1.69
     restart: unless-stopped
@@ -58,7 +58,7 @@ services:
       - sublime_strelka_backend
       - sublime_strelka_frontend
     volumes:
-       - persistent_storage:/data/persistent_storage
+      - persistent_storage:/data/persistent_storage
   sublime_postgres:
     image: postgres:13.2
     command: -c 'max_connections=200'
@@ -70,7 +70,7 @@ services:
       PGDATA: /data/postgres
     env_file: sublime.env
     volumes:
-       - postgres:/data/postgres
+      - postgres:/data/postgres
     networks:
       - net
   sublime_dashboard:
