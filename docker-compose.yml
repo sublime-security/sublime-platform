@@ -11,6 +11,7 @@ services:
       STRELKA_URL: sublime_strelka_frontend
       SCREENSHOT_SERVICE_ENDPOINT: http://sublime_screenshot_service:8100/capture
       SCREENSHOT_SERVICE_BUCKET: email-screenshots
+      MESSAGE_STORAGE_BUCKET: email-msgs
       S3_ENDPOINT: http://sublimes3:8110
       USE_SELF_IMAGE_LINKS: "true"
       AWS_REGION: us-east-1
@@ -42,6 +43,7 @@ services:
       STRELKA_URL: sublime_strelka_frontend
       SCREENSHOT_SERVICE_ENDPOINT: http://sublime_screenshot_service:8100/capture
       SCREENSHOT_SERVICE_BUCKET: email-screenshots
+      MESSAGE_STORAGE_BUCKET: email-msgs
       S3_ENDPOINT: http://sublimes3:8110
       AWS_REGION: us-east-1
       HYDRA_URL: http://sublime_hydra:8200
@@ -173,6 +175,7 @@ services:
       sleep 15;
       /usr/bin/mc alias set myminio http://sublimes3:8110 $$AWS_ACCESS_KEY_ID $$AWS_SECRET_ACCESS_KEY;
       /usr/bin/mc mb myminio/email-screenshots;
+      /usr/bin/mc mb myminio/email-msgs;
       /usr/bin/mc ls myminio;
       exit 0;
       "
