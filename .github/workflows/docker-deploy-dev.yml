@@ -13,6 +13,8 @@ jobs:
 
       - name: Check out the repo
         uses: actions/checkout@v2
+        with:
+          persist-credentials: false
 
       - name: Login to DockerHub
         uses: docker/login-action@v1
