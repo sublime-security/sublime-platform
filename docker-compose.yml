@@ -144,6 +144,20 @@ services:
       WORKERS: 2
       WEB_CONCURRENCY: 5
       KEEP_ALIVE: 2
+  sublime_localstack:
+    container_name: sublime_localstack
+    image: localstack/localstack:4.10.0
+    ports:
+      - "127.0.0.1:4566:4566"            # LocalStack Gateway
+      - "127.0.0.1:4510-4559:4510-4559"  # external services port range
+    networks:
+      - net
+    environment:
+      # LocalStack configuration: https://docs.localstack.cloud/references/configuration/
+      - DEBUG=0
+    volumes:
+      - localstack:/var/lib/localstack
+      #- "/var/run/docker.sock:/var/run/docker.sock"
 
 networks:
   net:
@@ -152,3 +166,4 @@ volumes:
   postgres:
   logs:
   s3_data:
+  localstack:
