@@ -157,7 +157,6 @@ services:
       - DEBUG=0
     volumes:
       - localstack:/var/lib/localstack
-      #- "/var/run/docker.sock:/var/run/docker.sock"
 
 networks:
   net:
