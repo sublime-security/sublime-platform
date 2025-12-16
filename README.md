@@ -1,4 +1,4 @@
- <a href="https://sublimesecurity.com"><img src="./assets/sublime-logo.png" width="75px" alt="Sublime Logo" /></a>
+ <a href="https://sublimesecurity.com"><img src="assets/sublime-logo.png" width="75px" alt="Sublime Logo" /></a>
 
 Sublime Platform
 ==========
