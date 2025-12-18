@@ -1,3 +1,4 @@
 certbot.env
 sublime.env
 *.swp
+.DS_Store
