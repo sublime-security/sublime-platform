@@ -14,9 +14,26 @@ jobs:
     name: Validate Platform Installation
     runs-on: ubuntu-22.04
 
+    permissions:
+      id-token: write
+      contents: read
+
     steps:
       - name: Checkout
         uses: actions/checkout@v3
+
+      - name: Configure AWS Credentials
+        if: github.ref != 'refs/heads/main'
+        uses: aws-actions/configure-aws-credentials@v4
+        with:
+          role-to-assume: arn:aws:iam::948971135452:role/ci-sublime-platform-ecr-read
+          aws-region: us-east-1
+
+      - name: Login to Amazon ECR
+        if: github.ref != 'refs/heads/main'
+        uses: aws-actions/amazon-ecr-login@v2
+        with:
+          registries: "948971135452"
 
       - name: Install Platform
         run: |
