@@ -35,6 +35,10 @@ jobs:
         with:
           registries: "948971135452"
 
+      - name: Make ECR credentials available to sudo
+        if: github.ref != 'refs/heads/main'
+        run: sudo cp -r $HOME/.docker /root/
+
       - name: Install Platform
         run: |
           interactive=false clone_platform=false ./install-and-launch.sh
