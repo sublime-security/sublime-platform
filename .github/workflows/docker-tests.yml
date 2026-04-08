@@ -22,6 +22,7 @@ jobs:
       - name: Checkout
         uses: actions/checkout@v3
 
+      # main should never require private images
       - name: Configure AWS Credentials
         if: github.ref != 'refs/heads/main'
         uses: aws-actions/configure-aws-credentials@v4
