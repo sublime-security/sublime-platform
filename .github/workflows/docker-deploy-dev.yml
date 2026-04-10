@@ -26,8 +26,8 @@ jobs:
         with:
           driver: docker
 
-      - name: Build letsencrypt
-        id: build-letsencrypt
+      - name: Build mantis
+        id: build-mantis
         uses: docker/build-push-action@v2
         with:
           push: true

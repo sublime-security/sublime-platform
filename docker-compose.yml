@@ -34,21 +34,6 @@ services:
       - "6379:6379"
     networks:
       - net
-  sublime_nipper:
-    image: 948971135452.dkr.ecr.us-east-1.amazonaws.com/nipper-python-dev:dev
-    restart: unless-stopped
-    container_name: sublime_nipper
-    env_file: sublime.env
-    ports:
-      - "8300:8000"
-    networks:
-      - net
-    environment:
-      NIPPER_BUCKET: "nipper-artifacts"
-      BUCKET_ENDPOINT_URL: "http://sublimes3:8110"
-      DD_TRACE_ENABLED: false
-    depends_on:
-      - sublime_create_buckets
   sublime_strelka_frontend:
     image: sublimesec/strelka-frontend:0.3
     restart: unless-stopped
@@ -137,8 +122,7 @@ services:
       az storage container create --name email-screenshots &&
       az storage container create --name events &&
       az storage container create --name message-storage &&
-      az storage container create --name message-export &&
-      az storage container create --name nipper-artifacts
+      az storage container create --name message-export
       "
   # Keep this name as sublimes3 because underscores don't play nice with certain endpoint validation
   sublimes3:
@@ -173,7 +157,6 @@ services:
       /usr/bin/mc mb myminio/events;
       /usr/bin/mc mb myminio/message-storage;
       /usr/bin/mc mb myminio/message-export;
-      /usr/bin/mc mb myminio/nipper-artifacts;
       /usr/bin/mc ls myminio;
       exit 0;
       "
