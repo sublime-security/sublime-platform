@@ -1,4 +1,60 @@
 services:
+  sublime_mantis:
+    image: sublimesec/mantis:dev
+    restart: unless-stopped
+    container_name: sublime_mantis
+    environment:
+      POSTGRES_HOST: sublime_postgres
+      POSTGRES_USER: sublime
+      POSTGRES_DB: mantis
+      REDIS_HOST: sublime_redis
+      STRELKA_URL: sublime_strelka_frontend
+      SCREENSHOT_SERVICE_ENDPOINT: http://sublime_screenshot_service:8100/capture
+      SCREENSHOT_SERVICE_BUCKET: email-screenshots
+      MESSAGE_STORAGE_BUCKET: message-storage
+      S3_ENDPOINT: http://sublimes3:8110
+      USE_SELF_IMAGE_LINKS: "true"
+      AWS_REGION: us-east-1
+      HYDRA_URL: http://host.docker.internal:8200
+      DEPLOYMENT_INFRA_TYPE: "DOCKER_COMPOSE"
+      LOG_LEVEL: "WARN"
+      HYDRA_CLIENT_TIMEOUT_OVERRIDE_SEC: 30
+    env_file: sublime.env
+    ports:
+      - "0.0.0.0:8000:8000"
+    networks:
+      - net
+    depends_on:
+      - sublime_postgres
+      - sublime_strelka_backend
+      - sublime_strelka_frontend
+  sublime_bora_lite:
+    image: sublimesec/bora-lite:dev
+    restart: unless-stopped
+    container_name: sublime_bora_lite
+    environment:
+      POSTGRES_HOST: sublime_postgres
+      POSTGRES_USER: sublime
+      POSTGRES_DB: mantis
+      REDIS_HOST: sublime_redis
+      STRELKA_URL: sublime_strelka_frontend
+      SCREENSHOT_SERVICE_ENDPOINT: http://sublime_screenshot_service:8100/capture
+      SCREENSHOT_SERVICE_BUCKET: email-screenshots
+      MESSAGE_STORAGE_BUCKET: message-storage
+      S3_ENDPOINT: http://sublimes3:8110
+      AWS_REGION: us-east-1
+      HYDRA_URL: http://host.docker.internal:8200
+      DEPLOYMENT_INFRA_TYPE: "DOCKER_COMPOSE"
+      LOG_LEVEL: "WARN"
+      HYDRA_CLIENT_TIMEOUT_OVERRIDE_SEC: 30
+    env_file: sublime.env
+    networks:
+      - net
+    depends_on:
+      - sublime_mantis
+      - sublime_redis
+      - sublime_strelka_backend
+      - sublime_strelka_frontend
   sublime_postgres:
     image: postgres:13.2
     restart: unless-stopped
@@ -24,7 +80,9 @@ services:
       - net
     env_file: sublime.env
     environment:
-      MANTIS_HOST_URL: "http://host.docker.internal:8000"
+      MANTIS_HOST_URL: "http://sublime_mantis:8000"
+    depends_on:
+      - sublime_mantis
   sublime_redis:
     image: redis:6.2
     restart: unless-stopped
@@ -177,18 +235,6 @@ services:
       /usr/bin/mc ls myminio;
       exit 0;
       "
-  sublime_hydra:
-    image: sublimesec/hydra-cpu:dev
-    restart: unless-stopped
-    ports:
-      - "8200:8200"
-    networks:
-      - net
-    container_name: sublime_hydra
-    environment:
-      WORKERS: 2
-      WEB_CONCURRENCY: 5
-      KEEP_ALIVE: 2
   sublime_localstack:
     container_name: sublime_localstack
     image: localstack/localstack:4.10.0
