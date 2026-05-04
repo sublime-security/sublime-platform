@@ -1,4 +1,4 @@
-FROM nginx:1.23.3
+FROM nginx:1.30.0
 
 COPY conf/nginx.conf /etc/nginx/nginx.conf
 COPY conf/ssl-params.conf /etc/nginx/ssl-params.conf
