@@ -24,7 +24,7 @@ services:
       - net
     env_file: sublime.env
     environment:
-      MANTIS_HOST_URL: "http://host.docker.internal:8000"
+      MANTIS_HOST_URL: "http://sublime_mantis:8000"
   sublime_redis:
     image: redis:6.2
     restart: unless-stopped
@@ -177,18 +177,6 @@ services:
       /usr/bin/mc ls myminio;
       exit 0;
       "
-  sublime_hydra:
-    image: sublimesec/hydra-cpu:dev
-    restart: unless-stopped
-    ports:
-      - "8200:8200"
-    networks:
-      - net
-    container_name: sublime_hydra
-    environment:
-      WORKERS: 2
-      WEB_CONCURRENCY: 5
-      KEEP_ALIVE: 2
   sublime_localstack:
     container_name: sublime_localstack
     image: localstack/localstack:4.10.0
