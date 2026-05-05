@@ -1,19 +1,19 @@
 services:
-  sublime_postgres:
-    image: postgres:13.2
+  sublime_postgres:    
+    image: postgres:13.2                                                                                                                                                                                                                
     restart: unless-stopped
-    container_name: sublime_postgres
-    environment:
+    container_name: sublime_postgres                                                                                                                                                                                                    
+    environment:  
       POSTGRES_USER: sublime
       POSTGRES_DB: mantis
       PGDATA: /data/postgres
     env_file: sublime.env
-    volumes:
-       - postgres:/data/postgres
-    ports:
+    volumes:                                                                                                                                                                                                                            
+      - postgres_e2e:/data/postgres   # different volume than dev to avoid overwriting data
+    ports:                                                                                                                                                                                                                              
       - "5432:5432"
-    networks:
-      - net
+    networks:                                                                                                                                                                                                                           
+      - net       
   sublime_dashboard:
     image: sublimesec/dashboard:dev
     restart: unless-stopped
@@ -195,7 +195,7 @@ networks:
   net:
     driver: bridge
 volumes:
-  postgres:
+  postgres_e2e:
   logs:
   s3_data:
   localstack:
