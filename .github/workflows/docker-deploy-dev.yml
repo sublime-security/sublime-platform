@@ -30,7 +30,7 @@ jobs:
 
       - name: Build mantis
         id: build-mantis
-        uses: docker/build-push-action@v2
+        uses: docker/build-push-action@v7
         with:
           push: true
           tags: sublimesec/nginx-letsencrypt:latest
