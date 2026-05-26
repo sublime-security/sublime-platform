@@ -14,7 +14,7 @@ Learn more about MQL: [Introduction to Message Query Language](https://sublime.s
 
 Docker Usage & Caveats
 ----------
-This Docker deployment is intended for small-medium size deployments and for testing purposes ONLY (limited to 600 active mailboxes). For the best Sublime experience, we recommend the [AWS Cloud-native deployment](https://docs.sublime.security/docs/aws-cloudformation) or [Sublime Managed Cloud](https://docs.sublime.security/docs/sublime-managed), which can support any number of mailboxes, is resilient, and has the latest features. The docker deployment allows you to gain hands on experience, but will only receive best effort support (no long term support).
+This Docker deployment is intended for small-medium size deployments and for testing purposes ONLY (limited to 100 active mailboxes). For the best Sublime experience, we recommend the [AWS Cloud-native deployment](https://docs.sublime.security/docs/aws-cloudformation) or [Sublime Managed Cloud](https://docs.sublime.security/docs/sublime-managed), which can support any number of mailboxes, is resilient, and has the latest features. The docker deployment allows you to gain hands on experience, but will only receive best effort support (no long term support).
 
 [Learn more about feature restrictions for Docker Compose](https://docs.sublime.security/docs/docker-requirements-and-limitations)
 
