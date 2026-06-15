@@ -113,7 +113,8 @@ services:
       - sublime_create_buckets
   sublime_azurite:
       container_name: sublime_azurite
-      image: mcr.microsoft.com/azure-storage/azurite
+      # mirrored from mcr.microsoft.com to dodge MCR anonymous-pull rate limits in CI
+      image: ghcr.io/sublime-security/azurite:latest
       restart: unless-stopped
       networks:
         - net
@@ -125,7 +126,8 @@ services:
         - azurite_data:/data
       command: azurite --blobHost 0.0.0.0 --queueHost 0.0.0.0 --tableHost 0.0.0.0 --location /data --skipApiVersionCheck
   sublime_create_azure_blob_containers:
-    image: mcr.microsoft.com/azure-cli
+    # mirrored from mcr.microsoft.com to dodge MCR anonymous-pull rate limits in CI
+    image: ghcr.io/sublime-security/azure-cli:latest
     depends_on:
       - sublime_azurite
     networks:
