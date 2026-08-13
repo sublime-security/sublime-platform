@@ -46,9 +46,19 @@ services:
     environment:
       NIPPER_BUCKET: "nipper-artifacts"
       BUCKET_ENDPOINT_URL: "http://sublimes3:8110"
+      TIKA_ENDPOINT: "http://sublime_tika:9998"
       DD_TRACE_ENABLED: false
     depends_on:
       - sublime_create_buckets
+      - sublime_tika
+  sublime_tika:
+    image: apache/tika:3.3.1.0-full
+    restart: unless-stopped
+    container_name: sublime_tika
+    ports:
+      - "9998:9998"
+    networks:
+      - net
   sublime_strelka_frontend:
     image: sublimesec/strelka-frontend:0.3
     restart: unless-stopped
