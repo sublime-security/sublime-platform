@@ -153,7 +153,7 @@ services:
   # Keep this name as sublimes3 because underscores don't play nice with certain endpoint validation
   sublimes3:
     container_name: sublimes3
-    image: minio/minio
+    image: minio/minio:RELEASE.2025-09-07T16-13-09Z
     restart: unless-stopped
     networks:
       - net
@@ -169,7 +169,7 @@ services:
       minio server --address 0.0.0.0:8110 --console-address 0.0.0.0:8111  /data;
       "
   sublime_create_buckets:
-    image: minio/mc
+    image: minio/mc:RELEASE.2025-08-13T08-35-41Z
     depends_on:
       - sublimes3
     networks:
@@ -177,15 +177,22 @@ services:
     env_file: sublime.env
     entrypoint: >
       /bin/sh -c "
-      sleep 15;
-      /usr/bin/mc alias set myminio http://sublimes3:8110 $$AWS_ACCESS_KEY_ID $$AWS_SECRET_ACCESS_KEY;
-      /usr/bin/mc mb myminio/email-screenshots;
-      /usr/bin/mc mb myminio/events;
-      /usr/bin/mc mb myminio/message-storage;
-      /usr/bin/mc mb myminio/message-export;
-      /usr/bin/mc mb myminio/nipper-artifacts;
+      attempt=1;
+      max_attempts=60;
+      until /usr/bin/mc alias set myminio http://sublimes3:8110 $$AWS_ACCESS_KEY_ID $$AWS_SECRET_ACCESS_KEY; do
+      attempt=$$((attempt + 1));
+      if [ $$attempt -gt $$max_attempts ]; then
+      echo 'sublime_create_buckets: MinIO did not become ready in time' >&2;
+      exit 1;
+      fi;
+      sleep 2;
+      done;
+      /usr/bin/mc mb --ignore-existing myminio/email-screenshots &&
+      /usr/bin/mc mb --ignore-existing myminio/events &&
+      /usr/bin/mc mb --ignore-existing myminio/message-storage &&
+      /usr/bin/mc mb --ignore-existing myminio/message-export &&
+      /usr/bin/mc mb --ignore-existing myminio/nipper-artifacts &&
       /usr/bin/mc ls myminio;
-      exit 0;
       "
   sublime_hydra:
     image: sublimesec/hydra-cpu:dev
