@@ -106,7 +106,7 @@ services:
     networks:
       - net
   sublime_screenshot_service:
-    image: sublimesec/render-email-html:0.1
+    image: sublimesec/render-email-html:0.2
     restart: unless-stopped
     ports:
       - "8100:8100"
