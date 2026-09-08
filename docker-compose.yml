@@ -194,6 +194,21 @@ services:
       /usr/bin/mc mb --ignore-existing myminio/nipper-artifacts &&
       /usr/bin/mc ls myminio;
       "
+  # docker compose up --wait treats any container it doesn't already expect to exit as failed the
+  # moment it exits, even with code 0 (https://github.com/docker/compose/issues/10596). Neither
+  # sublime_create_buckets nor sublime_create_azure_blob_containers has a dependent declared with
+  # condition: service_completed_successfully, so --wait has no way to know their exit is expected.
+  # This long-running sentinel supplies that dependent so --wait treats their completion as success.
+  sublime_storage_ready:
+    image: alpine:3.20
+    command: ["sleep", "infinity"]
+    networks:
+      - net
+    depends_on:
+      sublime_create_buckets:
+        condition: service_completed_successfully
+      sublime_create_azure_blob_containers:
+        condition: service_completed_successfully
   sublime_hydra:
     image: sublimesec/hydra-cpu:dev
     restart: unless-stopped
