@@ -142,38 +142,93 @@ services:
     container_name: sublime_screenshot_service
     networks:
       - net
+  # cgr.dev/chainguard/minio has no shell, so anything needing one - fixing up volume
+  # ownership for minio's non-root UID, and writing MINIO_ROOT_USER/PASSWORD out to files from
+  # the AWS_* vars already in sublime.env - happens here instead, before minio itself starts.
+  sublimes3_init:
+    image: busybox
+    container_name: sublimes3_init
+    networks:
+      - net
+    env_file: sublime.env
+    volumes:
+      - s3_data:/data
+      - s3_creds:/creds
+    command:
+      - sh
+      - -c
+      - >
+        printf '%s' "$$AWS_ACCESS_KEY_ID" > /creds/root_user &&
+        printf '%s' "$$AWS_SECRET_ACCESS_KEY" > /creds/root_password &&
+        chmod 400 /creds/root_user /creds/root_password &&
+        chown -R 65532:65532 /creds /data
   # Keep this name as sublimes3 because underscores don't play nice with certain endpoint validation
   sublimes3:
     container_name: sublimes3
-    image: minio/minio
+    image: cgr.dev/chainguard/minio:latest
     restart: unless-stopped
     networks:
       - net
     volumes:
       - s3_data:/data
-    env_file: sublime.env
-    entrypoint: >
-      /bin/sh -c "
-      export MINIO_ROOT_USER=$$AWS_ACCESS_KEY_ID;
-      export MINIO_ROOT_PASSWORD=$$AWS_SECRET_ACCESS_KEY;
-      minio server --address 0.0.0.0:8110 --console-address 0.0.0.0:8111  /data;
-      "
-  sublime_create_buckets:
-    image: minio/mc
+      - s3_creds:/creds:ro
+    environment:
+      MINIO_ROOT_USER_FILE: /creds/root_user
+      MINIO_ROOT_PASSWORD_FILE: /creds/root_password
+    depends_on:
+      sublimes3_init:
+        condition: service_completed_successfully
+    command: ["server", "--address", "0.0.0.0:8110", "--console-address", "0.0.0.0:8111", "/data"]
+  # cgr.dev/chainguard/minio-client has no shell, so it can't run `mc alias set` (which needs
+  # shell interpolation of the AWS_* secrets into CLI args), and we don't want that secret ever
+  # needing to land in sublime.env either. This throwaway busybox step hand-writes mc's
+  # config.json straight from the AWS_* vars already in sublime.env; chainguard's mc then just
+  # reads it via MC_CONFIG_DIR below. mc still needs to create its own share/certs scratch dirs
+  # under this path at runtime, so the volume can't be mounted read-only.
+  sublime_mc_config:
+    image: busybox
     depends_on:
       - sublimes3
     networks:
       - net
     env_file: sublime.env
-    entrypoint: >
-      /bin/sh -c "
-      sleep 15;
-      /usr/bin/mc alias set myminio http://sublimes3:8110 $$AWS_ACCESS_KEY_ID $$AWS_SECRET_ACCESS_KEY;
-      /usr/bin/mc mb myminio/email-screenshots;
-      /usr/bin/mc mb myminio/email-msgs;
-      /usr/bin/mc ls myminio;
-      exit 0;
-      "
+    volumes:
+      - mc_config:/config
+    command:
+      - sh
+      - -c
+      - >
+        cat > /config/config.json <<EOF
+
+        {
+        	"version": "10",
+        	"aliases": {
+        		"myminio": {
+        			"url": "http://sublimes3:8110",
+        			"accessKey": "$$AWS_ACCESS_KEY_ID",
+        			"secretKey": "$$AWS_SECRET_ACCESS_KEY",
+        			"api": "s3v4",
+        			"path": "auto"
+        		}
+        	}
+        }
+
+        EOF
+
+        chmod 600 /config/config.json &&
+        chown -R 65532:65532 /config
+  sublime_create_buckets:
+    image: cgr.dev/chainguard/minio-client:latest
+    depends_on:
+      sublime_mc_config:
+        condition: service_completed_successfully
+    networks:
+      - net
+    volumes:
+      - mc_config:/config
+    environment:
+      MC_CONFIG_DIR: /config
+    command: ["mb", "myminio/email-screenshots", "myminio/email-msgs"]
   sublime_hydra:
     image: sublimesec/hydra-cpu:1.2
     restart: unless-stopped
@@ -228,4 +283,6 @@ volumes:
   postgres:
   logs:
   s3_data:
+  s3_creds:
+  mc_config:
   persistent_storage:
