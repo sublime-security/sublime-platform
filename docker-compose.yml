@@ -180,24 +180,43 @@ services:
         condition: service_completed_successfully
     command: ["server", "--address", "0.0.0.0:8110", "--console-address", "0.0.0.0:8111", "/data"]
   # cgr.dev/chainguard/minio-client has no shell, so it can't run `mc alias set` (which needs
-  # shell interpolation of the AWS_* secrets into CLI args). This throwaway step uses the
-  # upstream mc image (which has both mc and a shell) purely to write the resulting mc config
-  # file to a shared volume; chainguard's mc then just reads it via MC_CONFIG_DIR below.
+  # shell interpolation of the AWS_* secrets into CLI args), and we don't want that secret ever
+  # needing to land in sublime.env either. This throwaway busybox step hand-writes mc's
+  # config.json straight from the AWS_* vars already in sublime.env; chainguard's mc then just
+  # reads it via MC_CONFIG_DIR below. mc still needs to create its own share/certs scratch dirs
+  # under this path at runtime, so the volume can't be mounted read-only.
   sublime_mc_config:
-    image: minio/mc
+    image: busybox
     depends_on:
       - sublimes3
     networks:
       - net
     env_file: sublime.env
     volumes:
-      - mc_config:/root/.mc
-    entrypoint: >
-      /bin/sh -c "
-      sleep 15;
-      mc alias set myminio http://sublimes3:8110 $$AWS_ACCESS_KEY_ID $$AWS_SECRET_ACCESS_KEY;
-      chown -R 65532:65532 /root/.mc;
-      "
+      - mc_config:/config
+    command:
+      - sh
+      - -c
+      - >
+        cat > /config/config.json <<EOF
+
+        {
+        	"version": "10",
+        	"aliases": {
+        		"myminio": {
+        			"url": "http://sublimes3:8110",
+        			"accessKey": "$$AWS_ACCESS_KEY_ID",
+        			"secretKey": "$$AWS_SECRET_ACCESS_KEY",
+        			"api": "s3v4",
+        			"path": "auto"
+        		}
+        	}
+        }
+
+        EOF
+
+        chmod 600 /config/config.json &&
+        chown -R 65532:65532 /config
   sublime_create_buckets:
     image: cgr.dev/chainguard/minio-client:latest
     depends_on:
@@ -206,7 +225,7 @@ services:
     networks:
       - net
     volumes:
-      - mc_config:/config:ro
+      - mc_config:/config
     environment:
       MC_CONFIG_DIR: /config
     command: ["mb", "myminio/email-screenshots", "myminio/email-msgs"]
