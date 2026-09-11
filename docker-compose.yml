@@ -150,16 +150,26 @@ services:
       az storage container create --name message-export &&
       az storage container create --name nipper-artifacts
       "
-  # cgr.dev/chainguard/minio has no shell, so permission fixups on the volume have to happen
-  # in a separate container that does have one, before minio itself starts.
+  # cgr.dev/chainguard/minio has no shell, so anything needing one - fixing up volume
+  # ownership for minio's non-root UID, and writing MINIO_ROOT_USER/PASSWORD out to files from
+  # the AWS_* vars already in sublime.env - happens here instead, before minio itself starts.
   sublimes3_init:
     image: busybox
     container_name: sublimes3_init
     networks:
       - net
+    env_file: sublime.env
     volumes:
       - s3_data:/data
-    command: ["chown", "-R", "65532:65532", "/data"]
+      - s3_creds:/creds
+    command:
+      - sh
+      - -c
+      - >
+        printf '%s' "$$AWS_ACCESS_KEY_ID" > /creds/root_user &&
+        printf '%s' "$$AWS_SECRET_ACCESS_KEY" > /creds/root_password &&
+        chmod 400 /creds/root_user /creds/root_password &&
+        chown -R 65532:65532 /creds /data
   # Keep this name as sublimes3 because underscores don't play nice with certain endpoint validation
   sublimes3:
     container_name: sublimes3
@@ -171,47 +181,80 @@ services:
       - "8110:8110"
     volumes:
       - s3_data:/data
-    env_file: sublime.env
+      - s3_creds:/creds:ro
+    environment:
+      MINIO_ROOT_USER_FILE: /creds/root_user
+      MINIO_ROOT_PASSWORD_FILE: /creds/root_password
     depends_on:
       sublimes3_init:
         condition: service_completed_successfully
-    # No shell in this image, so MINIO_ROOT_USER/MINIO_ROOT_PASSWORD are set directly in
-    # sublime.env (see update-and-run.sh) instead of being derived here from AWS_* vars.
     command: ["server", "--address", "0.0.0.0:8110", "--console-address", "0.0.0.0:8111", "/data"]
-  # cgr.dev/chainguard/minio-client also has no shell, so it can't retry `mc mb` itself while
-  # waiting for minio to finish starting up. This busybox waiter polls MinIO's health endpoint
-  # and fails loudly if it doesn't come up in time, giving sublime_create_buckets a dependency
-  # it can wait on instead.
-  sublimes3_wait:
+  # cgr.dev/chainguard/minio-client has no shell, so it can't run `mc alias set` (which needs
+  # shell interpolation of the AWS_* secrets into CLI args), and we don't want that secret ever
+  # needing to land in sublime.env either. This throwaway busybox step hand-writes mc's
+  # config.json straight from the AWS_* vars already in sublime.env; chainguard's mc then just
+  # reads it via MC_CONFIG_DIR below. mc still needs to create its own share/certs scratch dirs
+  # under this path at runtime, so the volume can't be mounted read-only.
+  #
+  # It also waits for MinIO's health endpoint here, since the shell-less minio-client can't retry
+  # `mc mb` itself, and sublime_create_buckets depending on this container's successful exit
+  # (below) is what sublime_storage_ready's `--wait` contract relies on to know bucket creation
+  # actually happened (see the comment on sublime_storage_ready).
+  sublime_mc_config:
     image: busybox
-    container_name: sublimes3_wait
-    networks:
-      - net
     depends_on:
       - sublimes3
-    entrypoint: >
-      /bin/sh -c "
-      attempt=1;
-      max_attempts=60;
-      until wget -q -O /dev/null http://sublimes3:8110/minio/health/ready; do
-      attempt=$$((attempt + 1));
-      if [ $$attempt -gt $$max_attempts ]; then
-      echo 'sublimes3_wait: MinIO did not become ready in time' >&2;
-      exit 1;
-      fi;
-      sleep 2;
-      done;
-      "
-  sublime_create_buckets:
-    image: cgr.dev/chainguard/minio-client:latest
-    depends_on:
-      sublimes3_wait:
-        condition: service_completed_successfully
     networks:
       - net
     env_file: sublime.env
-    # No shell in this image, so the myminio alias comes from MC_HOST_myminio (set in
-    # sublime.env, see update-and-run.sh) instead of a separate `mc alias set` call.
+    volumes:
+      - mc_config:/config
+    command:
+      - sh
+      - -c
+      - >
+        cat > /config/config.json <<EOF
+
+        {
+        	"version": "10",
+        	"aliases": {
+        		"myminio": {
+        			"url": "http://sublimes3:8110",
+        			"accessKey": "$$AWS_ACCESS_KEY_ID",
+        			"secretKey": "$$AWS_SECRET_ACCESS_KEY",
+        			"api": "s3v4",
+        			"path": "auto"
+        		}
+        	}
+        }
+
+        EOF
+
+        chmod 600 /config/config.json &&
+        chown -R 65532:65532 /config &&
+        attempt=1;
+        max_attempts=60;
+        until wget -q -O /dev/null http://sublimes3:8110/minio/health/ready; do
+        attempt=$$((attempt + 1));
+        if [ $$attempt -gt $$max_attempts ]; then
+        echo 'sublime_mc_config: MinIO did not become ready in time' >&2;
+        exit 1;
+        fi;
+        sleep 2;
+        done
+  sublime_create_buckets:
+    image: cgr.dev/chainguard/minio-client:latest
+    depends_on:
+      sublime_mc_config:
+        condition: service_completed_successfully
+    networks:
+      - net
+    volumes:
+      - mc_config:/config
+    environment:
+      MC_CONFIG_DIR: /config
+    # --ignore-existing keeps this idempotent across repeated `docker compose up` runs, since
+    # this container reruns `mb` against buckets that already exist from a prior run.
     command:
       [
         "mb",
@@ -270,5 +313,7 @@ volumes:
   postgres:
   logs:
   s3_data:
+  s3_creds:
+  mc_config:
   localstack:
   azurite_data:
