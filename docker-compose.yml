@@ -179,25 +179,37 @@ services:
       sublimes3_init:
         condition: service_completed_successfully
     command: ["server", "--address", "0.0.0.0:8110", "--console-address", "0.0.0.0:8111", "/data"]
-  sublime_create_buckets:
-    # Stays on minio/mc: it's a two-second one-shot, not the long-running server, so it's not
-    # worth chasing a shell-less image for - it still needs a shell to interpolate the AWS_*
-    # vars into `mc alias set` args.
+  # cgr.dev/chainguard/minio-client has no shell, so it can't run `mc alias set` (which needs
+  # shell interpolation of the AWS_* secrets into CLI args). This throwaway step uses the
+  # upstream mc image (which has both mc and a shell) purely to write the resulting mc config
+  # file to a shared volume; chainguard's mc then just reads it via MC_CONFIG_DIR below.
+  sublime_mc_config:
     image: minio/mc
     depends_on:
       - sublimes3
     networks:
       - net
     env_file: sublime.env
+    volumes:
+      - mc_config:/root/.mc
     entrypoint: >
       /bin/sh -c "
       sleep 15;
-      /usr/bin/mc alias set myminio http://sublimes3:8110 $$AWS_ACCESS_KEY_ID $$AWS_SECRET_ACCESS_KEY;
-      /usr/bin/mc mb myminio/email-screenshots;
-      /usr/bin/mc mb myminio/email-msgs;
-      /usr/bin/mc ls myminio;
-      exit 0;
+      mc alias set myminio http://sublimes3:8110 $$AWS_ACCESS_KEY_ID $$AWS_SECRET_ACCESS_KEY;
+      chown -R 65532:65532 /root/.mc;
       "
+  sublime_create_buckets:
+    image: cgr.dev/chainguard/minio-client:latest
+    depends_on:
+      sublime_mc_config:
+        condition: service_completed_successfully
+    networks:
+      - net
+    volumes:
+      - mc_config:/config:ro
+    environment:
+      MC_CONFIG_DIR: /config
+    command: ["mb", "myminio/email-screenshots", "myminio/email-msgs"]
   sublime_hydra:
     image: sublimesec/hydra-cpu:1.2
     restart: unless-stopped
@@ -253,4 +265,5 @@ volumes:
   logs:
   s3_data:
   s3_creds:
+  mc_config:
   persistent_storage:
