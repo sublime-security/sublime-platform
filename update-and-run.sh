@@ -94,6 +94,15 @@ if ! grep "MINIO_ROOT_PASSWORD" $SUBLIME_ENV_FILE >/dev/null 2>&1; then
     echo "Configured MinIO root password"
 fi
 
+# mc (minio-client) also has no shell to run `mc alias set`, so define the myminio alias via
+# mc's native MC_HOST_<alias> env var instead: http://ACCESS_KEY:SECRET_KEY@host
+if ! grep "MC_HOST_myminio" $SUBLIME_ENV_FILE >/dev/null 2>&1; then
+    MC_ACCESS_KEY=$(grep "^AWS_ACCESS_KEY_ID=" $SUBLIME_ENV_FILE | cut -d '=' -f2-)
+    MC_SECRET_KEY=$(grep "^AWS_SECRET_ACCESS_KEY=" $SUBLIME_ENV_FILE | cut -d '=' -f2-)
+    echo "MC_HOST_myminio=http://$MC_ACCESS_KEY:$MC_SECRET_KEY@sublimes3:8110" >>$SUBLIME_ENV_FILE
+    echo "Configured MinIO client alias"
+fi
+
 if ! grep "CORS_ALLOW_ORIGINS" $SUBLIME_ENV_FILE >/dev/null 2>&1; then
     echo "CORS_ALLOW_ORIGINS=$sublime_host:3000" >>$SUBLIME_ENV_FILE
     echo "Configured CORS allow origins"

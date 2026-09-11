@@ -169,21 +169,15 @@ services:
     # sublime.env (see update-and-run.sh) instead of being derived here from AWS_* vars.
     command: ["server", "--address", "0.0.0.0:8110", "--console-address", "0.0.0.0:8111", "/data"]
   sublime_create_buckets:
-    image: minio/mc
+    image: cgr.dev/chainguard/minio-client:latest
     depends_on:
       - sublimes3
     networks:
       - net
     env_file: sublime.env
-    entrypoint: >
-      /bin/sh -c "
-      sleep 15;
-      /usr/bin/mc alias set myminio http://sublimes3:8110 $$AWS_ACCESS_KEY_ID $$AWS_SECRET_ACCESS_KEY;
-      /usr/bin/mc mb myminio/email-screenshots;
-      /usr/bin/mc mb myminio/email-msgs;
-      /usr/bin/mc ls myminio;
-      exit 0;
-      "
+    # No shell in this image, so the myminio alias comes from MC_HOST_myminio (set in
+    # sublime.env, see update-and-run.sh) instead of a separate `mc alias set` call.
+    command: ["mb", "myminio/email-screenshots", "myminio/email-msgs"]
   sublime_hydra:
     image: sublimesec/hydra-cpu:1.2
     restart: unless-stopped
