@@ -145,7 +145,7 @@ services:
   # Keep this name as sublimes3 because underscores don't play nice with certain endpoint validation
   sublimes3:
     container_name: sublimes3
-    image: cgr.dev/chainguard/minio
+    image: quay.io/minio/minio
     restart: unless-stopped
     networks:
       - net
@@ -159,7 +159,7 @@ services:
       minio server --address 0.0.0.0:8110 --console-address 0.0.0.0:8111  /data;
       "
   sublime_create_buckets:
-    image: cgr.dev/chainguard/minio-client
+    image: quay.io/minio/mc
     depends_on:
       - sublimes3
     networks:
