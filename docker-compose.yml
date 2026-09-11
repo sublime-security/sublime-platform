@@ -142,22 +142,32 @@ services:
     container_name: sublime_screenshot_service
     networks:
       - net
+  # cgr.dev/chainguard/minio has no shell, so permission fixups on the volume have to happen
+  # in a separate container that does have one, before minio itself starts.
+  sublimes3_init:
+    image: busybox
+    container_name: sublimes3_init
+    networks:
+      - net
+    volumes:
+      - s3_data:/data
+    command: ["chown", "-R", "65532:65532", "/data"]
   # Keep this name as sublimes3 because underscores don't play nice with certain endpoint validation
   sublimes3:
     container_name: sublimes3
-    image: minio/minio
+    image: cgr.dev/chainguard/minio:latest
     restart: unless-stopped
     networks:
       - net
     volumes:
       - s3_data:/data
     env_file: sublime.env
-    entrypoint: >
-      /bin/sh -c "
-      export MINIO_ROOT_USER=$$AWS_ACCESS_KEY_ID;
-      export MINIO_ROOT_PASSWORD=$$AWS_SECRET_ACCESS_KEY;
-      minio server --address 0.0.0.0:8110 --console-address 0.0.0.0:8111  /data;
-      "
+    depends_on:
+      sublimes3_init:
+        condition: service_completed_successfully
+    # No shell in this image, so MINIO_ROOT_USER/MINIO_ROOT_PASSWORD are set directly in
+    # sublime.env (see update-and-run.sh) instead of being derived here from AWS_* vars.
+    command: ["server", "--address", "0.0.0.0:8110", "--console-address", "0.0.0.0:8111", "/data"]
   sublime_create_buckets:
     image: minio/mc
     depends_on:
