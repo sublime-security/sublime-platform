@@ -153,7 +153,7 @@ services:
   # Keep this name as sublimes3 because underscores don't play nice with certain endpoint validation
   sublimes3:
     container_name: sublimes3
-    image: quay.io/minio/minio:RELEASE.2025-09-07T16-13-09Z
+    image: quay.io/minio/minio
     restart: unless-stopped
     networks:
       - net
@@ -169,7 +169,7 @@ services:
       minio server --address 0.0.0.0:8110 --console-address 0.0.0.0:8111  /data;
       "
   sublime_create_buckets:
-    image: quay.io/minio/mc:RELEASE.2025-08-13T08-35-41Z
+    image: quay.io/minio/mc
     depends_on:
       - sublimes3
     networks:
