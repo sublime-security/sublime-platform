@@ -43,10 +43,10 @@ set -e
 #
 
 : -----------------------------------------
-: Branch - default: dev
+: Branch - default: main
 : -----------------------------------------
 
-# By default, this script assumes that it should pull dependencies from branch `dev`. If you wish to get dependencies
+# By default, this script assumes that it should pull dependencies from branch `main`. If you wish to get dependencies
 # from another branch, you can specify it here.
 #
 : curl -sL https://sublimesecurity.com/install.sh | remote_branch=custom-branch sh
@@ -80,7 +80,7 @@ if [ -z "$interactive" ]; then
     # ascii art
     # credit: https://patorjk.com/
     # font: Cyberlarge
-    cat <<EOF
+    cat <<'EOF'
 
 ======================================================================
 |   _______ _     _ ______         _____ _______ _______             |
@@ -197,7 +197,7 @@ container_id_by_name() {
 }
 
 if [ -z "$remote_branch" ]; then
-    remote_branch="dev"
+    remote_branch="main"
 fi
 
 if [ "$interactive" != "true" ] && [ -z "$auto_updates" ]; then
@@ -410,6 +410,8 @@ launch_sublime() {
         else
             echo "Daily update check is already setup"
         fi
+    else
+        echo "Automatic updates not enabled"
     fi
 
     print_info "Launching Sublime Platform..."
@@ -442,7 +444,7 @@ install_sublime() {
 
     if [ "$clone_platform" = "true" ]; then
         print_info "Cloning Sublime Platform repo..."
-        if ! git clone --depth=1 https://github.com/sublime-security/sublime-platform.git; then
+        if ! git clone -b "$remote_branch" --depth=1 https://github.com/sublime-security/sublime-platform.git; then
             print_error "Failed to clone Sublime Platform repo\n"
             printf "Troubleshooting tips: https://docs.sublimesecurity.com/docs/quickstart-docker#troubleshooting\n\n"
             printf "You may need to run the following command before retrying installation:\n\n"

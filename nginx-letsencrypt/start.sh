@@ -35,7 +35,7 @@ sed -i "s/___server_names___/$_server_names/g" /etc/nginx/nginx.conf
 sleep 5
 nginx
 sleep 5
-certbot --nginx ${_args} --text --agree-tos --no-self-upgrade --keep --no-redirect --email $EMAIL_ADDRESS -v -n
+certbot --nginx ${_args} --agree-tos --keep --no-redirect --email "$EMAIL_ADDRESS" -v -n
 nginx -s stop
 sleep 3
 nginx -g "daemon off;"

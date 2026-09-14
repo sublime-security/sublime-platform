@@ -12,23 +12,25 @@ jobs:
     steps:
 
       - name: Check out the repo
-        uses: actions/checkout@v2
+        uses: actions/checkout@v6
+        with:
+          persist-credentials: false
 
       - name: Login to DockerHub
-        uses: docker/login-action@v1
+        uses: docker/login-action@v4.1.0
         with:
           username: ${{ secrets.DOCKER_USERNAME }}
           password: ${{ secrets.DOCKER_PASSWORD }}
 
       - name: Set up Docker Buildx
         id: buildx
-        uses: docker/setup-buildx-action@v1
+        uses: docker/setup-buildx-action@v4
         with:
           driver: docker
 
-      - name: Build letsencrypt
-        id: build-letsencrypt
-        uses: docker/build-push-action@v2
+      - name: Build mantis
+        id: build-mantis
+        uses: docker/build-push-action@v7.1.0
         with:
           push: true
           tags: sublimesec/nginx-letsencrypt:latest

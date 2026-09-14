@@ -1,4 +1,4 @@
-FROM nginx:1.23.3
+FROM nginx:1.30.0
 
 RUN apt-get update &&  apt-get install -y \
   wget \
