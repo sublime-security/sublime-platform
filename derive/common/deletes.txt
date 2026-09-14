@@ -1,0 +1,8 @@
+.services.sublime_mantis
+.services.sublime_bora_lite
+.services.sublime_nginx_letsencrypt
+.services.sublime_nginx_custom_ssl
+.services.sublime_dashboard.depends_on
+.services.sublime_hydra.environment.WORKER_TIMEOUT
+.services.sublime_hydra.environment.GRACEFUL_WORKER_TIMEOUT
+.volumes.persistent_storage

@@ -1,0 +1,69 @@
+name: Sync Derived Branches
+
+on:
+  push:
+    branches: [main]
+  workflow_dispatch: {}
+
+concurrency:
+  group: sync-derived-branches
+  cancel-in-progress: false # never leave dev-be and hydra-ci at different SHAs
+
+jobs:
+  sync:
+    name: Sync ${{ matrix.target }}
+    runs-on: ubuntu-latest
+    permissions:
+      contents: write
+    strategy:
+      fail-fast: false
+      matrix:
+        target: [dev-be, hydra-ci]
+
+    steps:
+      # This job pushes derived commits, so it needs a real token - overriding the repo's usual
+      # persist-credentials: false. No third-party actions run in this job, only actions/checkout
+      # and git/yq shell steps, so nothing untrusted ever sees the persisted token.
+      - name: Checkout
+        uses: actions/checkout@v6
+        with:
+          fetch-depth: 0
+          persist-credentials: true
+
+      - name: Configure git identity
+        run: |
+          git config user.name "github-actions[bot]"
+          git config user.email "github-actions[bot]@users.noreply.github.com"
+
+      - name: Fetch existing derived branch tip
+        env:
+          TARGET: ${{ matrix.target }}
+        run: |
+          # actions/checkout narrows remote.origin.fetch to main*, so a bare
+          # `git fetch origin $TARGET` lands in FETCH_HEAD and never creates
+          # refs/remotes/origin/$TARGET. Use an explicit refspec.
+          git fetch origin "+refs/heads/$TARGET:refs/remotes/origin/$TARGET" || true
+
+      - name: Derive and verify
+        env:
+          TARGET: ${{ matrix.target }}
+        run: ./derive/verify.sh "$TARGET"
+
+      - name: Remove derive tooling
+        run: rm -rf derive/
+
+      - name: Commit and push if changed
+        env:
+          TARGET: ${{ matrix.target }}
+        run: |
+          git add -A
+          tree=$(git write-tree)
+          parent=$(git rev-parse --verify -q "refs/remotes/origin/$TARGET" || true)
+          if [ -n "$parent" ] && [ "$(git rev-parse "$parent^{tree}")" = "$tree" ]; then
+            echo "No changes for $TARGET"
+            exit 0
+          fi
+          commit=$(git commit-tree "$tree" ${parent:+-p "$parent"} -m "Sync from $GITHUB_SHA")
+          # Non-force push: these branches are clone-or-update targets for other repos'
+          # CI/e2e scripts. A force-push or orphan history would break their cached checkouts.
+          git push origin "$commit:refs/heads/$TARGET"
