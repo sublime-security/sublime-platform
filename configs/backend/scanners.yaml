@@ -1,0 +1,3 @@
+# Stub file for local replacement of scanner definitions (this replaces, not appends)
+# You may want to start by copying the contents of https://raw.githubusercontent.com/sublime-security/strelka/main/build/configs/scanners.yaml
+# into this file and modify from there.
