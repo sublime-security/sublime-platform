@@ -2,7 +2,7 @@ name: Sync Derived Branches
 
 on:
   push:
-    branches: [main, derived-dev] # TODO: revert to [main] before merging - testing only
+    branches: [main]
   workflow_dispatch: {}
 
 concurrency:
