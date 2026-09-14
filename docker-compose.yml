@@ -1,0 +1,318 @@
+services:
+  sublime_postgres:
+    image: postgres:13.2
+    command: -c 'max_connections=200'
+    restart: unless-stopped
+    container_name: sublime_postgres
+    environment:
+      POSTGRES_USER: sublime
+      POSTGRES_DB: mantis
+      PGDATA: /data/postgres
+    env_file: sublime.env
+    volumes:
+      - postgres_e2e:/data/postgres # different volume than dev-be to avoid overwriting data
+    networks:
+      - net
+    ports:
+      - 5432:5432
+  sublime_dashboard:
+    image: sublimesec/dashboard:dev
+    restart: unless-stopped
+    container_name: sublime_dashboard
+    ports:
+      - 0.0.0.0:3000:80
+    networks:
+      - net
+    env_file: sublime.env
+    environment:
+      MANTIS_HOST_URL: http://host.docker.internal:8000
+  sublime_redis:
+    image: redis:6.2
+    restart: unless-stopped
+    container_name: sublime_redis
+    command: redis-server --loglevel warning
+    networks:
+      - net
+    ports:
+      - 6379:6379
+  sublime_strelka_frontend:
+    image: sublimesec/strelka-frontend:0.3
+    restart: unless-stopped
+    command: strelka-frontend
+    networks:
+      - net
+    volumes:
+      - ./configs/frontend/:/etc/strelka/:ro
+      - logs:/var/log/strelka/
+    depends_on:
+      - sublime_strelka_coordinator
+    deploy:
+      replicas: 1
+    ports:
+      - 57314:57314
+  sublime_strelka_backend:
+    image: sublimesec/strelka-backend:0.3
+    restart: unless-stopped
+    command: strelka-backend
+    shm_size: 512mb
+    networks:
+      - net
+    volumes:
+      - ./configs/backend/:/etc/strelka/:ro
+    depends_on:
+      - sublime_strelka_coordinator
+    deploy:
+      replicas: 2
+  sublime_strelka_manager:
+    image: sublimesec/strelka-manager:0.3
+    restart: unless-stopped
+    command: strelka-manager
+    container_name: sublime_strelka_manager_1
+    networks:
+      - net
+    volumes:
+      - ./configs/manager/:/etc/strelka/:ro
+    depends_on:
+      - sublime_strelka_coordinator
+  sublime_strelka_coordinator:
+    image: redis:alpine
+    restart: unless-stopped
+    command: redis-server --save "" --appendonly no
+    container_name: sublime_strelka_coordinator_1
+    networks:
+      - net
+  sublime_screenshot_service:
+    image: sublimesec/render-email-html:0.2
+    restart: unless-stopped
+    environment:
+      - S3_ENDPOINT=http://sublimes3:8110
+      - SCREENSHOT_BUCKET=email-screenshots
+      - AWS_REGION=us-east-1
+      - DISABLE_DD=true
+    container_name: sublime_screenshot_service
+    networks:
+      - net
+    ports:
+      - 8100:8100
+    env_file: sublime.env
+    depends_on:
+      - sublime_create_buckets
+  # cgr.dev/chainguard/minio has no shell, so anything needing one - fixing up volume
+  # ownership for minio's non-root UID, and writing MINIO_ROOT_USER/PASSWORD out to files from
+  # the AWS_* vars already in sublime.env - happens here instead, before minio itself starts.
+  sublimes3_init:
+    image: busybox
+    container_name: sublimes3_init
+    networks:
+      - net
+    env_file: sublime.env
+    volumes:
+      - s3_data:/data
+      - s3_creds:/creds
+    command:
+      - sh
+      - -c
+      - |
+        printf '%s' "$$AWS_ACCESS_KEY_ID" > /creds/root_user && printf '%s' "$$AWS_SECRET_ACCESS_KEY" > /creds/root_password && chmod 400 /creds/root_user /creds/root_password && chown -R 65532:65532 /creds /data
+  # Keep this name as sublimes3 because underscores don't play nice with certain endpoint validation
+  sublimes3:
+    container_name: sublimes3
+    image: cgr.dev/chainguard/minio:latest
+    restart: unless-stopped
+    networks:
+      - net
+    volumes:
+      - s3_data:/data
+      - s3_creds:/creds:ro
+    environment:
+      MINIO_ROOT_USER_FILE: /creds/root_user
+      MINIO_ROOT_PASSWORD_FILE: /creds/root_password
+    depends_on:
+      sublimes3_init:
+        condition: service_completed_successfully
+    command:
+      - server
+      - --address
+      - 0.0.0.0:8110
+      - --console-address
+      - 0.0.0.0:8111
+      - /data
+    ports:
+      - 8110:8110
+  # cgr.dev/chainguard/minio-client has no shell, so it can't run `mc alias set` (which needs
+  # shell interpolation of the AWS_* secrets into CLI args), and we don't want that secret ever
+  # needing to land in sublime.env either. This throwaway busybox step hand-writes mc's
+  # config.json straight from the AWS_* vars already in sublime.env; chainguard's mc then just
+  # reads it via MC_CONFIG_DIR below. mc still needs to create its own share/certs scratch dirs
+  # under this path at runtime, so the volume can't be mounted read-only.
+  sublime_mc_config:
+    image: busybox
+    depends_on:
+      - sublimes3
+    networks:
+      - net
+    env_file: sublime.env
+    volumes:
+      - mc_config:/config
+    command:
+      - sh
+      - -c
+      - |
+        cat > /config/config.json <<EOF
+        {
+
+
+        	"version": "10",
+        	"aliases": {
+        		"myminio": {
+        			"url": "http://sublimes3:8110",
+        			"accessKey": "$$AWS_ACCESS_KEY_ID",
+        			"secretKey": "$$AWS_SECRET_ACCESS_KEY",
+        			"api": "s3v4",
+        			"path": "auto"
+        		}
+        	}
+        }
+        EOF
+        chmod 600 /config/config.json && chown -R 65532:65532 /config
+  sublime_create_buckets:
+    image: cgr.dev/chainguard/minio-client:latest
+    depends_on:
+      sublime_mc_config:
+        condition: service_completed_successfully
+      sublime_s3_ready:
+        condition: service_completed_successfully
+    networks:
+      - net
+    volumes:
+      - mc_config:/config
+    environment:
+      MC_CONFIG_DIR: /config
+    # --ignore-existing keeps this idempotent across repeated `docker compose up` runs, since
+    # this container reruns `mb` against buckets that already exist from a prior run.
+    command:
+      - mb
+      - --ignore-existing
+      - myminio/email-screenshots
+      - myminio/events
+      - myminio/message-storage
+      - myminio/message-export
+      - myminio/nipper-artifacts
+  sublime_hydra:
+    image: sublimesec/hydra-cpu:dev
+    restart: unless-stopped
+    networks:
+      - net
+    container_name: sublime_hydra
+    environment:
+      WORKERS: 2
+      WEB_CONCURRENCY: 5
+      KEEP_ALIVE: 2
+    ports:
+      - 8200:8200
+  # sublime_mc_config on main only writes mc's config.json; it doesn't wait for MinIO to be ready
+  # (dev bakes that wait into sublime_mc_config's command instead). Waiting here, as its own
+  # service, means this overlay doesn't need to duplicate main's chainguard config-writing script
+  # to add a wait loop to it, and stays correct however that script changes on main.
+  sublime_s3_ready:
+    image: busybox
+    networks:
+      - net
+    depends_on:
+      - sublimes3
+    command:
+      - sh
+      - -c
+      - |
+        attempt=1; max_attempts=60; until wget -q -O /dev/null http://sublimes3:8110/minio/health/ready; do attempt=$$((attempt + 1)); if [ $$attempt -gt $$max_attempts ]; then echo 'sublime_s3_ready: MinIO did not become ready in time' >&2; exit 1; fi; sleep 2; done
+  sublime_nipper:
+    image: 948971135452.dkr.ecr.us-east-1.amazonaws.com/nipper-python-dev:dev
+    restart: unless-stopped
+    container_name: sublime_nipper
+    env_file: sublime.env
+    ports:
+      - 8300:8000
+    networks:
+      - net
+    environment:
+      NIPPER_BUCKET: nipper-artifacts
+      BUCKET_ENDPOINT_URL: http://sublimes3:8110
+      TIKA_ENDPOINT: http://sublime_tika:9998
+      DD_TRACE_ENABLED: false
+    depends_on:
+      - sublime_create_buckets
+      - sublime_tika
+  sublime_tika:
+    image: apache/tika:3.3.1.0-full
+    restart: unless-stopped
+    container_name: sublime_tika
+    ports:
+      - 9998:9998
+    networks:
+      - net
+  sublime_azurite:
+    container_name: sublime_azurite
+    image: mcr.microsoft.com/azure-storage/azurite
+    restart: unless-stopped
+    networks:
+      - net
+    ports:
+      - 10000:10000 # Blob service
+      - 10001:10001 # Queue service
+      - 10002:10002 # Table service
+    volumes:
+      - azurite_data:/data
+    command: azurite --blobHost 0.0.0.0 --queueHost 0.0.0.0 --tableHost 0.0.0.0 --location /data --skipApiVersionCheck
+  sublime_create_azure_blob_containers:
+    image: mcr.microsoft.com/azure-cli
+    depends_on:
+      - sublime_azurite
+    networks:
+      - net
+    environment:
+      # Azurite's well-known, publicly documented emulator account key - not a real secret.
+      AZURE_STORAGE_CONNECTION_STRING: DefaultEndpointsProtocol=http;AccountName=devstoreaccount1;AccountKey=Eby8vdM02xNOcqFlqUwJPLlmEtlCDXJ1OUzFT50uSRZ6IFsuFq2UVErCz4I6tq/K1SZFPTOtr/KBHBeksoGMGw==;BlobEndpoint=http://sublime_azurite:10000/devstoreaccount1;
+    command: |
+      bash -c " az storage container create --name email-screenshots && az storage container create --name events && az storage container create --name message-storage && az storage container create --name message-export && az storage container create --name nipper-artifacts "
+  sublime_localstack:
+    container_name: sublime_localstack
+    image: localstack/localstack:4.10.0
+    ports:
+      - 127.0.0.1:4566:4566 # LocalStack Gateway
+      - 127.0.0.1:4510-4559:4510-4559 # external services port range
+    networks:
+      - net
+    environment:
+      # LocalStack configuration: https://docs.localstack.cloud/references/configuration/
+      - DEBUG=0
+    volumes:
+      - localstack:/var/lib/localstack
+  # docker compose up --wait treats any container it doesn't already expect to exit as failed the
+  # moment it exits, even with code 0 (https://github.com/docker/compose/issues/10596). Neither
+  # sublime_create_buckets nor sublime_create_azure_blob_containers has a dependent declared with
+  # condition: service_completed_successfully, so --wait has no way to know their exit is expected.
+  # This long-running sentinel supplies that dependent so --wait treats their completion as success.
+  sublime_storage_ready:
+    image: alpine:3.20
+    command:
+      - tail
+      - -f
+      - /dev/null
+    networks:
+      - net
+    depends_on:
+      sublime_create_buckets:
+        condition: service_completed_successfully
+      sublime_create_azure_blob_containers:
+        condition: service_completed_successfully
+networks:
+  net:
+    driver: bridge
+volumes:
+  logs:
+  s3_data:
+  s3_creds:
+  mc_config:
+  localstack:
+  azurite_data:
+  postgres_e2e:

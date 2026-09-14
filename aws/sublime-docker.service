@@ -1,0 +1,9 @@
+[Unit]
+Description=Start Sublime Platform
+
+[Service]
+Type=oneshot
+ExecStart=/home/ubuntu/Sublime-Security/docker_compose_update.sh
+
+[Install]
+WantedBy=multi-user.target
