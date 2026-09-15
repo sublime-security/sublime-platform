@@ -1,0 +1,161 @@
+services:
+  sublime_postgres:
+    ports:
+      - "5432:5432"
+  sublime_dashboard:
+    image: sublimesec/dashboard:dev
+    environment:
+      MANTIS_HOST_URL: "http://host.docker.internal:8000"
+  sublime_redis:
+    ports:
+      - "6379:6379"
+  sublime_strelka_frontend:
+    ports:
+      - "57314:57314"
+  sublime_screenshot_service:
+    ports:
+      - "8100:8100"
+    environment:
+      - S3_ENDPOINT=http://sublimes3:8110
+      - SCREENSHOT_BUCKET=email-screenshots
+      - AWS_REGION=us-east-1
+      - DISABLE_DD=true
+    env_file: sublime.env
+    depends_on:
+      - sublime_create_buckets
+  sublimes3:
+    ports:
+      - "8110:8110"
+  sublime_create_buckets:
+    # --ignore-existing keeps this idempotent across repeated `docker compose up` runs, since
+    # this container reruns `mb` against buckets that already exist from a prior run.
+    command:
+      [
+        "mb",
+        "--ignore-existing",
+        "myminio/email-screenshots",
+        "myminio/events",
+        "myminio/message-storage",
+        "myminio/message-export",
+        "myminio/nipper-artifacts",
+      ]
+    depends_on:
+      sublime_s3_ready:
+        condition: service_completed_successfully
+  # sublime_mc_config on main only writes mc's config.json; it doesn't wait for MinIO to be ready
+  # (dev bakes that wait into sublime_mc_config's command instead). Waiting here, as its own
+  # service, means this overlay doesn't need to duplicate main's chainguard config-writing script
+  # to add a wait loop to it, and stays correct however that script changes on main.
+  sublime_s3_ready:
+    image: busybox
+    networks:
+      - net
+    depends_on:
+      - sublimes3
+    command:
+      - sh
+      - -c
+      - >
+        attempt=1;
+        max_attempts=60;
+        until wget -q -O /dev/null http://sublimes3:8110/minio/health/ready; do
+        attempt=$$((attempt + 1));
+        if [ $$attempt -gt $$max_attempts ]; then
+        echo 'sublime_s3_ready: MinIO did not become ready in time' >&2;
+        exit 1;
+        fi;
+        sleep 2;
+        done
+  sublime_nipper:
+    image: 948971135452.dkr.ecr.us-east-1.amazonaws.com/nipper-python-dev:dev
+    restart: unless-stopped
+    container_name: sublime_nipper
+    env_file: sublime.env
+    ports:
+      - "8300:8000"
+    networks:
+      - net
+    environment:
+      NIPPER_BUCKET: "nipper-artifacts"
+      BUCKET_ENDPOINT_URL: "http://sublimes3:8110"
+      TIKA_ENDPOINT: "http://sublime_tika:9998"
+      DD_TRACE_ENABLED: false
+    depends_on:
+      - sublime_create_buckets
+      - sublime_tika
+  sublime_tika:
+    image: apache/tika:3.3.1.0-full
+    restart: unless-stopped
+    container_name: sublime_tika
+    ports:
+      - "9998:9998"
+    networks:
+      - net
+  sublime_azurite:
+    container_name: sublime_azurite
+    image: mcr.microsoft.com/azure-storage/azurite
+    restart: unless-stopped
+    networks:
+      - net
+    ports:
+      - "10000:10000" # Blob service
+      - "10001:10001" # Queue service
+      - "10002:10002" # Table service
+    volumes:
+      - azurite_data:/data
+    command: azurite --blobHost 0.0.0.0 --queueHost 0.0.0.0 --tableHost 0.0.0.0 --location /data --skipApiVersionCheck
+  sublime_create_azure_blob_containers:
+    image: mcr.microsoft.com/azure-cli
+    depends_on:
+      - sublime_azurite
+    networks:
+      - net
+    environment:
+      # Azurite's well-known, publicly documented emulator account key - not a real secret.
+      AZURE_STORAGE_CONNECTION_STRING: "DefaultEndpointsProtocol=http;AccountName=devstoreaccount1;AccountKey=Eby8vdM02xNOcqFlqUwJPLlmEtlCDXJ1OUzFT50uSRZ6IFsuFq2UVErCz4I6tq/K1SZFPTOtr/KBHBeksoGMGw==;BlobEndpoint=http://sublime_azurite:10000/devstoreaccount1;"
+    command: >
+      bash -c "
+      az storage container create --name email-screenshots &&
+      az storage container create --name events &&
+      az storage container create --name message-storage &&
+      az storage container create --name message-export &&
+      az storage container create --name nipper-artifacts
+      "
+  sublime_localstack:
+    container_name: sublime_localstack
+    image: localstack/localstack:4.10.0
+    ports:
+      - "127.0.0.1:4566:4566" # LocalStack Gateway
+      - "127.0.0.1:4510-4559:4510-4559" # external services port range
+    networks:
+      - net
+    environment:
+      # LocalStack configuration: https://docs.localstack.cloud/references/configuration/
+      - DEBUG=0
+    volumes:
+      - localstack:/var/lib/localstack
+  # docker compose up --wait treats any container it doesn't already expect to exit as failed the
+  # moment it exits, even with code 0 (https://github.com/docker/compose/issues/10596). Neither
+  # sublime_create_buckets nor sublime_create_azure_blob_containers has a dependent declared with
+  # condition: service_completed_successfully, so --wait has no way to know their exit is expected.
+  # This long-running sentinel supplies that dependent so --wait treats their completion as success.
+  sublime_storage_ready:
+    image: alpine:3.20
+    command: ["tail", "-f", "/dev/null"]
+    networks:
+      - net
+    depends_on:
+      sublime_create_buckets:
+        condition: service_completed_successfully
+      sublime_create_azure_blob_containers:
+        condition: service_completed_successfully
+  sublime_hydra:
+    image: sublimesec/hydra-cpu:dev
+    ports:
+      - "8200:8200"
+    environment:
+      WORKERS: 2
+
+volumes:
+  localstack:
+  azurite_data:

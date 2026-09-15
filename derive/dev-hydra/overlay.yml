@@ -1,0 +1,7 @@
+services:
+  sublime_postgres:
+    volumes:
+      - postgres_e2e:/data/postgres # different volume than dev-be to avoid overwriting data
+
+volumes:
+  postgres_e2e:

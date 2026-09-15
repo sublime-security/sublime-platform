@@ -3,6 +3,8 @@ name: Platform PR CI
 on:
   push:
     branches: [ "**" ]
+  pull_request:
+    branches: [main]
   workflow_dispatch: {}
 
 concurrency:
@@ -12,6 +14,7 @@ concurrency:
 jobs:
   tests:
     name: Validate Platform Installation
+    if: github.event_name != 'pull_request'
     runs-on: ubuntu-latest
 
     steps:
@@ -27,3 +30,25 @@ jobs:
       - name: Check Health
         run: |
           ./postflight_checks.sh
+
+  derive-drift-check:
+    name: Derive drift check (${{ matrix.target }})
+    if: github.event_name == 'pull_request'
+    runs-on: ubuntu-latest
+    permissions:
+      contents: read
+    strategy:
+      fail-fast: false
+      matrix:
+        target: [dev-be, dev-hydra]
+
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v6
+        with:
+          persist-credentials: false
+
+      - name: Verify derivation
+        env:
+          TARGET: ${{ matrix.target }}
+        run: ./derive/verify.sh "$TARGET"
