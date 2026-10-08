@@ -1,18 +1,24 @@
 services:
+  sublime_strelka_backend:
+    image: 948971135452.dkr.ecr.us-east-1.amazonaws.com/strelka-backend:0.3
+  sublime_strelka_manager:
+    image: 948971135452.dkr.ecr.us-east-1.amazonaws.com/strelka-manager:0.3
   sublime_postgres:
     ports:
       - "5432:5432"
   sublime_dashboard:
-    image: sublimesec/dashboard:dev
+    image: 218657342945.dkr.ecr.us-east-1.amazonaws.com/dashboard:dev
     environment:
       MANTIS_HOST_URL: "http://host.docker.internal:8000"
   sublime_redis:
     ports:
       - "6379:6379"
   sublime_strelka_frontend:
+    image: 948971135452.dkr.ecr.us-east-1.amazonaws.com/strelka-frontend:0.3
     ports:
       - "57314:57314"
   sublime_screenshot_service:
+    image: 948971135452.dkr.ecr.us-east-1.amazonaws.com/render-email-html:0.2
     ports:
       - "8100:8100"
     environment:
@@ -150,7 +156,7 @@ services:
       sublime_create_azure_blob_containers:
         condition: service_completed_successfully
   sublime_hydra:
-    image: sublimesec/hydra-cpu:dev
+    image: 218657342945.dkr.ecr.us-east-1.amazonaws.com/hydra-cpu:dev
     ports:
       - "8200:8200"
     environment:
