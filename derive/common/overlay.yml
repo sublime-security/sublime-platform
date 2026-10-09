@@ -3,7 +3,7 @@ services:
     ports:
       - "5432:5432"
   sublime_dashboard:
-    image: sublimesec/dashboard:dev
+    image: 948971135452.dkr.ecr.us-east-1.amazonaws.com/dashboard-staging:dev
     environment:
       MANTIS_HOST_URL: "http://host.docker.internal:8000"
   sublime_redis:
@@ -150,7 +150,7 @@ services:
       sublime_create_azure_blob_containers:
         condition: service_completed_successfully
   sublime_hydra:
-    image: sublimesec/hydra-cpu:dev
+    image: 948971135452.dkr.ecr.us-east-1.amazonaws.com/hydra-cpu-staging:dev
     ports:
       - "8200:8200"
     environment:
