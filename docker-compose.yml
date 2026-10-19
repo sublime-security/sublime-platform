@@ -16,7 +16,7 @@ services:
     ports:
       - 5432:5432
   sublime_dashboard:
-    image: sublimesec/dashboard:dev
+    image: 948971135452.dkr.ecr.us-east-1.amazonaws.com/dashboard-staging:dev
     restart: unless-stopped
     container_name: sublime_dashboard
     ports:
@@ -198,7 +198,7 @@ services:
       - myminio/message-export
       - myminio/nipper-artifacts
   sublime_hydra:
-    image: sublimesec/hydra-cpu:dev
+    image: 948971135452.dkr.ecr.us-east-1.amazonaws.com/hydra-cpu-staging:dev
     restart: unless-stopped
     networks:
       - net
