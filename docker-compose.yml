@@ -12,6 +12,7 @@ services:
       SCREENSHOT_SERVICE_ENDPOINT: http://sublime_screenshot_service:8100/capture
       SCREENSHOT_SERVICE_BUCKET: email-screenshots
       MESSAGE_STORAGE_BUCKET: email-msgs
+      CLICK_TRACKING_DLP_NOTIFICATION_ARTIFACTS_BUCKET: dlp-notification-artifacts
       S3_ENDPOINT: http://sublimes3:8110
       USE_SELF_IMAGE_LINKS: "true"
       AWS_REGION: us-east-1
@@ -41,6 +42,7 @@ services:
       SCREENSHOT_SERVICE_ENDPOINT: http://sublime_screenshot_service:8100/capture
       SCREENSHOT_SERVICE_BUCKET: email-screenshots
       MESSAGE_STORAGE_BUCKET: email-msgs
+      CLICK_TRACKING_DLP_NOTIFICATION_ARTIFACTS_BUCKET: dlp-notification-artifacts
       S3_ENDPOINT: http://sublimes3:8110
       AWS_REGION: us-east-1
       HYDRA_URL: http://sublime_hydra:8200
@@ -228,7 +230,15 @@ services:
       - mc_config:/config
     environment:
       MC_CONFIG_DIR: /config
-    command: ["mb", "myminio/email-screenshots", "myminio/email-msgs"]
+    # --ignore-existing so upgrades, where the first two buckets already exist, still create the new one.
+    command:
+      [
+        "mb",
+        "--ignore-existing",
+        "myminio/email-screenshots",
+        "myminio/email-msgs",
+        "myminio/dlp-notification-artifacts",
+      ]
   sublime_hydra:
     image: sublimesec/hydra-cpu:1.2
     restart: unless-stopped

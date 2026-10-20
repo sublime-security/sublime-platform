@@ -33,6 +33,7 @@ fi
 [ "$(yq '.services.sublime_postgres.ports' docker-compose.yml | grep -c '5432:5432')" = "1" ]
 [ "$(yq '.services.sublimes3.ports' docker-compose.yml | grep -c '8110:8110')" = "1" ]
 [ "$(yq '.services.sublime_create_buckets.command' docker-compose.yml | grep -c -- '--ignore-existing')" = "1" ]
+[ "$(yq '.services.sublime_create_buckets.command' docker-compose.yml | grep -c 'myminio/dlp-notification-artifacts')" = "1" ]
 for svc in sublime_mantis sublime_bora_lite sublime_nginx_letsencrypt sublime_nginx_custom_ssl; do
   [ "$(yq ".services | has(\"$svc\")" docker-compose.yml)" = "false" ]
 done

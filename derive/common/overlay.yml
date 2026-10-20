@@ -38,6 +38,7 @@ services:
         "myminio/message-storage",
         "myminio/message-export",
         "myminio/nipper-artifacts",
+        "myminio/dlp-notification-artifacts",
       ]
     depends_on:
       sublime_s3_ready:
