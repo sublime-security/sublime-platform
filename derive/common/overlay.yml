@@ -10,8 +10,13 @@ services:
     ports:
       - "6379:6379"
   sublime_strelka_frontend:
+    image: 948971135452.dkr.ecr.us-east-1.amazonaws.com/strelka-frontend:0.3
     ports:
       - "57314:57314"
+  sublime_strelka_backend:
+    image: 948971135452.dkr.ecr.us-east-1.amazonaws.com/strelka-backend:0.3
+  sublime_strelka_manager:
+    image: 948971135452.dkr.ecr.us-east-1.amazonaws.com/strelka-manager:0.3
   sublime_screenshot_service:
     ports:
       - "8100:8100"
