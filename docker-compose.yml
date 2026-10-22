@@ -36,7 +36,7 @@ services:
     ports:
       - 6379:6379
   sublime_strelka_frontend:
-    image: sublimesec/strelka-frontend:0.3
+    image: 948971135452.dkr.ecr.us-east-1.amazonaws.com/strelka-frontend:0.3
     restart: unless-stopped
     command: strelka-frontend
     networks:
@@ -51,7 +51,7 @@ services:
     ports:
       - 57314:57314
   sublime_strelka_backend:
-    image: sublimesec/strelka-backend:0.3
+    image: 948971135452.dkr.ecr.us-east-1.amazonaws.com/strelka-backend:0.3
     restart: unless-stopped
     command: strelka-backend
     shm_size: 512mb
@@ -64,7 +64,7 @@ services:
     deploy:
       replicas: 2
   sublime_strelka_manager:
-    image: sublimesec/strelka-manager:0.3
+    image: 948971135452.dkr.ecr.us-east-1.amazonaws.com/strelka-manager:0.3
     restart: unless-stopped
     command: strelka-manager
     container_name: sublime_strelka_manager_1
