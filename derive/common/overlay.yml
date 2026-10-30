@@ -18,6 +18,7 @@ services:
   sublime_strelka_manager:
     image: 948971135452.dkr.ecr.us-east-1.amazonaws.com/strelka-manager:0.3
   sublime_screenshot_service:
+    image: 948971135452.dkr.ecr.us-east-1.amazonaws.com/render-email-html:0.2
     ports:
       - "8100:8100"
     environment:
