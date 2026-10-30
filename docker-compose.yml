@@ -82,7 +82,7 @@ services:
     networks:
       - net
   sublime_screenshot_service:
-    image: sublimesec/render-email-html:0.2
+    image: 948971135452.dkr.ecr.us-east-1.amazonaws.com/render-email-html:0.2
     restart: unless-stopped
     environment:
       - S3_ENDPOINT=http://sublimes3:8110
