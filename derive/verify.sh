@@ -30,6 +30,7 @@ fi
 [ "$(yq '.services.sublime_hydra.environment.WORKERS' docker-compose.yml)" = "2" ]
 [ "$(yq '.services.sublime_dashboard.image' docker-compose.yml | grep -c ':dev$')" = "1" ]
 [ "$(yq '.services.sublime_hydra.image' docker-compose.yml | grep -c ':dev$')" = "1" ]
+[ "$(yq '.services.sublime_screenshot_service.image' docker-compose.yml)" = "948971135452.dkr.ecr.us-east-1.amazonaws.com/render-email-html:0.2" ]
 [ "$(yq '.services.sublime_postgres.ports' docker-compose.yml | grep -c '5432:5432')" = "1" ]
 [ "$(yq '.services.sublimes3.ports' docker-compose.yml | grep -c '8110:8110')" = "1" ]
 [ "$(yq '.services.sublime_create_buckets.command' docker-compose.yml | grep -c -- '--ignore-existing')" = "1" ]
