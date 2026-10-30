@@ -31,6 +31,9 @@ fi
 [ "$(yq '.services.sublime_dashboard.image' docker-compose.yml | grep -c ':dev$')" = "1" ]
 [ "$(yq '.services.sublime_hydra.image' docker-compose.yml | grep -c ':dev$')" = "1" ]
 [ "$(yq '.services.sublime_screenshot_service.image' docker-compose.yml)" = "948971135452.dkr.ecr.us-east-1.amazonaws.com/render-email-html:0.2" ]
+for component in frontend backend manager; do
+  [ "$(yq ".services.sublime_strelka_$component.image" docker-compose.yml)" = "948971135452.dkr.ecr.us-east-1.amazonaws.com/strelka-$component:0.3" ]
+done
 [ "$(yq '.services.sublime_postgres.ports' docker-compose.yml | grep -c '5432:5432')" = "1" ]
 [ "$(yq '.services.sublimes3.ports' docker-compose.yml | grep -c '8110:8110')" = "1" ]
 [ "$(yq '.services.sublime_create_buckets.command' docker-compose.yml | grep -c -- '--ignore-existing')" = "1" ]
@@ -43,5 +46,13 @@ done
 # as strings rather than resolving them as YAML 1.1 sexagesimal ints, but this is cheap insurance
 # against a future toolchain change silently doing otherwise.
 [ "$(yq '[.services[].ports // [] | .[] | select(tag != "!!str")] | length' docker-compose.yml)" = "0" ]
+
+# Reject DockerHub references for any Sublime image, including explicitly qualified ones.
+sublimesec_images=$(yq '.services[].image | select(test("(^|/)sublimesec/"))' docker-compose.yml)
+if [ -n "$sublimesec_images" ]; then
+  echo "::error::Derived $target still references sublimesec images; use ECR instead:" >&2
+  echo "$sublimesec_images" >&2
+  exit 1
+fi
 
 echo "verify.sh: $target OK"
