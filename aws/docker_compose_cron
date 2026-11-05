@@ -1,0 +1,1 @@
+*/10 * * * * root /home/ubuntu/Sublime-Security/docker_compose_update.sh

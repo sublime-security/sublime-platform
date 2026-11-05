@@ -1,0 +1,17 @@
+[ req ]
+prompt             = no
+default_bits       = 2048
+distinguished_name = req_distinguished_name
+req_extensions     = req_ext
+[ req_distinguished_name ]
+countryName                = US
+localityName               = Washington, DC
+organizationName           = Sublime Security
+commonName                 = Sublime Platform
+emailAddress               = support@sublimesecurity.com
+[ req_ext ]
+extendedKeyUsage = serverAuth
+subjectAltName = @alt_names
+[alt_names]
+DNS.1 = example.com
+

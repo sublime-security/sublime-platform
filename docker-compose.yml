@@ -1,0 +1,270 @@
+services:
+  sublime_mantis:
+    image: 948971135452.dkr.ecr.us-east-1.amazonaws.com/mantis:1.90
+    restart: unless-stopped
+    container_name: sublime_mantis
+    environment:
+      POSTGRES_HOST: sublime_postgres
+      POSTGRES_USER: sublime
+      POSTGRES_DB: mantis
+      REDIS_HOST: sublime_redis
+      STRELKA_URL: sublime_strelka_frontend
+      SCREENSHOT_SERVICE_ENDPOINT: http://sublime_screenshot_service:8100/capture
+      SCREENSHOT_SERVICE_BUCKET: email-screenshots
+      MESSAGE_STORAGE_BUCKET: email-msgs
+      S3_ENDPOINT: http://sublimes3:8110
+      USE_SELF_IMAGE_LINKS: "true"
+      AWS_REGION: us-east-1
+      HYDRA_URL: http://sublime_hydra:8200
+      DEPLOYMENT_INFRA_TYPE: "DOCKER_COMPOSE"
+      LOG_LEVEL: "WARN"
+      HYDRA_CLIENT_TIMEOUT_OVERRIDE_SEC: 30
+    env_file: sublime.env
+    ports:
+      - "0.0.0.0:8000:8000"
+    networks:
+      - net
+    depends_on:
+      - sublime_postgres
+      - sublime_strelka_backend
+      - sublime_strelka_frontend
+  sublime_bora_lite:
+    image: 948971135452.dkr.ecr.us-east-1.amazonaws.com/bora-lite:1.90
+    restart: unless-stopped
+    container_name: sublime_bora_lite
+    environment:
+      POSTGRES_HOST: sublime_postgres
+      POSTGRES_USER: sublime
+      POSTGRES_DB: mantis
+      REDIS_HOST: sublime_redis
+      STRELKA_URL: sublime_strelka_frontend
+      SCREENSHOT_SERVICE_ENDPOINT: http://sublime_screenshot_service:8100/capture
+      SCREENSHOT_SERVICE_BUCKET: email-screenshots
+      MESSAGE_STORAGE_BUCKET: email-msgs
+      S3_ENDPOINT: http://sublimes3:8110
+      AWS_REGION: us-east-1
+      HYDRA_URL: http://sublime_hydra:8200
+      DEPLOYMENT_INFRA_TYPE: "DOCKER_COMPOSE"
+      LOG_LEVEL: "WARN"
+      HYDRA_CLIENT_TIMEOUT_OVERRIDE_SEC: 30
+    env_file: sublime.env
+    networks:
+      - net
+    depends_on:
+      - sublime_mantis
+      - sublime_redis
+      - sublime_strelka_backend
+      - sublime_strelka_frontend
+  sublime_postgres:
+    image: postgres:13.2
+    command: -c 'max_connections=200'
+    restart: unless-stopped
+    container_name: sublime_postgres
+    environment:
+      POSTGRES_USER: sublime
+      POSTGRES_DB: mantis
+      PGDATA: /data/postgres
+    env_file: sublime.env
+    volumes:
+      - postgres:/data/postgres
+    networks:
+      - net
+  sublime_dashboard:
+    image: 948971135452.dkr.ecr.us-east-1.amazonaws.com/dashboard:1.90
+    restart: unless-stopped
+
+    container_name: sublime_dashboard
+    ports:
+      - "0.0.0.0:3000:80"
+    networks:
+      - net
+    env_file: sublime.env
+    environment:
+      MANTIS_HOST_URL: "http://sublime_mantis:8000"
+    depends_on:
+      - sublime_mantis
+  sublime_redis:
+    image: redis:6.2
+    restart: unless-stopped
+    container_name: sublime_redis
+    command: redis-server --loglevel warning
+    networks:
+      - net
+  sublime_strelka_frontend:
+    image: 948971135452.dkr.ecr.us-east-1.amazonaws.com/strelka-frontend:0.3
+    restart: unless-stopped
+    command: strelka-frontend
+    networks:
+      - net
+    volumes:
+      - ./configs/frontend/:/etc/strelka/:ro
+      - logs:/var/log/strelka/
+    depends_on:
+      - sublime_strelka_coordinator
+    deploy:
+      replicas: 1
+  sublime_strelka_backend:
+    image: 948971135452.dkr.ecr.us-east-1.amazonaws.com/strelka-backend:0.3
+    restart: unless-stopped
+    command: strelka-backend
+    shm_size: 512mb
+    networks:
+      - net
+    volumes:
+      - ./configs/backend/:/etc/strelka/:ro
+    depends_on:
+      - sublime_strelka_coordinator
+    deploy:
+      replicas: 2
+  sublime_strelka_manager:
+    image: 948971135452.dkr.ecr.us-east-1.amazonaws.com/strelka-manager:0.3
+    restart: unless-stopped
+    command: strelka-manager
+    container_name: sublime_strelka_manager_1
+    networks:
+      - net
+    volumes:
+      - ./configs/manager/:/etc/strelka/:ro
+    depends_on:
+      - sublime_strelka_coordinator
+  sublime_strelka_coordinator:
+    image: redis:alpine
+    restart: unless-stopped
+    command: redis-server --save "" --appendonly no
+    container_name: sublime_strelka_coordinator_1
+    networks:
+      - net
+  sublime_screenshot_service:
+    image: 948971135452.dkr.ecr.us-east-1.amazonaws.com/render-email-html:0.2
+    restart: unless-stopped
+    environment:
+      - DISABLE_DD=true
+    container_name: sublime_screenshot_service
+    networks:
+      - net
+  # cgr.dev/chainguard/minio has no shell, so anything needing one - fixing up volume
+  # ownership for minio's non-root UID, and writing MINIO_ROOT_USER/PASSWORD out to files from
+  # the AWS_* vars already in sublime.env - happens here instead, before minio itself starts.
+  sublimes3_init:
+    image: busybox
+    container_name: sublimes3_init
+    networks:
+      - net
+    env_file: sublime.env
+    volumes:
+      - s3_data:/data
+      - s3_creds:/creds
+    command:
+      - sh
+      - -c
+      - >
+        printf '%s' "$$AWS_ACCESS_KEY_ID" > /creds/root_user &&
+        printf '%s' "$$AWS_SECRET_ACCESS_KEY" > /creds/root_password &&
+        chmod 400 /creds/root_user /creds/root_password &&
+        chown -R 65532:65532 /creds /data
+  # Keep this name as sublimes3 because underscores don't play nice with certain endpoint validation
+  sublimes3:
+    container_name: sublimes3
+    image: cgr.dev/chainguard/minio:latest
+    restart: unless-stopped
+    networks:
+      - net
+    volumes:
+      - s3_data:/data
+      - s3_creds:/creds:ro
+    environment:
+      MINIO_ROOT_USER_FILE: /creds/root_user
+      MINIO_ROOT_PASSWORD_FILE: /creds/root_password
+    depends_on:
+      sublimes3_init:
+        condition: service_completed_successfully
+    command: ["server", "--address", "0.0.0.0:8110", "--console-address", "0.0.0.0:8111", "/data"]
+  # cgr.dev/chainguard/minio-client has no shell, so it can't run `mc alias set` (which needs
+  # shell interpolation of the AWS_* secrets into CLI args), and we don't want that secret ever
+  # needing to land in sublime.env either. This throwaway busybox step hand-writes mc's
+  # config.json straight from the AWS_* vars already in sublime.env; chainguard's mc then just
+  # reads it via MC_CONFIG_DIR below. mc still needs to create its own share/certs scratch dirs
+  # under this path at runtime, so the volume can't be mounted read-only.
+  sublime_mc_config:
+    image: busybox
+    depends_on:
+      - sublimes3
+    networks:
+      - net
+    env_file: sublime.env
+    volumes:
+      - mc_config:/config
+    command:
+      - sh
+      - -c
+      - >
+        cat > /config/config.json <<EOF
+
+        {
+        	"version": "10",
+        	"aliases": {
+        		"myminio": {
+        			"url": "http://sublimes3:8110",
+        			"accessKey": "$$AWS_ACCESS_KEY_ID",
+        			"secretKey": "$$AWS_SECRET_ACCESS_KEY",
+        			"api": "s3v4",
+        			"path": "auto"
+        		}
+        	}
+        }
+
+        EOF
+
+        chmod 600 /config/config.json &&
+        chown -R 65532:65532 /config
+  sublime_create_buckets:
+    image: cgr.dev/chainguard/minio-client:latest
+    depends_on:
+      sublime_mc_config:
+        condition: service_completed_successfully
+    networks:
+      - net
+    volumes:
+      - mc_config:/config
+    environment:
+      MC_CONFIG_DIR: /config
+    command: ["mb", "myminio/email-screenshots", "myminio/email-msgs"]
+  sublime_hydra:
+    image: 948971135452.dkr.ecr.us-east-1.amazonaws.com/hydra-cpu:1.2
+    restart: unless-stopped
+    networks:
+      - net
+    container_name: sublime_hydra
+    environment:
+      WORKERS: 1
+      WEB_CONCURRENCY: 5
+      KEEP_ALIVE: 2
+      WORKER_TIMEOUT: 30
+      GRACEFUL_WORKER_TIMEOUT: 30
+  sublime_nginx_custom_ssl:
+    image: sublime_nginx_custom_ssl:latest
+    restart: unless-stopped
+    profiles:
+      - nginx-custom-ssl
+    ports:
+      - "443:443"
+    depends_on:
+      - sublime_mantis
+      - sublime_dashboard
+    container_name: sublime_nginx_custom_ssl
+    volumes:
+      - /etc/nginx-custom-ssl/:/etc/nginx-custom-ssl/
+    networks:
+      - net
+
+networks:
+  net:
+    driver: bridge
+
+volumes:
+  postgres:
+  logs:
+  s3_data:
+  s3_creds:
+  mc_config:
+  persistent_storage:
