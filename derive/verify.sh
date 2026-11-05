@@ -26,9 +26,9 @@ if [ "$actual" != "$expected" ]; then
 fi
 
 if [ "$target" = "signals-ci" ]; then
-  # Only image fields and the retired letsencrypt service may differ: no dev overlay, deleted service, port change,
+  # Only image fields may differ: no dev overlay, deleted service, port change,
   # environment rewrite, or volume mutation can slip into this target.
-  diff <(yq -o=json 'del(.services.sublime_nginx_letsencrypt, .services[].image)' "$source_compose") \
+  diff <(yq -o=json 'del(.services[].image)' "$source_compose") \
        <(yq -o=json 'del(.services[].image)' docker-compose.yml)
   [ "$(yq '.services | has("sublime_nginx_letsencrypt")' docker-compose.yml)" = "false" ]
   while read -r svc; do

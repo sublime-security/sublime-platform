@@ -8,16 +8,8 @@ target=${1:?usage: derive.sh <target>}
 
 # signals-ci keeps the release Compose topology and settings, unlike the dev targets.
 if [ "$target" = "signals-ci" ]; then
-  # Preserve all release settings byte-for-byte, including folded command strings.
-  # The retired letsencrypt profile has no ECR equivalent or internal CI caller.
-  compose=$(mktemp)
-  awk '
-    /^  sublime_nginx_letsencrypt:$/ { skip=1; next }
-    skip && /^  [[:alnum:]_]+:$/ { skip=0 }
-    !skip { print }
-  ' docker-compose.yml | sed 's@^    image: sublimesec/@    image: 948971135452.dkr.ecr.us-east-1.amazonaws.com/@' > "$compose"
-  cat "$compose" > docker-compose.yml
-  rm -f "$compose"
+  # Keep release settings and tags, swapping only the image registry.
+  sed -i 's@^    image: sublimesec/@    image: 948971135452.dkr.ecr.us-east-1.amazonaws.com/@' docker-compose.yml
   transforms=""
 else
   transforms="common $target"
