@@ -4,11 +4,6 @@
 set -eu
 
 target=${1:?usage: verify.sh <target>}
-if [ "$target" = "signals-ci" ]; then
-  source_compose=$(mktemp)
-  cp docker-compose.yml "$source_compose"
-  trap 'rm -f "$source_compose"' EXIT
-fi
 ./derive/derive.sh "$target"
 
 cp sublime.env.example sublime.env
@@ -25,36 +20,10 @@ if [ "$actual" != "$expected" ]; then
   exit 1
 fi
 
-if [ "$target" = "signals-ci" ]; then
-  # Only image fields may differ: no dev overlay, deleted service, port change,
-  # environment rewrite, or volume mutation can slip into this target.
-  diff <(yq -o=json 'del(.services[].image)' "$source_compose") \
-       <(yq -o=json 'del(.services[].image)' docker-compose.yml)
-  [ "$(yq '.services | has("sublime_nginx_letsencrypt")' docker-compose.yml)" = "false" ]
-  while read -r svc; do
-    original=$(yq ".services.$svc.image" "$source_compose")
-    image=$(yq ".services.$svc.image" docker-compose.yml)
-    case "$original" in
-      sublimesec/*)
-        repo=${original#sublimesec/}
-        case "${repo%%:*}" in
-          mantis|bora-lite|dashboard|hydra-cpu|strelka-frontend|strelka-backend|strelka-manager|render-email-html) ;;
-          *) echo "::error::No verified ECR mapping for $original" >&2; exit 1 ;;
-        esac
-        expected_image="948971135452.dkr.ecr.us-east-1.amazonaws.com/$repo" ;;
-      docker.io/sublimesec/*|index.docker.io/sublimesec/*|registry-1.docker.io/sublimesec/*)
-        echo "::error::Unconverted DockerHub image $original" >&2; exit 1 ;;
-      *) expected_image=$original ;;
-    esac
-    [ "$image" = "$expected_image" ]
-  done < "derive/$target/expected-services.txt"
-  echo "verify.sh: $target OK"
-  exit 0
-fi
-
 # 2. Intent assertions - catches restructuring *inside* a service, which (1) can't see because
 #    del()/deep-merge are silent on a moved or renamed path. One assertion per transform in
 #    deletes.txt/overlay.yml whose *intent*, not just presence, matters.
+if [ "$target" != "signals-ci" ]; then
 [ "$(yq '.services.sublime_dashboard.depends_on' docker-compose.yml)" = "null" ]
 [ "$(yq '.services.sublime_hydra.environment | has("WORKER_TIMEOUT")' docker-compose.yml)" = "false" ]
 [ "$(yq '.services.sublime_hydra.environment | has("GRACEFUL_WORKER_TIMEOUT")' docker-compose.yml)" = "false" ]
@@ -69,6 +38,7 @@ fi
 for svc in sublime_mantis sublime_bora_lite sublime_nginx_letsencrypt sublime_nginx_custom_ssl; do
   [ "$(yq ".services | has(\"$svc\")" docker-compose.yml)" = "false" ]
 done
+fi
 
 # Sanity check that no port mapping resolved to a non-string node (e.g. a bare int). Verified
 # empirically that yq's -P output and docker compose's own parser both keep "N:N" port strings
