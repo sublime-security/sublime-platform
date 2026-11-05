@@ -21,7 +21,7 @@ jobs:
     strategy:
       fail-fast: false
       matrix:
-        target: [dev-be, dev-hydra]
+        target: [dev-be, dev-hydra, signals-ci]
 
     steps:
       - name: Checkout

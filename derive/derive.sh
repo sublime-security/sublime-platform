@@ -6,7 +6,16 @@ set -eu
 target=${1:?usage: derive.sh <target>}
 [ -d "derive/$target" ]
 
-for d in common "$target"; do
+# signals-ci keeps the release Compose topology and settings, unlike the dev targets.
+if [ "$target" = "signals-ci" ]; then
+  # Keep release settings and tags, swapping only the image registry.
+  sed -i 's@^    image: sublimesec/@    image: 948971135452.dkr.ecr.us-east-1.amazonaws.com/@' docker-compose.yml
+  transforms=""
+else
+  transforms="common $target"
+fi
+
+for d in $transforms; do
   f="derive/$d/deletes.txt"
   if [ -f "$f" ]; then
     paths=$(grep -v -E '^\s*(#|$)' "$f" | paste -sd, -)
@@ -16,7 +25,7 @@ for d in common "$target"; do
   fi
 done
 
-for d in common "$target"; do
+for d in $transforms; do
   f="derive/$d/overlay.yml"
   if [ -f "$f" ]; then
     # -P forces block-style output; without it, merging against a flow-style ({}) overlay

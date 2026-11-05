@@ -241,24 +241,6 @@ services:
       KEEP_ALIVE: 2
       WORKER_TIMEOUT: 30
       GRACEFUL_WORKER_TIMEOUT: 30
-  sublime_nginx_letsencrypt:
-    image: sublimesec/nginx-letsencrypt:latest
-    restart: unless-stopped
-    profiles:
-      - letsencrypt
-    ports:
-      - "80:80"
-      - "443:443"
-    depends_on:
-      - sublime_mantis
-      - sublime_dashboard
-    container_name: sublime_nginx_letsencrypt
-    env_file:
-      - "${LETSENCRYPT_ENV:-certbot.env.example}"
-    volumes:
-      - /etc/letsencrypt/:/etc/letsencrypt/
-    networks:
-      - net
   sublime_nginx_custom_ssl:
     image: sublime_nginx_custom_ssl:latest
     restart: unless-stopped

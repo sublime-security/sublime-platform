@@ -23,6 +23,7 @@ fi
 # 2. Intent assertions - catches restructuring *inside* a service, which (1) can't see because
 #    del()/deep-merge are silent on a moved or renamed path. One assertion per transform in
 #    deletes.txt/overlay.yml whose *intent*, not just presence, matters.
+if [ "$target" != "signals-ci" ]; then
 [ "$(yq '.services.sublime_dashboard.depends_on' docker-compose.yml)" = "null" ]
 [ "$(yq '.services.sublime_hydra.environment | has("WORKER_TIMEOUT")' docker-compose.yml)" = "false" ]
 [ "$(yq '.services.sublime_hydra.environment | has("GRACEFUL_WORKER_TIMEOUT")' docker-compose.yml)" = "false" ]
@@ -37,6 +38,7 @@ fi
 for svc in sublime_mantis sublime_bora_lite sublime_nginx_letsencrypt sublime_nginx_custom_ssl; do
   [ "$(yq ".services | has(\"$svc\")" docker-compose.yml)" = "false" ]
 done
+fi
 
 # Sanity check that no port mapping resolved to a non-string node (e.g. a bare int). Verified
 # empirically that yq's -P output and docker compose's own parser both keep "N:N" port strings
