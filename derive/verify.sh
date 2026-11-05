@@ -4,6 +4,11 @@
 set -eu
 
 target=${1:?usage: verify.sh <target>}
+if [ "$target" = "signals-ci" ]; then
+  source_compose=$(mktemp)
+  cp docker-compose.yml "$source_compose"
+  trap 'rm -f "$source_compose"' EXIT
+fi
 ./derive/derive.sh "$target"
 
 cp sublime.env.example sublime.env
@@ -18,6 +23,33 @@ if [ "$actual" != "$expected" ]; then
        "derive/$target/expected-services.txt or derive/common/deletes.txt." >&2
   diff <(echo "$expected") <(echo "$actual") || true
   exit 1
+fi
+
+if [ "$target" = "signals-ci" ]; then
+  # Only image fields and the retired letsencrypt service may differ: no dev overlay, deleted service, port change,
+  # environment rewrite, or volume mutation can slip into this target.
+  diff <(yq -o=json 'del(.services.sublime_nginx_letsencrypt, .services[].image)' "$source_compose") \
+       <(yq -o=json 'del(.services[].image)' docker-compose.yml)
+  [ "$(yq '.services | has("sublime_nginx_letsencrypt")' docker-compose.yml)" = "false" ]
+  while read -r svc; do
+    original=$(yq ".services.$svc.image" "$source_compose")
+    image=$(yq ".services.$svc.image" docker-compose.yml)
+    case "$original" in
+      sublimesec/*)
+        repo=${original#sublimesec/}
+        case "${repo%%:*}" in
+          mantis|bora-lite|dashboard|hydra-cpu|strelka-frontend|strelka-backend|strelka-manager|render-email-html) ;;
+          *) echo "::error::No verified ECR mapping for $original" >&2; exit 1 ;;
+        esac
+        expected_image="948971135452.dkr.ecr.us-east-1.amazonaws.com/$repo" ;;
+      docker.io/sublimesec/*|index.docker.io/sublimesec/*|registry-1.docker.io/sublimesec/*)
+        echo "::error::Unconverted DockerHub image $original" >&2; exit 1 ;;
+      *) expected_image=$original ;;
+    esac
+    [ "$image" = "$expected_image" ]
+  done < "derive/$target/expected-services.txt"
+  echo "verify.sh: $target OK"
+  exit 0
 fi
 
 # 2. Intent assertions - catches restructuring *inside* a service, which (1) can't see because

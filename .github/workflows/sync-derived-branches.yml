@@ -7,7 +7,7 @@ on:
 
 concurrency:
   group: sync-derived-branches
-  cancel-in-progress: false # never leave dev-be and dev-hydra at different SHAs
+  cancel-in-progress: false # serialize derived branch updates
 
 jobs:
   sync:
@@ -18,7 +18,7 @@ jobs:
     strategy:
       fail-fast: false
       matrix:
-        target: [dev-be, dev-hydra]
+        target: [dev-be, dev-hydra, signals-ci]
 
     steps:
       # This job pushes derived commits, so it needs a real token - overriding the repo's usual
