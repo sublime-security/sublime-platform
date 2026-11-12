@@ -56,7 +56,7 @@ services:
       - sublime_strelka_backend
       - sublime_strelka_frontend
   sublime_postgres:
-    image: postgres:13.2
+    image: postgres:16
     command: -c 'max_connections=200'
     restart: unless-stopped
     container_name: sublime_postgres
@@ -66,7 +66,10 @@ services:
       PGDATA: /data/postgres
     env_file: sublime.env
     volumes:
-      - postgres:/data/postgres
+      # Rename this volume when doing major PG upgrades so that we keep the
+      # volume from the old PG version around in case there's data the user
+      # wants to dump/restore.
+      - postgres16:/data/postgres
     networks:
       - net
   sublime_dashboard:
@@ -262,7 +265,7 @@ networks:
     driver: bridge
 
 volumes:
-  postgres:
+  postgres16:
   logs:
   s3_data:
   s3_creds:
